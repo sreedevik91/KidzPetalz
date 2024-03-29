@@ -1,0 +1,58 @@
+
+
+<%- include('../layout/formheader.ejs') %>
+
+<div class="pt-3 pb-5 px-sm-5">
+  <div class="row">
+    <div class="col-md-2"></div>
+      <div class="col-md-4 align-self-center">
+          <img src="images/p3.png" class="img-fluid" alt="login_image" />
+      </div>
+    
+      <div class="col-md-4">
+        <h4>Login</h4>
+          <form action="login" method="post">
+              <div class="form-group">
+                  <label for="recipient-name" class="col-form-label">Your Email</label>
+                  <input type="email" class="form-control" placeholder=" " name="email" id="recipient-name" required="">
+              </div>
+              <div class="form-group">
+                  <label class="col-form-label">Password</label>
+                  <input type="password" class="form-control" placeholder=" " name="password" required="">
+              </div>
+              <div class="right-w3l"><br>
+                  <input type="submit" class="form-control" value="Login">
+              </div>
+          </form>
+
+          <div>
+            <a class="button google" href="/auth/google">Sign in with Google</a>
+          </div>
+          <% if(message){%>
+            <div>
+              <p>
+              <span style="color: red;"><%= message%></span>
+            </p>
+              </div>
+            <%}else if(text){%>
+              <div>
+                <p>
+                <span style="color: red;"><%- text%></span>
+              </p>
+                </div>
+              <%}
+          %>
+          <br><br>
+          <div>
+          <a href="forgotPassword">Forgot Password ?</a>
+        </div>
+      </div>
+    
+         
+    
+      <div class="col-md-2"></div>
+  </div>
+</div>
+<div style="height: 100px;"></div>
+
+<%- include('../layout/formfooter.ejs') %>
