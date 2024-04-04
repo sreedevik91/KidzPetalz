@@ -30,6 +30,10 @@ const userSchema=mongoose.Schema({
     is_verified:{
         type:Boolean,
         default:false
+    },
+    is_blocked:{
+        type:Boolean,
+        default:false
     }
 
 },

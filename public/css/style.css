@@ -226,7 +226,7 @@ h5.shop_w3 {
 /* banner */
 
 .banner {
-    background: url(../images/bann1.jpg) no-repeat;
+    background: url(../images/bann3.jpg) no-repeat;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -246,7 +246,7 @@ h5.shop_w3 {
 }
 
 .banner3 {
-    background: url(../images/bann3.jpg) no-repeat;
+    background: url(../images/bann1.jpg) no-repeat;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;

@@ -47,6 +47,9 @@ router.route('/login')
 router.route('/submitOtp')
 .post(userController.verifyUser)
 
+router.route('/resendOtp')
+.post(userController.resendOtp)
+
 router.route('/verifyEmail')
 .get(userController.loadVerifyEmail)
 .post(userController.verifyEmail)
@@ -75,6 +78,8 @@ router.get('/girls',userController.loadGirls)
 router.get('/product',userController.loadProduct)
 
 router.get('/logout',userController.logout)
+
+router.get('*',userController.loadError)
 
 userRoute.use(router)
 

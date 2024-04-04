@@ -3,6 +3,7 @@ const app=express()
 const dotenv=require('dotenv')
 const mongoose=  require('mongoose')
 const userRoute=require('./routes/userRoute')
+const adminRoute=require('./routes/adminRoute')
 
 dotenv.config()
 
@@ -15,7 +16,7 @@ connect.then((data)=>{
 })
 
 app.use('/',userRoute)
-
+app.use('/admin',adminRoute)
 
 app.listen(process.env.PORT || 3333,()=>{
     console.log('server listening to port 3000');

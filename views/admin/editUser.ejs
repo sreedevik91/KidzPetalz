@@ -1,0 +1,50 @@
+<%-include("../layout/adminHeader.ejs")%>
+
+
+    <main id="main" class="main">
+
+        <h3><strong>Edit User</strong></h3>
+
+        <form action="" method="post" class="mt-5">
+            <div class="form-group">
+                <label class="col-form-label">Name</label>
+                <input type="text" class="form-control" name="name" value="<%=data.name%>" required>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Email</label>
+                <input type="email" class="form-control" value= "<%= data.email %>" name="email" required>
+            </div>
+            <div class="form-group">
+              <label class="col-form-label">Mobile</label>
+              <input type="number" class="form-control" value="<%= data.mobile %>" name="mobile" required>
+          </div>
+          <div class="form-group">
+            <input type="radio" value="true" name="verify" required <% if(data.is_verified===true){ %> checked <% } %> >
+            <label class="col-form-label">Verified</label>
+            <input type="radio" value="false" name="verify" required <% if (data.is_verified===false){ %> checked<% } %> >
+            <label class="col-form-label">Unverified</label>
+        </div>
+        <div class="form-group">
+            <input type="hidden" class="form-control" value="<%=data._id%>" name="id"  required>
+        </div>
+          <div style="display: flex;">
+            <div class="form-group">
+                <input type="submit" class="btn btn-success mt-4" value="Edit User">
+            </div>
+            <div class="form-group ms-5">
+                <a href="user" class="btn btn-primary mt-4" style="width:100px">Cancel</a>
+            </div>
+        </div>
+        </form>
+
+        
+        <div>
+            <p>
+                <span style="color: red;"><%= message %></span>
+            </p>
+        </div>
+    
+        
+    </main>
+
+    <%-include("../layout/adminFooter.ejs")%>

@@ -1,0 +1,41 @@
+<%-include("../layout/adminHeader.ejs")%>
+
+
+    <main id="main" class="main">
+
+        <h3><strong>Add Category</strong></h3>
+
+        <form action="" method="post" class="mt-5" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="recipient-name1" class="col-form-label">Name</label>
+                <input type="text" class="form-control" placeholder="Enter Category Name " name="name" id="recipient-name1" required="">
+            </div>
+            <div class="form-group">
+                <label for="recipient-desc" class="col-form-label">Description</label>
+                <input type="text" class="form-control" placeholder="Enter Description" name="description" id="recipient-desc" required="">
+            </div>
+            <div class="form-group">
+              <label for="recipient-image" class="col-form-label">Image</label>
+              <input type="file" class="form-control" placeholder="Enter Contact Number" name="image" id="recipient-image" required="">
+          </div>
+          <div style="display: flex;">
+            <div class="form-group">
+                <input type="submit" class="btn btn-success mt-4" value="Add Category">
+            </div>
+            <div class="form-group ms-5">
+                <a href="category" class="btn btn-primary mt-4" style="width:100px">Cancel</a>
+            </div>
+        </div>
+        </form>
+
+        
+        <div>
+            <p>
+                <span style="color: red;"><%= message %></span>
+            </p>
+        </div>
+    
+        
+    </main>
+
+    <%-include("../layout/adminFooter.ejs")%>

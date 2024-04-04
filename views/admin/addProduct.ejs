@@ -1,0 +1,65 @@
+<%-include("../layout/adminHeader.ejs")%>
+
+
+    <main id="main" class="main">
+
+        <h3><strong>Add Product</strong></h3>
+
+        <form action="" method="post" class="mt-5" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="recipient-name1" class="col-form-label">Title</label>
+                <input type="text" class="form-control" placeholder="Enter Category Name " name="title" id="recipient-name1" required="">
+            </div>
+            <div class="form-group">
+                <label for="recipient-description" class="col-form-label">Description</label>
+                <input type="text" class="form-control" placeholder="Enter Category Name " name="description" id="recipient-description" required="">
+            </div>
+            <div class="form-group">
+                <label for="recipient-tags" class="col-form-label">Tags</label>
+                <input type="text" class="form-control" placeholder="Enter Category Name " name="tags" id="recipient-tags" required="">
+            </div>
+            <div class="form-group">
+                <label for="recipient-price" class="col-form-label">Price</label>
+                <input type="number" class="form-control" placeholder="Enter Category Name " name="price" id="recipient-price" required="">
+            </div>
+            <div class="form-group">
+                <label for="recipient-discount" class="col-form-label">Discount</label>
+                <input type="text" class="form-control" placeholder="Enter Description" name="discount" id="recipient-discount" required="">
+            </div>
+            <div class="form-group">
+                <label for="recipient-quantity" class="col-form-label">Quantity</label>
+                <input type="number" class="form-control" placeholder="Enter Category Name " name="quantity" id="recipient-quantity" required="">
+            </div>
+            <div class="form-group">
+                <label for="recipient-category" class="col-form-label">Category ID</label>
+                <input type="text" class="form-control" placeholder="Enter Description" name="categoryid" id="recipient-category" required="">
+            </div>
+
+            <div class="form-group">
+                <label for="recipient-image" class="col-form-label">Image</label>
+                <input type="file" class="form-control" name="images" multiple id="recipient-image" required="">
+            
+            </div>
+            <div style="display: flex;">
+                <div class="form-group">
+                    <input type="submit" class="btn btn-success mt-4" value="Add Product">
+                </div>
+                <div class="form-group ms-5">
+                    <a href="product" class="btn btn-primary mt-4" style="width:100px">Cancel</a>
+                </div>
+            </div>
+        </form>
+
+
+        <div>
+            <p>
+                <span style="color: red;">
+                    <%= message %>
+                </span>
+            </p>
+        </div>
+
+
+    </main>
+
+    <%-include("../layout/adminFooter.ejs")%>

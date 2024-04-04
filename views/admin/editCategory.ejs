@@ -1,0 +1,50 @@
+<%-include("../layout/adminHeader.ejs")%>
+
+
+    <main id="main" class="main">
+
+        <h3><strong>Edit Category</strong></h3>
+
+        <form action="" method="post" class="mt-5" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="col-form-label">Name</label>
+                <input type="text" class="form-control" name="name" value="<%=data.name%>" required>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Description</label>
+                <input type="text" class="form-control" value= "<%= data.description %>" name="description" required>
+            </div>
+            <div class="form-group">
+              <label class="col-form-label">Image</label> <img src='/categoryImages/<%= data.image %>' alt="<%= data.image %>" width="50 px" height="50 px">
+              <input type="file" class="form-control" name="image">
+          </div>
+          <div class="form-group">
+            <input type="radio" value="true" name="verify" required <% if(data.is_listed===true){ %> checked <% } %> >
+            <label class="col-form-label">Listed</label>
+            <input type="radio" value="false" name="verify" required <% if (data.is_listed===false){ %> checked<% } %> >
+            <label class="col-form-label">Unlisted</label>
+        </div>
+        <div class="form-group">
+            <input type="hidden" class="form-control" value="<%=data._id%>" name="id"  required>
+        </div>
+          <div style="display: flex;">
+            <div class="form-group">
+                <input type="submit" class="btn btn-success mt-4" value="Edit Category">
+            </div>
+            <div class="form-group ms-5">
+                <a href="user" class="btn btn-primary mt-4" style="width:100px">Cancel</a>
+            </div>
+        </div>
+        </form>
+
+        
+        <div>
+            <p>
+                <span style="color: red;"><%= message %></span>
+            </p>
+        </div>
+    
+        
+    </main>
+
+    <%-include("../layout/adminFooter.ejs")%>

@@ -26,7 +26,7 @@ const loadRegistration = async (req, res) => {
         if (req.session.login) {
             res.redirect('/home')
         } else {
-            res.render('registration', { form: "SignUp" })
+            res.render('registration', { form: "SignUp" ,message:''})
         }
     } catch (error) {
         console.log(error.message);
@@ -112,6 +112,19 @@ const sendVerificationMail = async (name, email, user_id) => {
     }
 }
 
+const resendOtp=async (req,res)=>{
+    try {
+        const id=req.query.id
+        console.log(id);
+        const user = await userModel.findOne({ _id: id })
+        console.log(user);
+        sendVerificationMail(user.name, user.email, user._id)
+        res.render('submitOtp', {form:'Submit OTP', id: user._id, message: '' })
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
 
 const insertUser = async (req, res) => {
     try {
@@ -119,7 +132,9 @@ const insertUser = async (req, res) => {
         const email = req.body.email
         const isUserExisting = await userModel.findOne({ email })
         if (isUserExisting) {
-            res.send('email already exists')
+            res.render('registration', {form:'SignUp', message: 'Email already exists. ' })
+
+            // res.render('404',{message:'Email already exists.'})
         } else {
             const userData = new userModel({
                 name: req.body.name,
@@ -135,9 +150,9 @@ const insertUser = async (req, res) => {
                 sendVerificationMail(result.name, result.email, result._id)
                 // var message=await timer(60)
                 // console.log(message);
-                res.render('submitOtp', { id: result._id, message: '' }) // send OTP timer message to submit Otp page
+                res.render('submitOtp', {form:'Submit OTP', id: result._id, message: '' })
             } else {
-                res.render('registrationSuccess', { message: 'registration failed' })
+                res.render('verifyEmail', {form:'Verify Email', message: 'Incorrect email. Please enter registered email. ' })
             }
         }
 
@@ -154,25 +169,26 @@ const verifyUser = async (req, res) => {
         const id = req.query.id
         console.log(id);
         if (!enteredOtp) {
-            res.send('Provide OTP sent to email')
+            res.render('submitOtp', {form:'Submit OTP', id:id, message: 'Provide OTP sent to email' })
         }
         const savedOtp = await otpModel.findOne({ user_id: id })
         console.log(savedOtp.otp);
         if (savedOtp) {
-            if (savedOtp.expiration < Date.now()) {
-                const user = await userModel.findOne({ _id: id })
-                console.log(user_id);
-                sendVerificationMail(user.name, user.email, user._id)
-                res.render('submitOtp', { id: user._id, message: `OTP expired. Please enter new OTP sent to email` })
-            }
-            else if (savedOtp.otp === enteredOtp) {
+            // if (savedOtp.expiration < Date.now()) {
+            //     const user = await userModel.findOne({ _id: id })
+            //     sendVerificationMail(user.name, user.email, user._id)
+            //     res.render('submitOtp', {form:'Submit OTP', id: user._id, message: `OTP expired. Please enter new OTP sent to email` })
+            // }else
+             if (savedOtp.otp === enteredOtp) {
                 const updateInfo = await userModel.updateOne({ _id: id }, { $set: { is_verified: true } })
                 if (updateInfo) {
                     res.render('userlogin', { form: "LogIn", message: '', text: '' })
                 } else {
+                    res.render('404',{message:'user email not updated.'})
                     console.log('user email not updated');
                 }
             } else {
+            res.render('submitOtp', {form:'Submit OTP', id:id, message: 'Enter valid otp' })
                 console.log('enter valid otp');
             }
         }
@@ -190,7 +206,7 @@ const verifyEmail = async (req, res) => {
         console.log(user.name);
         if (user) {
             sendVerificationMail(name, email, user._id)
-            res.render('submitOtp', { id: user._id, message: '' }) // send OTP timer message to submit Otp page
+            res.render('submitOtp', {form:'Submit OTP', id: user._id, message: '' }) // send OTP timer message to submit Otp page
         } else {
             res.render('registrationSuccess', { message: 'registration failed' })
         }
@@ -211,7 +227,7 @@ const verifyLogin = async (req, res) => {
                 if (passwordMatch) {
                     req.session.login = true
                     req.session.userData = user
-                    res.redirect('/user/home')
+                    res.redirect('/home')
                 } else {
                     res.render('userlogin', { form: "LogIn", message: 'Invalid email or password', text: '' })
                 }
@@ -228,16 +244,26 @@ const verifyLogin = async (req, res) => {
 
 const loadVerifyEmail = async (req, res) => {
     try {
-        res.render('verifyEmail')
+        res.render('verifyEmail', {form:'Verify Email', message: '' })
     } catch (error) {
         console.log(error.message);
+    }
+}
+
+const loadError = async (req, res) => {
+    try {
+        res.render('404',{message:'Page Not Found !'})
+    } catch (error) {
+        console.log(error.message);
+        res.render('404',{message:error.message})
+
     }
 }
 
 const loadHome = async (req, res) => {
     try {
         if (req.session.login) {
-            res.redirect('user/home')
+            res.redirect('home')
         } else {
             res.render('home', { login: false })
         }
@@ -253,7 +279,7 @@ const loadUserHome = async (req, res) => {
         if (req.session.login) {
             res.render('home', { login: true })
         } else {
-            res.redirect('/user')
+            res.redirect('/')
         }
     } catch (error) {
         console.log(error.message);
@@ -294,7 +320,7 @@ const loadProduct = async (req, res) => {
 const logout = async (req, res) => {
     try {
         req.session.destroy()
-        res.redirect('/user')
+        res.redirect('/')
     } catch (error) {
         console.log(error.message);
 
@@ -392,7 +418,7 @@ const updateNewPassword = async (req, res) => {
         if(updateUser){
             res.render('userlogin', { form: "LogIn", message: 'Password Updated. Please login', text: '' })
         }else{
-            res.render('resetpassword', {message:'Password Update failed. Try again',token:token})
+            res.render('resetpassword', {form:'Reset Password', message:'Password Update failed. Try again',token:token})
         }
         
     } catch (error) {
@@ -417,11 +443,13 @@ module.exports = {
     sendVerificationMail,
     loadVerifyEmail,
     verifyEmail,
+    resendOtp,
     logout,
     loadForgotPasswordEmail,
     verifyForgotPasswordEmail,
     loadResetPasswordEmail,
+    loadError,
     updateNewPassword
-}
+,}
 
 

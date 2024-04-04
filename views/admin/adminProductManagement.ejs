@@ -1,0 +1,89 @@
+<%-include("../layout/adminHeader.ejs")%>
+
+
+    <main id="main" class="main">
+        <div style="display: flex;">
+            <div style="width: 50%;">
+                <a class="btn btn-success" href="addProduct">Add Product</a>
+            </div>
+            <div class="float-end text-end" style="width: 50%;">
+                <form action="">
+                    <input type="text" placeholder="Search product by title,description" name="search" style="width:250px;height:35px;border-radius:10px;padding-left: 20px">
+                    <input type="submit" class="btn btn-info" value="Search">
+                  </form>
+            </div>
+        </div>
+      
+        <div class="row mt-5">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Title</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Discount</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Image</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% data.forEach((item)=>{
+                        %>
+                        <tr>
+                            <td>
+                                <%=item.title%>
+                            </td>
+                            <td>
+                                <%=item.description%>
+                            </td>
+                            <td>
+                                <%=item.price%>
+                            </td> 
+                            <td>
+                                <%=item.discount%>
+                            </td>
+                            <td>
+                                <%=item.quantity%>
+                            </td>
+                            <td>
+                                <%=item.category_id%>
+                            </td>
+                            <td>
+
+                                <%
+                               item.image.forEach((image)=>
+                                {
+                                     %>
+                                <img src="/productImages/<%=image%>" alt="<%=image%>" width="30px" height="30px"> 
+                                    <%
+                                })
+                                %>
+
+                            </td>
+                            <td>
+                                <a class="btn btn-info" href="editProduct?id=<%=item._id%>">Edit</a>
+                                    <% 
+                                    if(item.is_listed===true){
+                                        %> 
+                                        <a class="btn btn-warning" href="unlistProduct?id=<%=item._id%>">Unlist</a> 
+                                        <%
+                                    }else
+                                    {
+                                        %> 
+                                        <a class="btn btn-warning" href="listProduct?id=<%=item._id%>">List</a> 
+                                        <%
+                                    }                                   
+                                    %>
+                            </td>
+
+                        <% }) %>
+                </tbody>
+
+            </table>
+
+        </div>
+    </main>
+
+    <%-include("../layout/adminFooter.ejs")%>

@@ -7,7 +7,7 @@
                       <img src="images/p3.png" class="img-fluid" alt="login_image" />
                   </div>
                   <div class="col-md-6">
-                    <h4>SignUp</h4>
+                   
                       <form action="signup" method="post">
                           <div class="form-group">
                               <label for="recipient-name1" class="col-form-label">Name</label>
@@ -34,6 +34,10 @@
                               <input type="submit" class="form-control" value="Register">
                           </div>
                       </form>
+                      <div>
+                        <span style="color: red;" class="text-center mt-3"><%= message%></span>
+                        </div>
+
                       <p class="text-center mt-3">Already a member?
                           <a href="login" class="text-dark login_btn">
                               Login Now</a>
