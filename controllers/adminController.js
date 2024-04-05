@@ -634,11 +634,16 @@ const loadAdminProductManagement = async (req, res) => {
             skip = (page - 1) * limit
         }
 
-        const product = await productModel.find({ _id: { $exists: true }, $or: [{ name: { $regex: `.*${search}.*`, $options: 'i' } }, { description: { $regex: `.*${search}.*`, $options: 'i' } }] })
+        const product = await productModel.find({ _id: { $exists: true }, $or: [{ name: { $regex: `.*${search}.*`, $options: 'i' } }, { tags: { $regex: `.*${search}.*`, $options: 'i' } }] })
             .skip(skip)
             .limit(limit)
             .exec()
-        console.log(product);
+
+        if (product) {
+            console.log(product);
+        } else {
+            console.log('no data');
+        }
 
         const count = await productModel.find({ _id: { $exists: true }, $or: [{ name: { $regex: `.*${search}.*`, $options: 'i' } }, { description: { $regex: `.*${search}.*`, $options: 'i' } }] })
             .countDocuments()
@@ -668,14 +673,21 @@ const addProduct = async (req, res) => {
     try {
 
         console.log(req.files.filename);
+        console.log(req.body);
 
         var arrImages = []
         for (let i = 0; i < req.files.length; i++) {
             arrImages[i] = req.files[i].filename
         }
 
-        // let pTags=[]
-        // pTags.push(req.body.tags)
+        let pTags = []
+        let tag1 = req.body.tag1
+        let tag2 = req.body.tag2
+        let tag3 = req.body.tag3
+        let tag4 = req.body.tag4
+        let tag5 = req.body.tag5
+        let tag6 = req.body.tag6
+        pTags.push(tag1, tag2, tag3, tag4, tag5, tag6)
 
         // let desc=new Object()
         // desc.size=req.body.size
@@ -683,12 +695,24 @@ const addProduct = async (req, res) => {
         // desc.material=req.body.material
         // desc.type=req.body.type
         // desc.description=req.body.description
-       
+
+
+        let pSize=[]
+        pSize.push(req.body.size1,req.body.size2,req.body.size3,req.body.size4,req.body.size5,req.body.size6)
+
+        let desc = new Object()
+        desc = {
+            size: pSize,
+            color: req.body.color,
+            material: req.body.material,
+            type: req.body.type,
+            description: req.body.description
+        }
 
 
         const title = req.body.title
-        const description = req.body.description
-        const tags = req.body.tags
+        const description = desc
+        const tags = pTags
         const price = req.body.price
         const discount = req.body.discount
         const quantity = req.body.quantity
@@ -748,19 +772,42 @@ const editProduct = async (req, res) => {
             arrImages[i] = req.files[i].filename
         }
 
+
+        let pTags = []
+        let tag1 = req.body.tag1
+        let tag2 = req.body.tag2
+        let tag3 = req.body.tag3
+        let tag4 = req.body.tag4
+        let tag5 = req.body.tag5
+        let tag6 = req.body.tag6
+        pTags.push(tag1, tag2, tag3, tag4, tag5, tag6)
+
+        let pSize=[]
+        pSize.push(req.body.size1,req.body.size2,req.body.size3,req.body.size4,req.body.size5,req.body.size6)
+
+        let desc = new Object()
+        desc = {
+            size: pSize,
+            color: req.body.color,
+            material: req.body.material,
+            type: req.body.type,
+            description: req.body.description
+        }
+
         const title = req.body.title
-        const description = req.body.description
+        const description = desc
+        const tags = pTags
         const price = req.body.price
         const discount = req.body.discount
         const quantity = req.body.quantity
         const category_id = req.body.categoryid
-        const images = arrImages
+        const image = arrImages
 
         const id = req.body.id
         const is_listed = req.body.verify
 
 
-        const updateProduct = await productModel.findByIdAndUpdate({ _id: id }, { $set: { title: title, description: description, price: price, discount: discount, quantity: quantity, category_id: category_id, images: images, is_listed: is_listed } })
+        const updateProduct = await productModel.findByIdAndUpdate({ _id: id }, { $set: { title: title, description: description, tags:tags, price: price, discount: discount, quantity: quantity, category_id: category_id, images: image, is_listed: is_listed } })
         if (updateProduct) {
             res.redirect('/admin/product')
         } else {
@@ -803,7 +850,6 @@ const unlistProduct = async (req, res) => {
         console.log(error.message);
     }
 }
-
 
 
 

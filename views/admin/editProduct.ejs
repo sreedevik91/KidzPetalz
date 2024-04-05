@@ -3,47 +3,76 @@
 
     <main id="main" class="main">
 
-        <h3><strong>Edit Category</strong></h3>
+        <h3><strong>Edit Product</strong></h3>
 
         <form action="" method="post" class="mt-5" enctype="multipart/form-data">
 
             <div class="form-group">
                 <label for="recipient-name1" class="col-form-label">Title</label>
-                <input type="text" class="form-control" placeholder="Enter Category Name " name="title"  value="<%=data.title%>" id="recipient-name1" required="">
+                <input type="text" class="form-control" value="<%=data.title%>" name="title" id="recipient-name1" required="">
             </div>
             <div class="form-group">
-                <label for="recipient-desc" class="col-form-label">Description</label>
-                <input type="text" class="form-control" placeholder="Enter Description" name="description"  value="<%=data.description%>" id="recipient-desc" required="">
+                <label for="recipient-desc" class="col-form-label"><u>Description</u></label>
+                <br><br>
+                <div>
+                    <label class="col-form-label">Size</label>
+                    <input type="text" class="form-control" value="<%=data.description.size[0]%>" name="size">
+                    <input type="text" class="form-control" value="<%=data.description.size[1]%>" name="size1">
+                    <input type="text" class="form-control" value="<%=data.description.size[2]%>" name="size2">
+                    <input type="text" class="form-control" value="<%=data.description.size[3]%>" name="size3">
+                    <input type="text" class="form-control" value="<%=data.description.size[4]%>" name="size4">
+                    <input type="text" class="form-control" value="<%=data.description.size[5]%>" name="size5">
+                    <input type="text" class="form-control" value="<%=data.description.size[6]%>" name="size6">
+                    <label class="col-form-label">Color</label>
+                    <input type="text" class="form-control" value="<%=data.description.color%>" name="color" required="">
+                    <label class="col-form-label">Material</label>
+                    <input type="text" class="form-control" value="<%=data.description.material%>" name="material" required="">
+                    <label class="col-form-label">Type</label>
+                    <input type="text" class="form-control" value="<%=data.description.type%>" name="type" required="">
+                    <label class="col-form-label">Description</label>
+                    <input type="text" class="form-control" value="<%=data.description.description%>" name="description" required="">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="recipient-tags" class="col-form-label">Tags</label>
+                <input type="text" class="form-control" value="<%=data.tags[0]%>" name="tag1" id="recipient-tags" >
+                <input type="text" class="form-control" value="<%=data.tags[1]%>" name="tag2" id="recipient-tags" >
+                <input type="text" class="form-control" value="<%=data.tags[2]%>" name="tag3" id="recipient-tags" >
+                <input type="text" class="form-control" value="<%=data.tags[3]%>" name="tag4" id="recipient-tags" >
+                <input type="text" class="form-control" value="<%=data.tags[4]%>" name="tag5" id="recipient-tags" >
+                <input type="text" class="form-control" value="<%=data.tags[5]%>" name="tag6" id="recipient-tags" >
             </div>
             <div class="form-group">
                 <label for="recipient-price" class="col-form-label">Price</label>
-                <input type="number" class="form-control" placeholder="Enter Category Name " name="price" value="<%=data.price%>" id="recipient-price" required="">
+                <input type="number" class="form-control" value="<%=data.price%>" name="price" id="recipient-price" required="">
             </div>
             <div class="form-group">
                 <label for="recipient-discount" class="col-form-label">Discount</label>
-                <input type="text" class="form-control" placeholder="Enter Description" name="discount" value="<%=data.discount%>" id="recipient-discount" required="">
+                <input type="text" class="form-control" value="<%=data.discount%>" name="discount" id="recipient-discount" required="">
             </div>
             <div class="form-group">
                 <label for="recipient-quantity" class="col-form-label">Quantity</label>
-                <input type="number" class="form-control" placeholder="Enter Category Name " name="quantity" value="<%=data.quantity%>" id="recipient-quantity" required="">
+                <input type="number" class="form-control" value="<%=data.quantity%>" name="quantity" id="recipient-quantity" required="">
             </div>
             <div class="form-group">
                 <label for="recipient-category" class="col-form-label">Category ID</label>
-                <input type="text" class="form-control" placeholder="Enter Description" name="categoryid" value="<%=data.category%>" id="recipient-category" required="">
+                <input type="text" class="form-control" value="<%=data.category_id%>" name="categoryid" id="recipient-category" required="">
             </div>
 
             <div class="form-group">
               <label for="recipient-image" class="col-form-label">Image</label> 
 
               <%
-              for(let i=0; i<data.image.length ; i++){
+              data.image.forEach((image)=>{
                 %>
-               <img src='/categoryImages/<%= data.image[i] %>' alt="<%= data.image[i] %>" width="50 px" height="50 px">
+               <img src='/productImages/<%=image%>' alt="<%=image%>" width="50 px" height="50 px">
                 <%
-              }
+              })
               %>
 
-              <input type="file" class="form-control" placeholder="Enter Contact Number" name="images" id="recipient-image" required="">
+              <input type="file" class="form-control" name="images" multiple id="recipient-image" >
+            
           </div>
 
           <div class="form-group">

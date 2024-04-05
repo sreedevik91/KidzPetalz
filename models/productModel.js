@@ -1,79 +1,40 @@
 const mongoose = require('mongoose')
 
-// const productSchema = mongoose.Schema({
-//   title: {
-//     type: String,
-//     required: true
-//   },
-//   description: {
-//     size: {
-//       type: String
-//     },
-//     color: {
-//       type: String
-//     },
-//     material: {
-//       type: String
-//     },
-//     type: {
-//       type: String
-//     },
-//     description: {
-//       type: String
-//     }
-//   },
-//   tags: {
-//     type: Array,
-//     required: true
-//   },
-//   price: {
-//     type: Number,
-//     required: true
-//   },
-//   discount: {
-//     type: String,
-//     required: true
-//   },
-//   quantity: {
-//     type: Number,
-//     required: true
-//   },
-//   category_id: {
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'category'
-//   },
-//   image: {
-//     type: Array,
-//     required: true,
-//     validate: [maxNumber, 'You can enter upto 5 images']
-//   },
-//   is_listed: {
-//     type: Boolean,
-//     default: true
-//   }
-// },
-//   {
-//     timestamps: true
-//   })
-
 const productSchema = mongoose.Schema({
   title: {
     type: String,
     required: true
   },
   description: {
-    type: String,
-    required: true
+    size: {
+      type: Array
+    },
+    color: {
+      type: String
+    },
+    material: {
+      type: String
+    },
+    type: {
+      type: String
+    },
+    description: {
+      type: String
+    }
   },
   tags: {
-    type: String,
+    type: Array,
     required: true
   },
-  price: {
-    type: Number,
+  actual_price: {
+    type: String,
     required: true
   },
   discount: {
+    type: String,
+    required: true
+  },
+  discounted_price:{
     type: String,
     required: true
   },
@@ -98,6 +59,7 @@ const productSchema = mongoose.Schema({
   {
     timestamps: true
   })
+
 
 // function maxNumber(val) {
 //   return val.length <= 5

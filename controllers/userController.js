@@ -6,6 +6,7 @@ const otpGenerator = require('otp-generator')
 const otpModel = require('../models/otpModel')
 const randomString = require('randomstring')
 const passport=require('passport')
+const productModel = require('../models/productModel')
 
 
 
@@ -287,7 +288,12 @@ const loadUserHome = async (req, res) => {
 }
 const loadProducts = async (req, res) => {
     try {
-        res.render('allproducts', { page: 'Products' })
+        const products=await productModel.find({_id:{$exists:true}})
+        if(products){
+        res.render('allproducts', { page: 'Products',data:products })
+        }else{
+            res.render('404',{message:'Page Not Found !'})
+        }
     } catch (error) {
         console.log(error.message);
     }
@@ -303,6 +309,7 @@ const loadBoys = async (req, res) => {
 
 const loadGirls = async (req, res) => {
     try {
+
         res.render('girls', { page: 'Girls' })
     } catch (error) {
         console.log(error.message);
@@ -311,7 +318,10 @@ const loadGirls = async (req, res) => {
 
 const loadProduct = async (req, res) => {
     try {
-        res.render('product', { page: 'Product' })
+        const id=req.query.id
+        const product= await productModel.find({_id:id})
+
+        res.render('product', { page: 'Product',data:product })
     } catch (error) {
         console.log(error.message);
     }

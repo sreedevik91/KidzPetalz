@@ -8,7 +8,6 @@ const session=require('express-session')
 const nocache=require('nocache');
 const dotenv=require('dotenv')
 const passport=require('passport')
-// const cookieSession=require('cookie-session')
 require('../controllers/passport')
 
 
@@ -19,7 +18,6 @@ userRoute.use(bodyparser.urlencoded({extended:true}))
 userRoute.use(express.static('public'));
 userRoute.use(session({secret:process.env.KEY,cookie:{maxAge:600000},resave:false,saveUninitialized:false}))
 userRoute.use(nocache());
-// userRoute.use(cookieSession({name:'session',keys:'anykey',maxAge:24*60*60*100}))
 userRoute.use(passport.initialize());
 userRoute.use(passport.session());
 
@@ -32,6 +30,7 @@ userRoute.get('/auth/google', passport.authenticate('google', { scope: ['profile
 // Callback URL for handling the Google Login response
 userRoute.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
   // Successful authentication, redirect to the home page
+  req.session.login=true
   res.redirect('/home');
 });
 
@@ -48,7 +47,7 @@ router.route('/submitOtp')
 .post(userController.verifyUser)
 
 router.route('/resendOtp')
-.post(userController.resendOtp)
+.get(userController.resendOtp)
 
 router.route('/verifyEmail')
 .get(userController.loadVerifyEmail)
@@ -79,7 +78,7 @@ router.get('/product',userController.loadProduct)
 
 router.get('/logout',userController.logout)
 
-router.get('*',userController.loadError)
+// router.get('*',userController.loadError)
 
 userRoute.use(router)
 

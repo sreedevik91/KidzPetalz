@@ -22,22 +22,26 @@
           </form>
 
           <div class="timer text-center">
-            <form action="/resendtOtp?id=<%=id%>" method="post">
+         
+      <div>
+         <!-- <form action="/resendOtp?id=<%=id%>" method="post">
                 Didn't receive code ? 
                 <button type="submit" id="resend">Click to Resend</button>
-            </form>
-            
+            </form> -->
+
+            Didn't receive code ? 
+            <a href="/resendOtp?id=<%=id%>" id="resend"> Click to Resend</a>
+                <br>
             <span class="time"></span>
+
                 <p>
             <span style="color: red;"><%= message%></span>
 
                 </p>
            
           </div>
+        </div>
 
-          <div>
-            
-            </div>
       </div>
     
          
@@ -64,10 +68,10 @@ const interval=setInterval(()=>{
 },1000)
 }
 
-timer(5)
+timer(30)
 
 document.getElementById('resend').onclick=function(){
-timer(5)
+timer(30)
 }
 
 </script>

@@ -116,11 +116,11 @@ router.get('/product',adminController.loadAdminProductManagement)
 
 router.route('/addProduct')
 .get(adminController.loadAddProduct)
-.post(Upload.array('images',3),adminController.addProduct)
+.post(Upload.array('images',5),adminController.addProduct)
 
 router.route('/editProduct')
 .get(adminController.loadEditProduct)
-.post(Upload.array('images',3),adminController.editProduct)
+.post(Upload.array('images',5),adminController.editProduct)
 
 router.get('/listProduct',adminController.listProduct)
 router.get('/unlistProduct',adminController.unlistProduct)

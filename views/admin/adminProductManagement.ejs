@@ -8,7 +8,7 @@
             </div>
             <div class="float-end text-end" style="width: 50%;">
                 <form action="">
-                    <input type="text" placeholder="Search product by title,description" name="search" style="width:250px;height:35px;border-radius:10px;padding-left: 20px">
+                    <input type="text" placeholder="Search product by title,tags" name="search" style="width:250px;height:35px;border-radius:10px;padding-left: 20px">
                     <input type="submit" class="btn btn-info" value="Search">
                   </form>
             </div>
@@ -20,10 +20,11 @@
                     <tr>
                         <th scope="col">Title</th>
                         <th scope="col">Description</th>
+                        <th scope="col">Tags</th>
                         <th scope="col">Price</th>
                         <th scope="col">Discount</th>
                         <th scope="col">Quantity</th>
-                        <th scope="col">Category</th>
+                        <th scope="col">Category ID</th>
                         <th scope="col">Image</th>
                         <th scope="col">Actions</th>
                     </tr>
@@ -36,7 +37,25 @@
                                 <%=item.title%>
                             </td>
                             <td>
-                                <%=item.description%>
+                                <%=item.description.size.toString()%>
+                                <br>
+                                <%=item.description.color%>
+                                <br>
+                                <%=item.description.material%>
+                                <br>
+                                <%=item.description.type%>
+                                <br>
+                                <%=item.description.description%>
+
+                            </td>
+                            <td>
+                                <%
+                                item.tags.forEach((tag)=>{
+                                    %>
+                                    <%=tag%><br>
+                                    <%
+                                })
+                                %>
                             </td>
                             <td>
                                 <%=item.price%>
