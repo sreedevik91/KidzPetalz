@@ -5,7 +5,7 @@ const dotenv = require('dotenv')
 const otpGenerator = require('otp-generator')
 const otpModel = require('../models/otpModel')
 const randomString = require('randomstring')
-const passport=require('passport')
+const passport = require('passport')
 const productModel = require('../models/productModel')
 
 
@@ -27,7 +27,7 @@ const loadRegistration = async (req, res) => {
         if (req.session.login) {
             res.redirect('/home')
         } else {
-            res.render('registration', { form: "SignUp" ,message:''})
+            res.render('registration', { form: "SignUp", message: '' })
         }
     } catch (error) {
         console.log(error.message);
@@ -113,14 +113,14 @@ const sendVerificationMail = async (name, email, user_id) => {
     }
 }
 
-const resendOtp=async (req,res)=>{
+const resendOtp = async (req, res) => {
     try {
-        const id=req.query.id
+        const id = req.query.id
         console.log(id);
         const user = await userModel.findOne({ _id: id })
         console.log(user);
         sendVerificationMail(user.name, user.email, user._id)
-        res.render('submitOtp', {form:'Submit OTP', id: user._id, message: '' })
+        res.render('submitOtp', { form: 'Submit OTP', id: user._id, message: '' })
 
     } catch (error) {
         console.log(error.message);
@@ -133,7 +133,7 @@ const insertUser = async (req, res) => {
         const email = req.body.email
         const isUserExisting = await userModel.findOne({ email })
         if (isUserExisting) {
-            res.render('registration', {form:'SignUp', message: 'Email already exists. ' })
+            res.render('registration', { form: 'SignUp', message: 'Email already exists. ' })
 
             // res.render('404',{message:'Email already exists.'})
         } else {
@@ -151,9 +151,9 @@ const insertUser = async (req, res) => {
                 sendVerificationMail(result.name, result.email, result._id)
                 // var message=await timer(60)
                 // console.log(message);
-                res.render('submitOtp', {form:'Submit OTP', id: result._id, message: '' })
+                res.render('submitOtp', { form: 'Submit OTP', id: result._id, message: '' })
             } else {
-                res.render('verifyEmail', {form:'Verify Email', message: 'Incorrect email. Please enter registered email. ' })
+                res.render('verifyEmail', { form: 'Verify Email', message: 'Incorrect email. Please enter registered email. ' })
             }
         }
 
@@ -170,7 +170,7 @@ const verifyUser = async (req, res) => {
         const id = req.query.id
         console.log(id);
         if (!enteredOtp) {
-            res.render('submitOtp', {form:'Submit OTP', id:id, message: 'Provide OTP sent to email' })
+            res.render('submitOtp', { form: 'Submit OTP', id: id, message: 'Provide OTP sent to email' })
         }
         const savedOtp = await otpModel.findOne({ user_id: id })
         console.log(savedOtp.otp);
@@ -180,16 +180,16 @@ const verifyUser = async (req, res) => {
             //     sendVerificationMail(user.name, user.email, user._id)
             //     res.render('submitOtp', {form:'Submit OTP', id: user._id, message: `OTP expired. Please enter new OTP sent to email` })
             // }else
-             if (savedOtp.otp === enteredOtp) {
+            if (savedOtp.otp === enteredOtp) {
                 const updateInfo = await userModel.updateOne({ _id: id }, { $set: { is_verified: true } })
                 if (updateInfo) {
                     res.render('userlogin', { form: "LogIn", message: '', text: '' })
                 } else {
-                    res.render('404',{message:'user email not updated.'})
+                    res.render('404', { message: 'user email not updated.' })
                     console.log('user email not updated');
                 }
             } else {
-            res.render('submitOtp', {form:'Submit OTP', id:id, message: 'Enter valid otp' })
+                res.render('submitOtp', { form: 'Submit OTP', id: id, message: 'Enter valid otp' })
                 console.log('enter valid otp');
             }
         }
@@ -207,7 +207,7 @@ const verifyEmail = async (req, res) => {
         console.log(user.name);
         if (user) {
             sendVerificationMail(name, email, user._id)
-            res.render('submitOtp', {form:'Submit OTP', id: user._id, message: '' }) // send OTP timer message to submit Otp page
+            res.render('submitOtp', { form: 'Submit OTP', id: user._id, message: '' }) // send OTP timer message to submit Otp page
         } else {
             res.render('registrationSuccess', { message: 'registration failed' })
         }
@@ -245,7 +245,7 @@ const verifyLogin = async (req, res) => {
 
 const loadVerifyEmail = async (req, res) => {
     try {
-        res.render('verifyEmail', {form:'Verify Email', message: '' })
+        res.render('verifyEmail', { form: 'Verify Email', message: '' })
     } catch (error) {
         console.log(error.message);
     }
@@ -253,10 +253,10 @@ const loadVerifyEmail = async (req, res) => {
 
 const loadError = async (req, res) => {
     try {
-        res.render('404',{message:'Page Not Found !'})
+        res.render('404', { message: 'Page Not Found !' })
     } catch (error) {
         console.log(error.message);
-        res.render('404',{message:error.message})
+        res.render('404', { message: error.message })
 
     }
 }
@@ -288,11 +288,11 @@ const loadUserHome = async (req, res) => {
 }
 const loadProducts = async (req, res) => {
     try {
-        const products=await productModel.find({_id:{$exists:true}})
-        if(products){
-        res.render('allproducts', { page: 'Products',data:products })
-        }else{
-            res.render('404',{message:'Page Not Found !'})
+        const products = await productModel.find({ _id: { $exists: true },is_listed:true })
+        if (products) {
+            res.render('allproducts', { page: 'Products', data: products })
+        } else {
+            res.render('404', { message: 'Page Not Found !' })
         }
     } catch (error) {
         console.log(error.message);
@@ -318,10 +318,10 @@ const loadGirls = async (req, res) => {
 
 const loadProduct = async (req, res) => {
     try {
-        const id=req.query.id
-        const product= await productModel.find({_id:id})
+        const id = req.query.id
+        const product = await productModel.find({ _id: id })
 
-        res.render('product', { page: 'Product',data:product })
+        res.render('product', { page: 'Product', data: product })
     } catch (error) {
         console.log(error.message);
     }
@@ -330,7 +330,7 @@ const loadProduct = async (req, res) => {
 const logout = async (req, res) => {
     try {
         req.session.destroy()
-        res.redirect('/')
+        res.redirect('/userlogin')
     } catch (error) {
         console.log(error.message);
 
@@ -339,13 +339,13 @@ const logout = async (req, res) => {
 
 const loadForgotPasswordEmail = async (req, res) => {
     try {
-        res.render('forgotpassword', { form: "Forgot Password",message: '',text:'' })
+        res.render('forgotpassword', { form: "Forgot Password", message: '', text: '' })
     } catch (error) {
         console.log(error.message);
     }
 }
 
-const sendForgotPasswordEmail = async (name, email,token) => {
+const sendForgotPasswordEmail = async (name, email, token) => {
     try {
 
         const transporter = nodemailer.createTransport({
@@ -386,33 +386,33 @@ const verifyForgotPasswordEmail = async (req, res) => {
     try {
         const email = req.body.email
         console.log(email);
-        const user =await userModel.findOne({ email })
-        const name=user.name
+        const user = await userModel.findOne({ email })
+        const name = user.name
         console.log(user);
         if (user) {
             if (user.is_verified) {
                 const token = randomString.generate()
-                const userupdated=await userModel.updateOne({_id:user._id},{$set:{token:token}})
+                const userupdated = await userModel.updateOne({ _id: user._id }, { $set: { token: token } })
                 console.log('userupdated');
-                sendForgotPasswordEmail(name,email,token) // or can send userid as well to send mail
-                res.render('forgotpassword', { form: "Reset Password", message: 'A link has been sent to your email to reset password',text:'' })
+                sendForgotPasswordEmail(name, email, token) // or can send userid as well to send mail
+                res.render('forgotpassword', { form: "Reset Password", message: 'A link has been sent to your email to reset password', text: '' })
             } else {
-                res.render('forgotpassword', { form: "Reset Password", message: '' , text:'<p>Email not verified.<a href="/verifyEmail">Click</a> to verify.<p>'})
+                res.render('forgotpassword', { form: "Reset Password", message: '', text: '<p>Email not verified.<a href="/verifyEmail">Click</a> to verify.<p>' })
             }
         } else {
-            res.render('forgotpassword', { form: "Reset Password", message: 'User not found',text:''})
+            res.render('forgotpassword', { form: "Reset Password", message: 'User not found', text: '' })
         }
 
     } catch (error) {
         console.log(error.message);
-        res.render('forgotpassword', { form: "Reset Password", message: 'Email is incorrect',text:'' })
+        res.render('forgotpassword', { form: "Reset Password", message: 'Email is incorrect', text: '' })
     }
 }
 
 const loadResetPasswordEmail = async (req, res) => {
     try {
-        const token=req.query.token
-        res.render('resetpassword', { form: "Reset Password",message: '',text:'' ,token:token})
+        const token = req.query.token
+        res.render('resetpassword', { form: "Reset Password", message: '', text: '', token: token })
     } catch (error) {
         console.log(error.message);
     }
@@ -422,15 +422,15 @@ const updateNewPassword = async (req, res) => {
     try {
 
         const passwordReceived = req.body.password
-        const password= await securePassword(passwordReceived)
-        const token=req.body.token
-        const updateUser= await userModel.updateOne({token},{$set:{password:password}})
-        if(updateUser){
+        const password = await securePassword(passwordReceived)
+        const token = req.body.token
+        const updateUser = await userModel.updateOne({ token }, { $set: { password: password } })
+        if (updateUser) {
             res.render('userlogin', { form: "LogIn", message: 'Password Updated. Please login', text: '' })
-        }else{
-            res.render('resetpassword', {form:'Reset Password', message:'Password Update failed. Try again',token:token})
+        } else {
+            res.render('resetpassword', { form: 'Reset Password', message: 'Password Update failed. Try again', token: token })
         }
-        
+
     } catch (error) {
         console.log(error.message);
     }
@@ -460,6 +460,7 @@ module.exports = {
     loadResetPasswordEmail,
     loadError,
     updateNewPassword
-,}
+    ,
+}
 
 

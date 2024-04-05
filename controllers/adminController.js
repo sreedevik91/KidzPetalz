@@ -11,7 +11,7 @@ dotenv.config()
 
 const loadAdminLogin = async (req, res) => {
     try {
-        if (!req.session.login) {
+        if (!req.session.adminLogin) {
             res.render('adminLogin', { form: "Admin Login", message: '' })
         } else {
             res.redirect('/admin/home')
@@ -23,7 +23,7 @@ const loadAdminLogin = async (req, res) => {
 
 const loadAdminHome = async (req, res) => {
     try {
-        if (req.session.login) {
+        if (req.session.adminLogin) {
             res.render('adminHome')
         } else {
             res.redirect('/admin')
@@ -36,7 +36,7 @@ const loadAdminHome = async (req, res) => {
 const adminLogout = async (req, res) => {
     try {
         req.session.destroy()
-        res.redirect('/admin')
+        res.redirect('/admin')  
     } catch (error) {
         console.log(error.message);
 
@@ -45,7 +45,7 @@ const adminLogout = async (req, res) => {
 
 const loadAdminDefault = async (req, res) => {
     try {
-        if (req.session.login) {
+        if (req.session.adminLogin) {
             res.redirect('/admin/home')
         } else {
             res.render('adminLogin', { form: "Admin Login", message: '' })
@@ -75,9 +75,9 @@ const verifyAdmin = async (req, res) => {
             const passwordMatch = await bcrypt.compare(password, admin.password)
             if (passwordMatch) {
                 if (admin.is_admin === true) {
-                    req.session.login = true
+                    req.session.adminLogin = true
                     res.redirect('/admin/home')
-                    console.log(req.session.login);
+                    console.log(req.session.adminLogin);
                 } else {
                     res.render('adminLogin', { form: "Admin Login", message: 'Admin not found' })
                 }
@@ -697,8 +697,8 @@ const addProduct = async (req, res) => {
         // desc.description=req.body.description
 
 
-        let pSize=[]
-        pSize.push(req.body.size1,req.body.size2,req.body.size3,req.body.size4,req.body.size5,req.body.size6)
+        let pSize = []
+        pSize.push(req.body.size1, req.body.size2, req.body.size3, req.body.size4, req.body.size5, req.body.size6)
 
         let desc = new Object()
         desc = {
@@ -713,8 +713,9 @@ const addProduct = async (req, res) => {
         const title = req.body.title
         const description = desc
         const tags = pTags
-        const price = req.body.price
+        const actual_price = req.body.actualPrice
         const discount = req.body.discount
+        const discounted_price = req.body.discountedPrice
         const quantity = req.body.quantity
         const category_id = req.body.categoryid
         const image = arrImages
@@ -723,8 +724,9 @@ const addProduct = async (req, res) => {
             title,
             description,
             tags,
-            price,
+            actual_price,
             discount,
+            discounted_price,
             quantity,
             category_id,
             image
@@ -782,8 +784,8 @@ const editProduct = async (req, res) => {
         let tag6 = req.body.tag6
         pTags.push(tag1, tag2, tag3, tag4, tag5, tag6)
 
-        let pSize=[]
-        pSize.push(req.body.size1,req.body.size2,req.body.size3,req.body.size4,req.body.size5,req.body.size6)
+        let pSize = []
+        pSize.push(req.body.size1, req.body.size2, req.body.size3, req.body.size4, req.body.size5, req.body.size6)
 
         let desc = new Object()
         desc = {
@@ -797,8 +799,9 @@ const editProduct = async (req, res) => {
         const title = req.body.title
         const description = desc
         const tags = pTags
-        const price = req.body.price
+        const actual_price= req.body.actualPrice
         const discount = req.body.discount
+        const discounted_price = req.body.discountedPrice
         const quantity = req.body.quantity
         const category_id = req.body.categoryid
         const image = arrImages
@@ -807,7 +810,7 @@ const editProduct = async (req, res) => {
         const is_listed = req.body.verify
 
 
-        const updateProduct = await productModel.findByIdAndUpdate({ _id: id }, { $set: { title: title, description: description, tags:tags, price: price, discount: discount, quantity: quantity, category_id: category_id, images: image, is_listed: is_listed } })
+        const updateProduct = await productModel.findByIdAndUpdate({ _id: id }, { $set: { title: title, description: description, tags: tags, actual_price: actual_price, discount: discount, discounted_price:discounted_price, quantity: quantity, category_id: category_id, images: image, is_listed: is_listed } })
         if (updateProduct) {
             res.redirect('/admin/product')
         } else {
