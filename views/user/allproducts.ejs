@@ -218,7 +218,7 @@
                                     </div>
                                     <!-- card footer -->
                                     <div class="card-footer d-flex justify-content-end">
-                                        <form action="#" method="post">
+                                        <!-- <form action="#" method="post">
                                             <input type="hidden" name="cmd" value="_cart">
                                             <input type="hidden" name="add" value="1">
                                             <input type="hidden" name="hub_item" value="Midi/Knee Length Casual Dress">
@@ -227,7 +227,11 @@
                                                 <i class="fa fa-cart-plus" aria-hidden="true"></i>
                                             </button>
                                             <a href="#" data-toggle="modal" data-target="#myModal1"></a>
-                                        </form>
+                                        </form> -->
+                                         <!-- <form action="" method="">
+                                            <input type="submit"  onclick="addToCart('<%=item._id%>')" value="Add to Cart"> -->
+                                        <button type="submit" style="cursor: pointer;" onclick="addToCart('<%=item._id%>')"><i class="fa fa-cart-plus" aria-hidden="true"></i></button>
+                                          <!-- </form> -->
                                     </div>
                                 </div>
                             </div>
@@ -236,11 +240,8 @@
                         })
                         %>
 
-                        
                         <!-- //card -->
                         
-                        
-                       
                     </div>
                     <!-- //card group -->
                 </div>
@@ -248,4 +249,28 @@
         </div>
     </div>
     <!--// Shop -->
+
+    <script>
+
+       
+        function addToCart(productId){
+           console.log(productId);
+            $.ajax({
+                url:'/addToCart',
+                type:'post',
+                contentType:'application/json',
+                data:JSON.stringify({productId:productId}),
+                success:(data)=>{
+                    console.log('success',data);
+                    alert('Product added to cart')
+                },
+                error:(jqXHR,textStatus,errorThrown)=>{
+                    console.log(textStatus,errorThrown);
+                }
+            })
+
+        }
+
+    </script>
+
     <%- include('../layout/homefooter.ejs') %>

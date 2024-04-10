@@ -24,11 +24,13 @@ const securePassword = async (password) => {
 
 const loadRegistration = async (req, res) => {
     try {
-        if (req.session.login) {
-            res.redirect('/home')
-        } else {
-            res.render('registration', { form: "SignUp", message: '' })
-        }
+
+        res.render('registration', { form: "SignUp", message: '' })
+        // if (req.session.login) {
+        //     res.redirect('/home')
+        // } else {
+        //     res.render('registration', { form: "SignUp", message: '' })
+        // }
     } catch (error) {
         console.log(error.message);
     }
@@ -36,11 +38,12 @@ const loadRegistration = async (req, res) => {
 
 const loadLogin = async (req, res) => {
     try {
-        if (!req.session.login) {
-            res.render('userlogin', { form: "LogIn", message: '', text: '' })
-        } else {
-            res.redirect('/home')
-        }
+        res.render('userlogin', { form: "LogIn", message: '', text: '' })
+        // if (!req.session.login) {
+        //     res.render('userlogin', { form: "LogIn", message: '', text: '' })
+        // } else {
+        //     res.redirect('/home')
+        // }
 
     } catch (error) {
         console.log(error.message);
@@ -220,14 +223,13 @@ const verifyLogin = async (req, res) => {
     try {
         const { email, password } = req.body
         const user = await userModel.findOne({ email })
-        console.log(user)
         if (user) {
             if (user.is_verified === true) {
-                var passwordMatch = await bcrypt.compare(password, user.password)
-                console.log(passwordMatch);
+                let passwordMatch = await bcrypt.compare(password, user.password)
                 if (passwordMatch) {
                     req.session.login = true
-                    req.session.userData = user
+                    req.session.user = user
+                    req.session.userId = user._id
                     res.redirect('/home')
                 } else {
                     res.render('userlogin', { form: "LogIn", message: 'Invalid email or password', text: '' })
@@ -263,11 +265,12 @@ const loadError = async (req, res) => {
 
 const loadHome = async (req, res) => {
     try {
-        if (req.session.login) {
-            res.redirect('home')
-        } else {
-            res.render('home', { login: false })
-        }
+        res.render('home', { login: false,id:'' })
+        // if (req.session.login) {
+        //     res.redirect('home')
+        // } else {
+        //     res.render('home', { login: false,userId:'' })
+        // }
 
     } catch (error) {
         console.log(error.message);
@@ -277,11 +280,12 @@ const loadHome = async (req, res) => {
 const loadUserHome = async (req, res) => {
 
     try {
-        if (req.session.login) {
-            res.render('home', { login: true })
-        } else {
-            res.redirect('/')
-        }
+        res.render('home', { login: true,id:req.session.userId })
+        // if (req.session.login) {
+        //     res.render('home', { login: true,userId:req.session.userId })
+        // } else {
+        //     res.redirect('/')
+        // }
     } catch (error) {
         console.log(error.message);
     }
@@ -290,7 +294,7 @@ const loadProducts = async (req, res) => {
     try {
         const products = await productModel.find({ _id: { $exists: true },is_listed:true })
         if (products) {
-            res.render('allproducts', { page: 'Products', data: products })
+            res.render('allproducts', { page: 'Products', data: products,id: req.session.userId})
         } else {
             res.render('404', { message: 'Page Not Found !' })
         }
@@ -301,7 +305,7 @@ const loadProducts = async (req, res) => {
 
 const loadBoys = async (req, res) => {
     try {
-        res.render('boys', { page: 'Boys' })
+        res.render('boys', { page: 'Boys',id: req.session.userId })
     } catch (error) {
         console.log(error.message);
     }
@@ -310,7 +314,7 @@ const loadBoys = async (req, res) => {
 const loadGirls = async (req, res) => {
     try {
 
-        res.render('girls', { page: 'Girls' })
+        res.render('girls', { page: 'Girls',id: req.session.userId })
     } catch (error) {
         console.log(error.message);
     }
@@ -321,7 +325,7 @@ const loadProduct = async (req, res) => {
         const id = req.query.id
         const product = await productModel.find({ _id: id })
 
-        res.render('product', { page: 'Product', data: product })
+        res.render('product', { page: 'Product', data: product ,id:id })
     } catch (error) {
         console.log(error.message);
     }
@@ -330,7 +334,7 @@ const loadProduct = async (req, res) => {
 const logout = async (req, res) => {
     try {
         req.session.destroy()
-        res.redirect('/userlogin')
+        res.redirect('/login')
     } catch (error) {
         console.log(error.message);
 
@@ -409,7 +413,7 @@ const verifyForgotPasswordEmail = async (req, res) => {
     }
 }
 
-const loadResetPasswordEmail = async (req, res) => {
+const loadResetPassword = async (req, res) => {
     try {
         const token = req.query.token
         res.render('resetpassword', { form: "Reset Password", message: '', text: '', token: token })
@@ -436,7 +440,50 @@ const updateNewPassword = async (req, res) => {
     }
 }
 
+// Change Password
 
+const loadChangePassword = async (req, res) => {
+    try {
+        const userId = req.query.id
+        console.log(`userId: ${userId}`);
+        res.render('changepassword', { form: "Change Password", message: '', text: '', id: userId })
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const changePassword= async (req,res)=>{
+    
+    try {
+
+        const userId=req.body.id
+        console.log(userId);
+        const currentPassword=req.body.cPassword
+        console.log(`db currentPassword:${currentPassword}`);
+        const newPassword=req.body.newPassword
+        let password=  await securePassword(newPassword)
+        const user=await userModel.findOne({_id:userId})
+        console.log(user);
+        console.log(`db password:${user.password}`);
+        let passwordMatch = await bcrypt.compare(currentPassword, user.password)
+        console.log(passwordMatch);
+
+        if(passwordMatch){
+            let updateUser=await userModel.updateOne({_id:userId},{$set:{password: password }})
+            if(updateUser){
+                res.redirect('/login')
+            }else{
+        res.render('changepassword', { form: "Change Password", message: 'Password updation failed', text: '', id: userId })
+            }
+        }else{
+        res.render('changepassword', { form: "Change Password", message: 'Current password is invalid', text: '', id: userId })
+
+        }
+
+    } catch (error) {
+        
+    }
+}
 
 module.exports = {
     insertUser,
@@ -457,10 +504,11 @@ module.exports = {
     logout,
     loadForgotPasswordEmail,
     verifyForgotPasswordEmail,
-    loadResetPasswordEmail,
+    loadResetPassword,
     loadError,
-    updateNewPassword
-    ,
+    updateNewPassword,
+    loadChangePassword,
+    changePassword
 }
 
 

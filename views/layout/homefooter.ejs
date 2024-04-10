@@ -241,6 +241,50 @@
     });
 </script>
 <!-- //cart-js -->
+<!--quantity-->
+<script>
+    $('.value-plus').on('click', function () {
+        var divUpd = $(this).parent().find('.value'),
+            newVal = parseInt(divUpd.text(), 10) + 1;
+        divUpd.text(newVal);
+    });
+
+    $('.value-minus').on('click', function () {
+        var divUpd = $(this).parent().find('.value'),
+            newVal = parseInt(divUpd.text(), 10) - 1;
+        if (newVal >= 1) divUpd.text(newVal);
+    });
+</script>
+<!--quantity-->
+<!-- FadeOut-Script -->
+<script>
+    $(document).ready(function (c) {
+        $('.close1').on('click', function (c) {
+            $('.rem1').fadeOut('slow', function (c) {
+                $('.rem1').remove();
+            });
+        });
+    });
+</script>
+<script>
+    $(document).ready(function (c) {
+        $('.close2').on('click', function (c) {
+            $('.rem2').fadeOut('slow', function (c) {
+                $('.rem2').remove();
+            });
+        });
+    });
+</script>
+<script>
+    $(document).ready(function (c) {
+        $('.close3').on('click', function (c) {
+            $('.rem3').fadeOut('slow', function (c) {
+                $('.rem3').remove();
+            });
+        });
+    });
+</script>
+<!--// FadeOut-Script -->
 <script src="js/imagezoom.js"></script>
 <!-- zoom-->
 <!-- price range (top products) -->
@@ -309,7 +353,7 @@
 
     });
 </script>
-<script src="js/SmoothScroll.min.js"></script>
+<!-- <script src="js/SmoothScroll.min.js"></script> -->
 <!-- //smooth-scrolling-of-move-up -->
 <!-- Bootstrap core JavaScript
 ================================================== -->

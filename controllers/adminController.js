@@ -745,7 +745,7 @@ const addProduct = async (req, res) => {
     }
 }
 
-// edit category
+// edit product
 
 const loadEditProduct = async (req, res) => {
     try {
@@ -810,7 +810,7 @@ const editProduct = async (req, res) => {
         const is_listed = req.body.verify
 
 
-        const updateProduct = await productModel.findByIdAndUpdate({ _id: id }, { $set: { title: title, description: description, tags: tags, actual_price: actual_price, discount: discount, discounted_price:discounted_price, quantity: quantity, category_id: category_id, images: image, is_listed: is_listed } })
+        const updateProduct = await productModel.findByIdAndUpdate({ _id: id }, { $set: { title: title, description: description, tags: tags, actual_price: actual_price, discount: discount, discounted_price:discounted_price, quantity: quantity, category_id: category_id, image: image, is_listed: is_listed } })
         if (updateProduct) {
             res.redirect('/admin/product')
         } else {

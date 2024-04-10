@@ -126,8 +126,6 @@ router.get('/listProduct',adminController.listProduct)
 router.get('/unlistProduct',adminController.unlistProduct)
 
 
-
-
 router.get('*',adminController.loadAdminDefault) // keep this default route at the end of all the routes
 
 

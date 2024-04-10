@@ -25,13 +25,14 @@ License URL: http://creativecommons.org/licenses/by/3.0/
     <!-- Custom Theme files -->
     <link href="css/bootstrap.css" type="text/css" rel="stylesheet" media="all">
     <!-- shop css -->
+    <link href="css/checkout.css" type="text/css" rel="stylesheet" media="all">
     <link href="css/shop.css" type="text/css" rel="stylesheet" media="all">
      <!-- Range-slider-css -->
      <link rel="stylesheet" type="text/css" href="css/jquery-ui1.css">
 
     <!-- Owl Stylesheets -->
     <link rel="stylesheet" href="css/owl.carousel.min.css">
-    <link rel="stylesheet" href="css/owl.theme.default.min.css">
+    <!-- <link rel="stylesheet" href="css/owl.theme.default.min.css"> -->
 
     <!-- Owl-Carousel-CSS -->
     <!-- flexslider-css -->
@@ -73,13 +74,13 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                          <!-- shopping cart -->
                          <div class="cart-mainf">
                             <div class="hubcart hubcart2 cart cart box_1">
-                                <form action="#" method="post">
-                                    <input type="hidden" name="cmd" value="_cart">
-                                    <input type="hidden" name="display" value="1">
-                                    <button class="btn top_hub_cart" type="submit" name="submit" value="" title="Cart">                                       
-                                        <i class="fas fa-shopping-cart"></i><br>                                        
-                                    </button>
-                                </form>
+                                <!-- <form action="/cart" method="get"> -->
+                                    <!-- <input type="hidden" name="cmd" value="_cart">
+                                    <input type="hidden" name="display" value="1"> -->
+                                    <!-- <button class="btn top_hub_cart" type="submit" name="submit" value="" title="Cart">                                        -->
+                                       <a href="/cart" class="btn top_hub_cart"> <i class="fas fa-shopping-cart"></i><br>  </a>                                      
+                                    <!-- </button>
+                                </form> -->
                             </div>
                         </div>
                         <!-- //shopping cart ends here -->
@@ -92,8 +93,8 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="far fa-user"></i></a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#">Profile</a></li>
+                            <li><a class="dropdown-item"  href="/changePassword?id=<%=id%>">Change Pasword</a></li>
                             <li><a class="dropdown-item" href="/logout">Logout</a></li>
-                            <li><a class="dropdown-item" href="#"></a></li>
                             <li><a class="dropdown-item" href="#"></a></li>
                             <li><a class="dropdown-item" href="#"></a></li>
                             <li><a class="dropdown-item" href="#"></a></li>

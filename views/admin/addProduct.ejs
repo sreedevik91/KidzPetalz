@@ -65,8 +65,9 @@
             </div>
 
             <div class="form-group">
-                <label for="recipient-image" class="col-form-label">Image</label>
-                <input type="file" class="form-control" name="images" multiple id="recipient-image" required="">
+                <label for="image" class="col-form-label">Image</label>
+                <span id="container" class="d-flex position-relative m-1 mb-1"></span>
+                <input type="file" class="form-control" name="images" multiple id="image" required="" onchange="getImage()">
             
             </div>
             <div style="display: flex;">
@@ -90,5 +91,46 @@
 
 
     </main>
+
+    <script>
+        let images=[]
+        function getImage(){
+            images=[]
+            let image=document.getElementById('image').files
+            console.log(image)
+            for(let i=0;i<image.length;i++){
+                images.push({
+                    name:image[i].name,
+                    url:URL.createObjectURL(image[i])
+                })
+            }
+            // document.getElementById('container').innerHTML=" "
+            // let div=document.getElementById('container')
+            // while(div.firstChild) { 
+            //     div.removeChild(div.firstChild); 
+            // } 
+
+            document.getElementById('container').innerHTML=showImage()
+        }
+
+        function showImage(){
+            let image=''
+
+            images.forEach((item=>{
+                image +=`
+                <img src="${item.url}" alt="" width="50 px" height="50 px" id="imageView">
+                <a><span class="position-relative" style="top: -18px;right: 2px;cursor:pointer" onclick="deleteImage(${images.indexOf(item)})">&times;</span></a>
+                `
+            }))
+
+            return image
+        }
+
+        function deleteImage(i){
+            images.splice(i,1)
+            document.getElementById('container').innerHTML=showImage()
+        }
+
+    </script>
 
     <%-include("../layout/adminFooter.ejs")%>

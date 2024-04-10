@@ -4,11 +4,14 @@ const router = express.Router()
 const path = require('path')
 const bodyparser = require('body-parser')
 const userController = require('../controllers/userController')
+const cartController = require('../controllers/cartController')
 const session = require('express-session')
 const nocache = require('nocache');
 const dotenv = require('dotenv')
 const passport = require('passport')
 require('../controllers/passport')
+const auth=require('../middlewares/auth')
+const blocked=require('../middlewares/block')
 
 dotenv.config()
 
@@ -35,11 +38,11 @@ userRoute.get('/auth/google/callback', passport.authenticate('google', { failure
 
 
 router.route('/signup')
-  .get(userController.loadRegistration)
+  .get(auth.isLogout, userController.loadRegistration)
   .post(userController.insertUser)
 
 router.route('/login')
-  .get(userController.loadLogin)
+  .get(auth.isLogout,userController.loadLogin)
   .post(userController.verifyLogin)
 
 router.route('/submitOtp')
@@ -57,25 +60,34 @@ router.route('/forgotPassword')
   .post(userController.verifyForgotPasswordEmail)
 
 router.route('/resetPassword')
-  .get(userController.loadResetPasswordEmail)
+  .get(userController.loadResetPassword)
   .post(userController.updateNewPassword)
 
-router.get('/', userController.loadHome)
+router.route('/changePassword')
+  .get(userController.loadChangePassword)
+  .post(userController.changePassword)
 
-router.get('/home', userController.loadUserHome)
+router.get('/',auth.isLogout,userController.loadHome)
 
-router.get('/products', userController.loadProducts)
+router.get('/home',auth.isLogin,blocked.isBlocked,userController.loadUserHome)
 
-router.get('/boys', userController.loadBoys)
+router.get('/products', blocked.isBlocked,userController.loadProducts)
 
-router.get('/girls', userController.loadGirls)
+router.get('/boys',blocked.isBlocked, userController.loadBoys)
 
-router.get('/product', userController.loadProduct)
+router.get('/girls',blocked.isBlocked, userController.loadGirls)
 
-router.get('/logout', userController.logout)
+router.get('/product',blocked.isBlocked, userController.loadProduct)
+
+router.get('/cart',blocked.isBlocked, cartController.loadCart)
+
+router.post('/addToCart', cartController.addToCart)
+
+router.get('/logout',auth.isLogin ,userController.logout)
 
 // router.get('*',userController.loadError)
 
 userRoute.use(router)
 
 module.exports = userRoute
+

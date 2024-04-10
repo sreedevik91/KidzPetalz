@@ -19,6 +19,6 @@ app.use('/',userRoute)
 app.use('/admin',adminRoute)
 
 app.listen(process.env.PORT || 3333,()=>{
-    console.log('server listening to port 3000');
+    console.log('server listening to port 3333');
 })
 
