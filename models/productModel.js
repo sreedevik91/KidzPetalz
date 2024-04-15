@@ -27,7 +27,7 @@ const productSchema = mongoose.Schema({
     required: true
   },
   actual_price: {
-    type: String,
+    type: Number,
     required: true
   },
   discount: {
@@ -35,7 +35,7 @@ const productSchema = mongoose.Schema({
     required: true
   },
   discounted_price:{
-    type: String,
+    type: Number,
     required: true
   },
   quantity: {

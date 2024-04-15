@@ -36,7 +36,6 @@ userRoute.get('/auth/google/callback', passport.authenticate('google', { failure
   res.redirect('/home');
 });
 
-
 router.route('/signup')
   .get(auth.isLogout, userController.loadRegistration)
   .post(userController.insertUser)
@@ -71,19 +70,29 @@ router.get('/',auth.isLogout,userController.loadHome)
 
 router.get('/home',auth.isLogin,blocked.isBlocked,userController.loadUserHome)
 
-router.get('/products', blocked.isBlocked,userController.loadProducts)
+router.get('/products',auth.isLogin, blocked.isBlocked,userController.loadProducts)
 
-router.get('/boys',blocked.isBlocked, userController.loadBoys)
+router.get('/boys',auth.isLogin,blocked.isBlocked, userController.loadBoys)
 
-router.get('/girls',blocked.isBlocked, userController.loadGirls)
+router.get('/girls',auth.isLogin,blocked.isBlocked, userController.loadGirls)
 
-router.get('/product',blocked.isBlocked, userController.loadProduct)
+router.get('/product',auth.isLogin,blocked.isBlocked, userController.loadProduct)
 
-router.get('/cart',blocked.isBlocked, cartController.loadCart)
+router.get('/cart',auth.isLogin,blocked.isBlocked, cartController.loadCart)
 
-router.post('/addToCart', cartController.addToCart)
+router.get('/addToCart',auth.isLogin, cartController.addToCart)
+
+router.post('/changeProductQuantity',cartController.changeProductQuantity)
+
+router.post('/removeCartProduct',cartController.removeCartProduct)
 
 router.get('/logout',auth.isLogin ,userController.logout)
+
+router.get('/blocked',userController.loadBlock)
+
+// router.get('/goBackLogin',auth.isLogout,userController.goBackLogin404)
+
+
 
 // router.get('*',userController.loadError)
 

@@ -7,6 +7,7 @@ const otpModel = require('../models/otpModel')
 const randomString = require('randomstring')
 const passport = require('passport')
 const productModel = require('../models/productModel')
+const cartModel = require('../models/cartModel')
 
 
 
@@ -230,6 +231,14 @@ const verifyLogin = async (req, res) => {
                     req.session.login = true
                     req.session.user = user
                     req.session.userId = user._id
+                    let cart = await cartModel.findOne({ user: req.session.userId })
+                    // console.log(cart);
+                    let cartCount = null
+                    if (cart) {
+                        cartCount = cart.quantity
+                        // or this also could be used:- cartCount=cart.products.length
+                        req.session.cartCount = cartCount
+                    }
                     res.redirect('/home')
                 } else {
                     res.render('userlogin', { form: "LogIn", message: 'Invalid email or password', text: '' })
@@ -253,9 +262,9 @@ const loadVerifyEmail = async (req, res) => {
     }
 }
 
-const loadError = async (req, res) => {
+const loadBlock = async (req, res) => {
     try {
-        res.render('404', { message: 'Page Not Found !' })
+        res.render('404', { message: 'Access to this URL is blocked for the user' })
     } catch (error) {
         console.log(error.message);
         res.render('404', { message: error.message })
@@ -265,7 +274,7 @@ const loadError = async (req, res) => {
 
 const loadHome = async (req, res) => {
     try {
-        res.render('home', { login: false,id:'' })
+        res.render('home', { login: false, id: '' })
         // if (req.session.login) {
         //     res.redirect('home')
         // } else {
@@ -280,7 +289,7 @@ const loadHome = async (req, res) => {
 const loadUserHome = async (req, res) => {
 
     try {
-        res.render('home', { login: true,id:req.session.userId })
+        res.render('home', { login: true, id: req.session.userId, cartCount:req.session.cartCount })
         // if (req.session.login) {
         //     res.render('home', { login: true,userId:req.session.userId })
         // } else {
@@ -292,9 +301,9 @@ const loadUserHome = async (req, res) => {
 }
 const loadProducts = async (req, res) => {
     try {
-        const products = await productModel.find({ _id: { $exists: true },is_listed:true })
+        const products = await productModel.find({ _id: { $exists: true }, is_listed: true })
         if (products) {
-            res.render('allproducts', { page: 'Products', data: products,id: req.session.userId})
+            res.render('allproducts', { page: 'Products', data: products, id: req.session.userId, cartCount: req.session.cartCount })
         } else {
             res.render('404', { message: 'Page Not Found !' })
         }
@@ -305,7 +314,7 @@ const loadProducts = async (req, res) => {
 
 const loadBoys = async (req, res) => {
     try {
-        res.render('boys', { page: 'Boys',id: req.session.userId })
+        res.render('boys', { page: 'Boys', id: req.session.userId, cartCount: req.session.cartCount })
     } catch (error) {
         console.log(error.message);
     }
@@ -314,7 +323,7 @@ const loadBoys = async (req, res) => {
 const loadGirls = async (req, res) => {
     try {
 
-        res.render('girls', { page: 'Girls',id: req.session.userId })
+        res.render('girls', { page: 'Girls', id: req.session.userId, cartCount: req.session.cartCount })
     } catch (error) {
         console.log(error.message);
     }
@@ -325,7 +334,7 @@ const loadProduct = async (req, res) => {
         const id = req.query.id
         const product = await productModel.find({ _id: id })
 
-        res.render('product', { page: 'Product', data: product ,id:id })
+        res.render('product', { page: 'Product', data: product, id: id, cartCount: req.session.cartCount })
     } catch (error) {
         console.log(error.message);
     }
@@ -452,38 +461,48 @@ const loadChangePassword = async (req, res) => {
     }
 }
 
-const changePassword= async (req,res)=>{
-    
+const changePassword = async (req, res) => {
+
     try {
 
-        const userId=req.body.id
+        const userId = req.body.id
         console.log(userId);
-        const currentPassword=req.body.cPassword
+        const currentPassword = req.body.cPassword
         console.log(`db currentPassword:${currentPassword}`);
-        const newPassword=req.body.newPassword
-        let password=  await securePassword(newPassword)
-        const user=await userModel.findOne({_id:userId})
+        const newPassword = req.body.newPassword
+        let password = await securePassword(newPassword)
+        const user = await userModel.findOne({ _id: userId })
         console.log(user);
         console.log(`db password:${user.password}`);
         let passwordMatch = await bcrypt.compare(currentPassword, user.password)
         console.log(passwordMatch);
 
-        if(passwordMatch){
-            let updateUser=await userModel.updateOne({_id:userId},{$set:{password: password }})
-            if(updateUser){
+        if (passwordMatch) {
+            let updateUser = await userModel.updateOne({ _id: userId }, { $set: { password: password } })
+            if (updateUser) {
                 res.redirect('/login')
-            }else{
-        res.render('changepassword', { form: "Change Password", message: 'Password updation failed', text: '', id: userId })
+            } else {
+                res.render('changepassword', { form: "Change Password", message: 'Password updation failed', text: '', id: userId })
             }
-        }else{
-        res.render('changepassword', { form: "Change Password", message: 'Current password is invalid', text: '', id: userId })
+        } else {
+            res.render('changepassword', { form: "Change Password", message: 'Current password is invalid', text: '', id: userId })
 
         }
 
     } catch (error) {
-        
+        console.log(error.message);
+
     }
 }
+
+// const goBackLogin404=async(req,res)=>{
+//     try {
+//         res.redirect('/login')
+//     } catch (error) {
+//         console.log(error.message);
+
+//     }
+// }
 
 module.exports = {
     insertUser,
@@ -505,10 +524,11 @@ module.exports = {
     loadForgotPasswordEmail,
     verifyForgotPasswordEmail,
     loadResetPassword,
-    loadError,
+    loadBlock,
     updateNewPassword,
     loadChangePassword,
-    changePassword
+    changePassword,
+    // goBackLogin404
 }
 
 

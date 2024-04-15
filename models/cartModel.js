@@ -33,8 +33,17 @@ const cartSchema = mongoose.Schema({
     },
     products: [
         {
-            type: mongoose.Schema.Types.ObjectId,
-            required: true
+            productId: {
+                type: mongoose.Schema.Types.ObjectId,
+                // here type has to be objectId inorder toget aggregaion results while matching up with products collection to show in the cart page
+                ref:'products',
+                required: true
+            },
+            quantity: {
+                type: Number,
+                default: 1
+            }
+
         }
     ],
     quantity: {

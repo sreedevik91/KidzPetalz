@@ -29,7 +29,7 @@
                     <h4>review your order
                     </h4>
                     <h4 class="mt-sm-0 mt-3">Your shopping cart contains:
-                        <span>3 Products</span>
+                        <span><%=cartCount%> Products</span>
                     </h4>
                 </div>
                 <div class="checkout-right">
@@ -46,49 +46,54 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <span><%=message%></span>
-                            <% 
-                            
-                                data.forEach((item)=>{
-                                    %>
+                            <span>
+                                <%=message%>
+                            </span>
+                            <% data.forEach((item)=>{
+                                %>
+                                
                                     <tr class="rem1">
                                         <td class="invert">1</td>
                                         <td class="invert-image">
                                             <a href="single_product.html">
-                                                <img src="/productImages/<%=item.image[0]%>" alt="<%=item.image[0]%>"
+                                                <img src="/productImages/<%=item.cartProduct.image[0]%>" alt="<%=item.cartProduct.image[0]%>"
                                                     width="200px" height="30px" class="img-responsive">
                                             </a>
                                         </td>
                                         <td class="invert">
                                             <div class="quantity">
                                                 <div class="quantity-select">
-                                                    <div class="entry value-minus">&nbsp;</div>
+                                                    <button type="button" onclick="changeQuantity('<%=item._id%>','<%=item.cartProduct._id%>',-1,'<%=item.totalAmount%>','<%=item.cartProduct.discounted_price%>')">-</button>
                                                     <div class="entry value">
-                                                        <span>1</span>
+
+                                                        <span id="<%=item.cartProduct._id%>">
+                                                            <%=item.quantity%>
+                                                        </span>
+<!-- here span id is gicven as product id itself so that the respective count of product would be available onclick -->
+
                                                     </div>
-                                                    <div class="entry value-plus active">&nbsp;</div>
+                                                    <button type="button" onclick="changeQuantity('<%=item._id%>','<%=item.cartProduct._id%>',1,'<%=item.totalAmount%>','<%=item.cartProduct.discounted_price%>')">+</button>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="invert">
-                                            <%=item.title%>
+                                            <%=item.cartProduct.title%>
+                                            <br>
+                                            Price ₹<%=item.cartProduct.discounted_price%>
                                         </td>
 
-                                        <td class="invert">₹<%=item.discounted_price%>
+                                        <td class="invert">₹<span id="<%=item.totalAmount%>"><%=item.totalAmount%></span>
                                         </td>
                                         <td class="invert">
-                                            <div class="rem">
-                                                <div class="close1"> </div>
-                                            </div>
+                                            <button type="button" class="btn-danger" onclick="removeCartProduct('<%=item._id%>','<%=item.cartProduct._id%>')">Remove</button>
 
                                         </td>
                                     </tr>
-                                    <%
-                                })
-                               
-                            %>
+                                    
 
-                                   
+                                        <% }) %>
+
+
                         </tbody>
                     </table>
                 </div>
@@ -163,6 +168,59 @@
             </div>
         </div>
     </section>
+
+    <script>
+        function changeQuantity(cartId,productId,count,totalAmount,unitPrice){
+            let quantity=parseInt(document.getElementById(productId).innerHTML)
+            let cartValue=parseInt(document.getElementById('cartCount').innerHTML)
+            let totalProductAmount=parseInt(document.getElementById(totalAmount).innerHTML)
+            console.log(totalProductAmount);
+            $.ajax({
+                url:'/changeProductQuantity',
+                method:'post',
+                data:{
+                    cartId:cartId,
+                    productId:productId,
+                    count:count,
+                    quantity:quantity
+                },
+                success:(response)=>{
+                    if(response.itemRemoved){
+                        location.reload()
+                        alert('Item removed')
+                        
+                    }else if(response.maxLimit){
+                        alert('Maximun number of product to cart exceeded')
+                        
+                    }else{
+                        document.getElementById(productId).innerHTML=quantity+count
+                        document.getElementById('cartCount').innerHTML=cartValue+count
+                        console.log(unitPrice*count+totalProductAmount);
+                        document.getElementById(totalAmount).innerHTML=`${totalProductAmount+(unitPrice*count)}`
+                        
+                        alert(response)
+                    }
+                    
+                }
+            })
+        }
+
+        function removeCartProduct(cartId,productId){
+            $.ajax({
+                url:'/removeCartProduct',
+                method:'post',
+                data:{
+                    cartId,
+                    productId
+                },
+                success:(response)=>{
+                    location.reload()
+                    alert(response)
+                }
+            })
+        }
+
+    </script>
     <!--//checkout-->
 
     <%- include('../layout/homefooter.ejs') %>

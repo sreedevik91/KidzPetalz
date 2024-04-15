@@ -51,6 +51,8 @@ License URL: http://creativecommons.org/licenses/by/3.0/
 <body>
     <!-- header -->
     <header>
+        <% var cartCount %> 
+        <!--  declaring variables like this will resolve the not defined errors -->
         <div class="container">
             <!-- top nav -->
             <nav class="top_nav d-flex pt-3 pb-1">
@@ -78,7 +80,8 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                                     <!-- <input type="hidden" name="cmd" value="_cart">
                                     <input type="hidden" name="display" value="1"> -->
                                     <!-- <button class="btn top_hub_cart" type="submit" name="submit" value="" title="Cart">                                        -->
-                                       <a href="/cart" class="btn top_hub_cart"> <i class="fas fa-shopping-cart"></i><br>  </a>                                      
+                                       <a href="/cart" class="btn top_hub_cart"> <i class="fas fa-shopping-cart"></i><span class="badge text-bg-secondary" id="cartCount"><%=cartCount%></span></a> 
+                                                                           
                                     <!-- </button>
                                 </form> -->
                             </div>

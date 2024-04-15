@@ -13,7 +13,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="index.html">Home</a>
+                <a href="home">Home</a>
             </li>
             <li class="breadcrumb-item active" aria-current="page"><%= page%></li>
         </ol>
@@ -256,12 +256,16 @@
         function addToCart(productId){
            console.log(productId);
             $.ajax({
-                url:'/addToCart',
-                type:'post',
-                contentType:'application/json',
-                data:JSON.stringify({productId:productId}),
-                success:(data)=>{
-                    console.log('success',data);
+                url:`/addToCart?productId=${productId}`,
+                type:'get',
+                // contentType:'application/json',
+                // data:JSON.stringify({productId:productId}),
+                success:(response)=>{
+                    // or we can check if (response.update), because {update:true} is the json response sent from the backend after cart is updated
+                    let cartValue=$('#cartCount').html()
+                    cartValue=parseInt(cartValue)+1
+                    $('#cartCount').html(cartValue)
+                    console.log('success',response);
                     alert('Product added to cart')
                 },
                 error:(jqXHR,textStatus,errorThrown)=>{

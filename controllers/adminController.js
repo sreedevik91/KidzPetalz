@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer')
 const dotenv = require('dotenv')
 const randomString = require('randomstring')
+const sharp = require('sharp')
 
 dotenv.config()
 
@@ -517,6 +518,7 @@ const addCategory = async (req, res) => {
         const description = req.body.description
         const image = req.file.filename
 
+  
         const category = new categoryModel({
             name,
             description,
@@ -564,6 +566,8 @@ const editCategory = async (req, res) => {
         const id = req.body.id
         const is_listed = req.body.verify
 
+        // const cropImage=await sharp(image).resize(200,200).toFile(`/categoryImage/${Date.now()+'-'+image.originalname}`)
+        // console.log(cropImage);
 
         const updateCategory = await categoryModel.findByIdAndUpdate({ _id: id }, { $set: { name: name, description: description, image: image, is_listed: is_listed } })
         if (updateCategory) {
