@@ -4,12 +4,11 @@ const userModel = require('../models/userModel');
 
 
 
-
 const loadCart = async (req, res) => {
     try {
         let user = req.session.userId
         // console.log(new mongoose.Types.ObjectId(user));
-        
+
         // let cart =await cartModel.findOne({user:user})
         // console.log(cart);
         //------------------------------------------------
@@ -20,8 +19,9 @@ const loadCart = async (req, res) => {
         // var id = new mongoose.Types.ObjectId('4edd40c86762e0fb12000003');
         //------------------------------------------------
         const cart = await cartModel.findOne({ user })
-        req.session.cartCount=cart.quantity
+       
         if (cart) {
+            req.session.cartCount = cart.quantity
             let cartItems = await cartModel.aggregate([
                 { $match: { user: user } },
                 { $unwind: '$products' },
@@ -41,12 +41,13 @@ const loadCart = async (req, res) => {
                 },
                 {
                     $project: {
-                        product: 1, quantity: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0]}  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+                        product: 1, quantity: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
                     }
                 },
                 {
-                    $addFields:{totalAmount:{$multiply:['$quantity','$cartProduct.discounted_price']}}
+                    $addFields: { totalAmount: { $multiply: ['$quantity', '$cartProduct.discounted_price'] } }
                 }
+
                 // {
                 //     $lookup: {
 
@@ -72,11 +73,42 @@ const loadCart = async (req, res) => {
 
             ])
 
-            console.log(cartItems);
+            let cartTotalAmount = await cartModel.aggregate([
+                { $match: { user: user } },
+                { $unwind: '$products' },
+                {
+                    $project: {
+                        product: '$products.productId',
+                        quantity: '$products.quantity'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: 'product',
+                        foreignField: '_id',
+                        as: 'cartProduct'
+                    }
+                },
+                {
+                    $project: {
+                        product: 1, quantity: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: { $sum: { $multiply: ['$quantity', '$cartProduct.discounted_price'] } }
+                    }
+
+                }
+            ])
+            // console.log(cartItems,cartTotalAmount);
             // console.log('cartItems products: '+ cartItems[0].cartProducts[0].title);
 
-            res.render('cart', { page: 'Cart', data: cartItems, id: req.session.userId, message: '', cartCount: req.session.cartCount })
+            res.render('cart', { page: 'Cart', data: cartItems, cartTotalAmount:cartTotalAmount[0].total, id: req.session.userId, message: '', cartCount: req.session.cartCount })
         } else {
+            req.session.cartCount=parseInt(0)
             res.render('cart', { page: 'Cart', data: [], id: req.session.userId, message: 'Your cart is empty', cartCount: req.session.cartCount })
         }
 
@@ -110,12 +142,7 @@ const addToCart = async (req, res) => {
 
             console.log(`isProduct:${isProduct[0].index}`);
             let cartUpdated
-            let cartUpdatedTotal
             if (isProduct[0].index != -1) {
-                // cartUpdatedTotal = await cartModel.updateOne({ user },
-                //     {
-                //         $inc: { quantity: 1 }
-                //     })
 
                 cartUpdated = await cartModel.updateOne({ user, 'products.productId': product },
                     {
@@ -124,7 +151,7 @@ const addToCart = async (req, res) => {
                     })
                 if (cartUpdated) {
                     console.log('cart updated');
-                    let cart=await cartModel.findOne({user})
+                    let cart = await cartModel.findOne({ user })
                     req.session.cartCount = cart.quantity
                     res.json({ update: true })
                 } else {
@@ -140,7 +167,7 @@ const addToCart = async (req, res) => {
 
             if (cartUpdated) {
                 console.log('cart updated');
-                let cart=await cartModel.findOne({user})
+                let cart = await cartModel.findOne({ user })
                 req.session.cartCount = cart.quantity
                 res.json({ update: true })
             } else {
@@ -190,9 +217,9 @@ const changeProductQuantity = async (req, res) => {
             console.log(`pullItem: ${pullItem[0]}`);
 
             if (pullItem) {
-                let cart=await cartModel.findOne({_id:cartId})
+                let cart = await cartModel.findOne({ _id: cartId })
                 req.session.cartCount = cart.quantity
-                res.json({ itemRemoved: true})
+                res.json({ itemRemoved: true })
             }
         } else if (quantity == 10 && count == 1) {
             res.json({ maxLimit: true })
@@ -212,7 +239,7 @@ const changeProductQuantity = async (req, res) => {
                     $inc: { 'products.$.quantity': count, quantity: count }
                 })
 
-            
+
         }
 
         if (cartUpdated) {
@@ -232,6 +259,7 @@ const removeCartProduct = async (req, res) => {
 
         const { cartId, productId } = req.body
         console.log(cartId, productId);
+
         let pullItem = await cartModel.updateOne({ _id: cartId },
             {
                 $pull: {
@@ -242,10 +270,17 @@ const removeCartProduct = async (req, res) => {
                 $inc: { quantity: -1 }
             })
         console.log(pullItem);
+
         if (pullItem) {
             let cart = await cartModel.findOne({ _id: cartId })
-            req.session.cartCount = cart.quantity
-            res.json('Product Removed')
+            if(cart.quantity<=0){
+            await cartModel.deleteOne({ _id: cartId})
+            req.session.cartCount = 0
+            res.json('Cart Cleared')
+            }else{
+                req.session.cartCount = cart.quantity
+                res.json('Product Removed')
+            }
 
         }
 

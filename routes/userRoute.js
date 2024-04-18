@@ -5,6 +5,8 @@ const path = require('path')
 const bodyparser = require('body-parser')
 const userController = require('../controllers/userController')
 const cartController = require('../controllers/cartController')
+const checkoutController = require('../controllers/checkoutController')
+const orderController = require('../controllers/orderController')
 const session = require('express-session')
 const nocache = require('nocache');
 const dotenv = require('dotenv')
@@ -86,13 +88,23 @@ router.post('/changeProductQuantity',cartController.changeProductQuantity)
 
 router.post('/removeCartProduct',cartController.removeCartProduct)
 
+router.get('/checkout',auth.isLogin, checkoutController.loadCheckout)
+
+router.get('/orders',auth.isLogin, orderController.loadOrders)
+
+router.get('/orderSuccess',auth.isLogin, orderController.loadOrderSuccess)
+
+router.get('/userProfile',auth.isLogin, userController.loadProfile)
+
+router.post('/addAddress', userController.addAddress)
+
+router.post('/placeOrder', checkoutController.placeOrder)
+
 router.get('/logout',auth.isLogin ,userController.logout)
 
 router.get('/blocked',userController.loadBlock)
 
 // router.get('/goBackLogin',auth.isLogout,userController.goBackLogin404)
-
-
 
 // router.get('*',userController.loadError)
 

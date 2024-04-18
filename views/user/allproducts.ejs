@@ -1,21 +1,22 @@
-
 <%- include('../layout/homeheader.ejs') %>
 
     <!-- //header -->
-	<!-- inner banner -->
-	<div class="ibanner_w3 pt-sm-5 pt-3">
-		<h4 class="head_agileinfo text-center text-capitalize text-center pt-5">
-			<span>K</span>iddos
-			</h4>
-	</div>
-	<!-- //inner banner -->
+    <!-- inner banner -->
+    <div class="ibanner_w3 pt-sm-5 pt-3">
+        <h4 class="head_agileinfo text-center text-capitalize text-center pt-5">
+            <span>K</span>iddos
+        </h4>
+    </div>
+    <!-- //inner banner -->
     <!-- breadcrumbs -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
                 <a href="home">Home</a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page"><%= page%></li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <%= page%>
+            </li>
         </ol>
     </nav>
     <!-- //breadcrumbs -->
@@ -50,22 +51,24 @@
                         </ul>
                     </div>
                     <!-- // preference -->
-                   
+
                     <!-- price range -->
                     <div class="range">
                         <h3 class="shopf-sear-headits-sear-head">
-                            <span>Price</span> range</h3>
+                            <span>Price</span> range
+                        </h3>
                         <ul class="dropdown-menu6">
                             <li>
 
                                 <div id="slider-range"></div>
-                                <input type="text" id="amount" style="border: 0; color: #ffffff; font-weight: normal;" />
+                                <input type="text" id="amount"
+                                    style="border: 0; color: #ffffff; font-weight: normal;" />
                             </li>
                         </ul>
                     </div>
                     <!-- //price range -->
                     <!--preference -->
-                    
+
                     <!-- // preference -->
                     <!-- discounts -->
                     <div class="left-side">
@@ -185,7 +188,7 @@
                     </div>
                     <!-- //discounts -->
                     <!-- reviews -->
-                    
+
                     <!-- //reviews -->
                 </div>
                 <!-- //grid left -->
@@ -195,25 +198,32 @@
                     <div class="card-group">
                         <!-- card -->
 
-                        <%
-                        data.forEach((item)=>{
+                        <% data.forEach((item)=>{
                             %>
                             <div class="col-lg-3 col-sm-6 p-0">
                                 <div class="card product-men p-3">
                                     <div class="men-thumb-item">
-                                        <img src="productImages/<%=item.image[0]%>" width="200 px" height="250 px" alt="<%=item.image[0]%>" class="card-img-top">
+                                        <img src="productImages/<%=item.image[0]%>" width="200 px" height="250 px"
+                                            alt="<%=item.image[0]%>" class="card-img-top">
                                         <div class="men-cart-pro">
                                             <div class="inner-men-cart-pro">
-                                                <a href="product?id=<%=item._id%>" class="link-product-add-cart">Quick View</a>
+                                                <a href="product?id=<%=item._id%>" class="link-product-add-cart">Quick
+                                                    View</a>
                                             </div>
                                         </div>
                                     </div>
                                     <!-- card body -->
                                     <div class="card-body  py-3 px-2">
-                                        <h5 class="card-title text-capitalize"><%=item.title%></h5>
+                                        <h5 class="card-title text-capitalize">
+                                            <%=item.title%>
+                                        </h5>
                                         <div class="card-text d-flex justify-content-between">
-                                            <p class="text-dark font-weight-bold"><%=item.discounted_price%></p>
-                                            <p class="line-through"><%=item.actual_price%></p>
+                                            <p class="text-dark font-weight-bold">
+                                                <%=item.discounted_price%>
+                                            </p>
+                                            <p class="line-through">
+                                                <%=item.actual_price%>
+                                            </p>
                                         </div>
                                     </div>
                                     <!-- card footer -->
@@ -228,20 +238,20 @@
                                             </button>
                                             <a href="#" data-toggle="modal" data-target="#myModal1"></a>
                                         </form> -->
-                                         <!-- <form action="" method="">
+                                        <!-- <form action="" method="">
                                             <input type="submit"  onclick="addToCart('<%=item._id%>')" value="Add to Cart"> -->
-                                        <button type="submit" style="cursor: pointer;" onclick="addToCart('<%=item._id%>')"><i class="fa fa-cart-plus" aria-hidden="true"></i></button>
-                                          <!-- </form> -->
+                                        <button type="submit" style="cursor: pointer;"
+                                            onclick="addToCart('<%=item._id%>')"><i class="fa fa-cart-plus"
+                                                aria-hidden="true"></i></button>
+                                        <!-- </form> -->
                                     </div>
                                 </div>
                             </div>
 
-                            <%
-                        })
-                        %>
+                            <% }) %>
 
-                        <!-- //card -->
-                        
+                                <!-- //card -->
+
                     </div>
                     <!-- //card group -->
                 </div>
@@ -252,24 +262,28 @@
 
     <script>
 
-       
-        function addToCart(productId){
-           console.log(productId);
+
+        function addToCart(productId) {
+            console.log(productId);
             $.ajax({
-                url:`/addToCart?productId=${productId}`,
-                type:'get',
+                url: `/addToCart?productId=${productId}`,
+                type: 'get',
                 // contentType:'application/json',
                 // data:JSON.stringify({productId:productId}),
-                success:(response)=>{
+                success: (response) => {
                     // or we can check if (response.update), because {update:true} is the json response sent from the backend after cart is updated
-                    let cartValue=$('#cartCount').html()
-                    cartValue=parseInt(cartValue)+1
-                    $('#cartCount').html(cartValue)
-                    console.log('success',response);
-                    alert('Product added to cart')
+                    if (response.update) {
+                        // let cartNumber = $('#cartCount').html()
+                        let cartNumber=document.getElementById('cartCount').innerHTML
+                       let cartValue = parseInt(cartNumber) + 1
+                         console.log(cartValue);
+                         document.getElementById('cartCount').innerHTML=cartValue
+                        console.log('success', response);
+                        alert('Product added to cart')
+                    }
                 },
-                error:(jqXHR,textStatus,errorThrown)=>{
-                    console.log(textStatus,errorThrown);
+                error: (jqXHR, textStatus, errorThrown) => {
+                    console.log(textStatus, errorThrown);
                 }
             })
 

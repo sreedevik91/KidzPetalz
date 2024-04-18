@@ -1,4 +1,5 @@
 const userModel = require('../models/userModel')
+const addressModel = require('../models/addressModel')
 const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer')
 const dotenv = require('dotenv')
@@ -233,10 +234,13 @@ const verifyLogin = async (req, res) => {
                     req.session.userId = user._id
                     let cart = await cartModel.findOne({ user: req.session.userId })
                     // console.log(cart);
-                    let cartCount = null
+                    let cartCount
                     if (cart) {
                         cartCount = cart.quantity
                         // or this also could be used:- cartCount=cart.products.length
+                        req.session.cartCount = cartCount
+                    }else{
+                        cartCount=0
                         req.session.cartCount = cartCount
                     }
                     res.redirect('/home')
@@ -289,7 +293,7 @@ const loadHome = async (req, res) => {
 const loadUserHome = async (req, res) => {
 
     try {
-        res.render('home', { login: true, id: req.session.userId, cartCount:req.session.cartCount })
+        res.render('home', { login: true, id: req.session.userId, cartCount: req.session.cartCount })
         // if (req.session.login) {
         //     res.render('home', { login: true,userId:req.session.userId })
         // } else {
@@ -495,6 +499,58 @@ const changePassword = async (req, res) => {
     }
 }
 
+// load user profile
+
+const loadProfile = async (req, res) => {
+    try {
+
+        res.render('userProfile', { page: 'Profile', data: '', id: req.session.userId, cartCount: req.session.cartCount })
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+// add address
+
+const addAddress = async (req, res) => {
+    try {
+
+        const newAddress = new addressModel({
+            userId: req.body.userId,
+            billingAddress: {
+                building: req.body.building,
+                city: req.body.city,
+                state: req.body.state,
+                country: req.body.country,
+                pbNumber: req.body.pbNumber,
+                contactNumber: req.body.mobile,
+            },
+            shippingAddress: [
+                {
+                    building: req.body.building,
+                    city: req.body.city,
+                    state: req.body.state,
+                    country: req.body.country,
+                    pbNumber: req.body.pbNumber,
+                    contactNumber: req.body.mobile,
+                }
+            ]
+        })
+
+        const address=await newAddress.save()
+
+        if(address){
+            console.log(address);
+        }
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
 // const goBackLogin404=async(req,res)=>{
 //     try {
 //         res.redirect('/login')
@@ -528,6 +584,8 @@ module.exports = {
     updateNewPassword,
     loadChangePassword,
     changePassword,
+    loadProfile,
+    addAddress
     // goBackLogin404
 }
 

@@ -1,0 +1,285 @@
+<%- include('../layout/homeheader.ejs') %>
+
+    </header>
+    <!-- //header -->
+    <!-- inner banner -->
+    <div class="ibanner_w3 pt-sm-5 pt-3">
+        <h4 class="head_agileinfo text-center text-capitalize text-center pt-5">
+            <span>K</span>iddos
+        </h4>
+    </div>
+    <!-- //inner banner -->
+    <!-- breadcrumbs -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="home">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <%= page%>
+            </li>
+        </ol>
+    </nav>
+    <!-- //breadcrumbs -->
+    <!--checkout-->
+    <section class="checkout_wthree py-sm-5 py-3">
+        <div class="container">
+            <div class="check_w3ls">
+
+                <form action="" method="" id="placeOrderForm" class="creditly-card-form shopf-sear-headinfo_form">
+
+                    <div class="row checkout-left mt-5">
+
+                        <div class="col-md-6 address_form">
+                            <h4>Shipping Address</h4>
+
+                            <% data.forEach((item)=>{
+                                %>
+                                <div class="" style="display: flex; margin-bottom: 0;">
+                                    <input type="radio" name="shippingAddress" value="<%= item.shippingAddress._id%>"
+                                        style="margin-top: -25%;" required>
+                                        
+                                    <label style="padding-top: 0%; padding-left: 5%;">
+                                        <p>
+                                            <%= item.shippingAddress.building%>
+                                        </p>
+                                        <p>
+                                            <%= item.shippingAddress.city%>
+                                        </p>
+                                        <p>
+                                            <%= item.shippingAddress.state%>
+                                        </p>
+                                        <p>
+                                            <%= item.shippingAddress.country%>
+                                        </p>
+                                        <p>
+                                            <%= item.shippingAddress.pbNumber%>
+                                        </p>
+                                        <p>
+                                            <%= item.shippingAddress.contactNumber%>
+                                        </p>
+                                    </label>
+
+                                    <!-- <div class="information-wrapper">
+                                        <div class="first-row form-group">
+                                            <div class="controls">
+                                                <label class="control-label">Full name: </label>
+                                                <input class="billing-address-name form-control" type="text" name="name"
+                                                    placeholder="Full name">
+                                            </div>
+                                            <div class="card_number_grids">
+                                                <div class="card_number_grid_left">
+                                                    <div class="controls">
+                                                        <label class="control-label">Mobile number:</label>
+                                                        <input class="form-control" name="mobile" type="text"
+                                                            placeholder="Mobile number">
+                                                    </div>
+                                                </div>
+                                                <div class="card_number_grid_right">
+                                                    <div class="controls">
+                                                        <label class="control-label">Landmark: </label>
+                                                        <input class="form-control" name="landmark" type="text"
+                                                            placeholder="Landmark">
+                                                    </div>
+                                                </div>
+                                                <div class="clear"> </div>
+                                            </div>
+                                            <div class="controls">
+                                                <label class="control-label">Town/City: </label>
+                                                <input class="form-control" type="text" name="city" placeholder="Town/City">
+                                            </div>
+                                            <div class="controls">
+                                                <label class="control-label">Address type: </label>
+                                                <select class="form-control option-fieldf" name="type">
+                                                    <option>Office</option>
+                                                    <option>Home</option>
+                                                    <option>Commercial</option>
+    
+                                                </select>
+                                            </div>
+                                            <input type="hidden" name="userId" value="<%=id%>">
+                                        </div>
+                                        <a class="btn btn-info float-right"
+                                            style="border-radius: 10px;" onclick="addShippingAddress('<%=id%>')">Add
+                                            Address</a>
+                                    </div> -->
+                                </div>
+
+                                <input type="hidden" name="userId" value="<%=id%>">
+                                <% }) %>
+
+                                    <a href="" style="color: #777;"> <span style="font-size:x-large;">+ </span> Add
+                                        Address</a>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static"
+                                        data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
+                                        aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    ...
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Close</button>
+                                                    <button type="button" class="btn btn-primary">Understood</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 style="color: #0076BE;margin-top: 50px;">Payment Method</h4>
+                                        <div><label for="">
+                                                <input type="radio" value="cod" name="paymentMethod" checked> COD
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <label for="">
+                                                <input type="radio" value="onlinePayment" name="paymentMethod"> Online
+                                                Payment
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- </form> -->
+
+                        </div>
+
+
+                        <div class="col-md-1"></div>
+                        <div class="col-md-5 checkout-left-basket">
+                            <div class="checkout-right col-md-6 ms-0" style="margin-left: 0;">
+                                <div class="mb-4">
+                                    <span style="color: #0076BE;font-size: 1.5em;">Review your order</span>
+
+
+                                </div>
+                                <table class="timetable_sub">
+                                    <thead>
+                                        <tr>
+                                            <th>SL No.</th>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Product Name</th>
+                                            <th>Price</th>
+                                            <th>Remove</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <span>
+
+                                        </span>
+
+                                        <tr class="rem1">
+                                            <td class="invert">1</td>
+                                            <td class="invert-image">
+                                                <a href="single_product.html">
+                                                    <img src="" alt="" width="200px" height="30px"
+                                                        class="img-responsive">
+                                                </a>
+                                            </td>
+                                            <td class="invert">
+                                                <div class="quantity">
+                                                    <div class="quantity-select">
+
+                                                        <div class="entry value">
+
+                                                            <span id="">
+
+                                                            </span>
+
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="invert">
+
+                                                <br>
+                                                Price ₹
+                                            </td>
+
+                                            <td class="invert">₹<span id=""></span>
+                                            </td>
+                                            <td class="invert">
+                                                <button type="button" class="btn-danger">Remove</button>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div
+                                style="margin-top: 50px; border: thick double #32a1ce;padding: 10px; margin-left: 50px;">
+                                <h4 style="color: #0076BE;">Order Summary</h4>
+                                <ul>
+                                    <!-- <li>Solid Men's Black Shirt
+                                <i>-</i>                                            
+                                <span>$20.00 </span>
+                            </li>
+                            <li>Women's Light Blue Tunic
+                                <i>-</i>
+                                <span>$35.00 </span>
+                            </li> -->
+                                    <li>Items
+                                        <i>-</i>
+                                        <span>
+                                            <%=cartCount%>
+                                        </span>
+                                    </li>
+                                    <li>Order Total
+                                        <i>-</i>
+                                        <span> ₹<span>
+                                                <%= cartTotalAmount%>
+                                            </span></span>
+                                    </li>
+                                    <li><button href="/placeOrder" type="submit" class="btn btn-info float-right mt-4"
+                                            style="border-radius: 10px;">Place Order</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </section>
+
+    <script>
+
+
+        $('#placeOrderForm').submit((e) => {
+            e.preventDefault()
+            $.ajax({
+                url: '/placeOrder',
+                method: 'post',
+                data: $('#placeOrderForm').serialize(),
+                success: (response) => {
+                    if(response.status==='placed'){
+                        location.href='/orderSuccess'
+                    }
+                }
+            })
+        })
+
+        function addShippingAddress(userId) {
+            $.ajax({
+                url: '/addShippingAddress',
+                method: 'post',
+                data: { userId },
+                success: (response) => {
+
+                }
+            })
+        }
+
+    </script>
+    <!--//checkout-->
+
+    <%- include('../layout/homefooter.ejs') %>

@@ -1,6 +1,8 @@
 <%- include('../layout/homeheader.ejs') %>
 
     </header>
+
+    <% var cartTotalAmount %> 
     <!-- //header -->
     <!-- inner banner -->
     <div class="ibanner_w3 pt-sm-5 pt-3">
@@ -29,7 +31,7 @@
                     <h4>review your order
                     </h4>
                     <h4 class="mt-sm-0 mt-3">Your shopping cart contains:
-                        <span><%=cartCount%> Products</span>
+                        <span id="cartPageCount"><%=cartCount%> </span>Products
                     </h4>
                 </div>
                 <div class="checkout-right">
@@ -98,10 +100,11 @@
                     </table>
                 </div>
                 <div class="row checkout-left mt-5">
-                    <div class="col-md-4 checkout-left-basket">
+                    <div class="col-md-8"></div>
+                    <div class="col-md-4 checkout-left-basket float-right">
                         <h4>Continue to basket</h4>
                         <ul>
-                            <li>Solid Men's Black Shirt
+                            <!-- <li>Solid Men's Black Shirt
                                 <i>-</i>
                                 <span>$20.00 </span>
                             </li>
@@ -112,68 +115,31 @@
                             <li>Boy's Casual Shirt & Trouser Set
                                 <i>-</i>
                                 <span>$23.00</span>
-                            </li>
+                            </li> -->
                             <li>Total
                                 <i>-</i>
-                                <span>$78.00</span>
+                               <span> ₹<span id="totalCartAmount"><%=cartTotalAmount%></span></span>
                             </li>
+                            <li><a href="/checkout" class="btn btn-secondary float-right">Proceed to Checkout</a></li>
                         </ul>
                     </div>
-                    <div class="col-md-8 address_form">
-                        <h4>Billing Address</h4>
-                        <form action="payment.html" method="post" class="creditly-card-form shopf-sear-headinfo_form">
-                            <div class="creditly-wrapper wrapper">
-                                <div class="information-wrapper">
-                                    <div class="first-row form-group">
-                                        <div class="controls">
-                                            <label class="control-label">Full name: </label>
-                                            <input class="billing-address-name form-control" type="text" name="name"
-                                                placeholder="Full name">
-                                        </div>
-                                        <div class="card_number_grids">
-                                            <div class="card_number_grid_left">
-                                                <div class="controls">
-                                                    <label class="control-label">Mobile number:</label>
-                                                    <input class="form-control" type="text" placeholder="Mobile number">
-                                                </div>
-                                            </div>
-                                            <div class="card_number_grid_right">
-                                                <div class="controls">
-                                                    <label class="control-label">Landmark: </label>
-                                                    <input class="form-control" type="text" placeholder="Landmark">
-                                                </div>
-                                            </div>
-                                            <div class="clear"> </div>
-                                        </div>
-                                        <div class="controls">
-                                            <label class="control-label">Town/City: </label>
-                                            <input class="form-control" type="text" placeholder="Town/City">
-                                        </div>
-                                        <div class="controls">
-                                            <label class="control-label">Address type: </label>
-                                            <select class="form-control option-fieldf">
-                                                <option>Office</option>
-                                                <option>Home</option>
-                                                <option>Commercial</option>
-
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <button class="submit check_out">place order</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+                    
                 </div>
             </div>
         </div>
     </section>
 
     <script>
+
+    
+
         function changeQuantity(cartId,productId,count,totalAmount,unitPrice){
             let quantity=parseInt(document.getElementById(productId).innerHTML)
             let cartValue=parseInt(document.getElementById('cartCount').innerHTML)
+            let cartPageValue=parseInt(document.getElementById('cartPageCount').innerHTML)
             let totalProductAmount=parseInt(document.getElementById(totalAmount).innerHTML)
+            let totalCartAmount=parseInt(document.getElementById('totalCartAmount').innerHTML)
+
             console.log(totalProductAmount);
             $.ajax({
                 url:'/changeProductQuantity',
@@ -193,10 +159,15 @@
                         alert('Maximun number of product to cart exceeded')
                         
                     }else{
+                        while(quantity>0){
                         document.getElementById(productId).innerHTML=quantity+count
                         document.getElementById('cartCount').innerHTML=cartValue+count
-                        console.log(unitPrice*count+totalProductAmount);
+                        document.getElementById('cartPageCount').innerHTML=cartValue+count
                         document.getElementById(totalAmount).innerHTML=`${totalProductAmount+(unitPrice*count)}`
+                        console.log(unitPrice*count+totalProductAmount);
+                        document.getElementById('totalCartAmount').innerHTML=totalCartAmount+((parseInt(unitPrice))*count)
+                        }
+                        
                         
                         alert(response)
                     }
@@ -220,6 +191,7 @@
             })
         }
 
+   
     </script>
     <!--//checkout-->
 

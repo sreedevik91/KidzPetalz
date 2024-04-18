@@ -157,20 +157,23 @@ td.invert-image a img {
 .checkout-left-basket h4 {
 	padding: 1em;
 	background: #eee;
-	font-size: 1em;
+	font-size: 1.5em;
 	color: #000;
 	letter-spacing: 1px;
 	font-weight: 600;
 	text-transform: uppercase;
 	text-align: center;
 	margin: 0 0 2em;
+	border-radius: 1em;
 }
 
 .checkout-left-basket ul li {
 	list-style-type: none;
 	margin-bottom: 1em;
-	font-size: 14px;
-	color: #999;
+	font-size: 18px;
+	color: #000;
+	border-radius: 1em;
+
 }
 
 .checkout-left-basket {
