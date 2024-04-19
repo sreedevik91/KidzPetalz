@@ -1,0 +1,39 @@
+<%- include('../layout/formheader.ejs') %>
+
+<section class="checkout_wthree py-sm-5 py-3">
+    <div class="container">
+
+        <form action="/updateProfile" method="post" class="form-horizontal">
+            <fieldset class="fieldset">
+             
+                <div class="form-group">
+                    <label class="control-label">Name: </label>
+                    <input class="billing-address-name form-control" type="text" name="name"
+                        placeholder="Full name"  value="<%= data.name%>">
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label">Email: </label>
+                    <input class="billing-address-name form-control" type="text" name="email"
+                        placeholder="Email"  value="<%= data.email%>">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Mobile: </label>
+                    <input class="billing-address-name form-control" type="text" name="mobile"
+                        placeholder="Mobile" value="<%= data.mobile%>">
+                </div>
+            </fieldset>
+
+            <hr>
+            <div class="form-group">
+                <div class="col-md-10 col-sm-9 col-xs-12 col-md-push-2 col-sm-push-3 col-xs-push-0">
+                    <input class="btn btn-info" type="submit" value="Update Profile">
+                </div>
+            </div>
+        </form>
+        
+    </div>
+</section>
+
+
+<%- include('../layout/formfooter.ejs') %>

@@ -74,6 +74,8 @@ router.get('/home',auth.isLogin,blocked.isBlocked,userController.loadUserHome)
 
 router.get('/products',auth.isLogin, blocked.isBlocked,userController.loadProducts)
 
+router.post('/products',auth.isLogin, blocked.isBlocked,userController.loadFilteredProducts)
+
 router.get('/boys',auth.isLogin,blocked.isBlocked, userController.loadBoys)
 
 router.get('/girls',auth.isLogin,blocked.isBlocked, userController.loadGirls)
@@ -96,7 +98,19 @@ router.get('/orderSuccess',auth.isLogin, orderController.loadOrderSuccess)
 
 router.get('/userProfile',auth.isLogin, userController.loadProfile)
 
-router.post('/addAddress', userController.addAddress)
+router.route('/addAddress')
+  .get(auth.isLogin,userController.loadAddAddress)
+  .post(userController.addAddress)
+
+router.route('/updateAddress')
+  .get(auth.isLogin,userController.loadUpdateAddress)
+  .post(userController.updateAddress)
+
+router.route('/updateProfile')
+  .get(auth.isLogin,userController.loadUpdateProfile)
+  .post(userController.updateProfile)
+  
+router.get('/deleteAddress', userController.deleteAddress)
 
 router.post('/placeOrder', checkoutController.placeOrder)
 

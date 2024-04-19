@@ -1,0 +1,67 @@
+<%- include('../layout/formheader.ejs') %>
+
+<section class="checkout_wthree py-sm-5 py-3">
+    <div class="container">
+
+
+        <form action="/addAddress" method="post" class="form-horizontal">
+            <fieldset class="fieldset">
+               
+                <div class="form-group">
+                    <label class="control-label">Name: </label>
+                    <input class="billing-address-name form-control" type="text" name="name"
+                        placeholder="Full name">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Building: </label>
+                    <input class="form-control" name="building" type="text" placeholder="Building">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Town/City: </label>
+                    <input class="form-control" name="city" type="text" placeholder="Town/City">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">State: </label>
+                    <input class="form-control" type="text" name="state" placeholder="State">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Country: </label>
+                    <input class="form-control" type="text" name="country" placeholder="Country">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Pb Number: </label>
+                    <input class="form-control" type="number" name="pbNumber"
+                        placeholder="Pb Number">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Mobile number:</label>
+                    <input class="form-control" name="mobile" type="number"
+                        placeholder="Mobile number">
+                </div>
+
+               <div class="form-group">
+                    <label class="control-label">Address type: </label>
+                    <select class="form-control option-fieldf" name="type">
+                        <option></option>
+                        <option>Shipping Address</option>
+                        <option>Billing Address</option>
+
+                    </select>
+                </div>
+                <input type="hidden" name="userId" value="<%=id%>">
+            </fieldset>
+            <hr>
+            <div class="form-group">
+                <div class="col-md-10 col-sm-9 col-xs-12 col-md-push-2 col-sm-push-3 col-xs-push-0">
+
+                    <input class="btn btn-info" type="submit" value="Add Address">
+
+                </div>
+            </div>
+
+        </form>
+    </div>
+</section>
+
+
+<%- include('../layout/formfooter.ejs') %>

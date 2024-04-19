@@ -32,19 +32,19 @@
                             Sort by</h3>
                         <ul>
                             <li>
-                                <input type="checkbox" class="checked" name="cat1" id="cat1">
+                                <input type="checkbox" class="checked"  name="cat1" id="cat1" value="Popular">
                                 <label for="cat1">Popular</label>
                             </li>
                             <li>
-                                <input type="checkbox" class="checked" name="cat2" id="cat2">
+                                <input type="checkbox" class="checked"  name="cat2" id="cat2" value="Highest Price">
                                 <label for="cat2">Highest Price</label>
                             </li>
                             <li>
-                                <input type="checkbox" class="checked" name="cat3" id="cat3">
+                                <input type="checkbox" class="checked" name="cat3" id="cat3" value="Lowest Price">
                                 <label for="cat3">Lowest Price</label>
                             </li>
                             <li>
-                                <input type="checkbox" class="checked" name="cat4" id="cat4">
+                                <input type="checkbox" class="checked" name="cat4" id="cat4" value="New Arrivals">
                                 <label for="cat4">New Arrivals</label>
                             </li>
 
@@ -262,6 +262,101 @@
 
     <script>
 
+        var checkedCategories= []
+
+        var checkedSortOptions={}
+
+        const checkbox1=document.getElementById('cat1')
+        // console.log(checkbox1);
+        checkbox1.addEventListener('input',(event)=>{
+            if(event.target.checked){
+                console.log(event.target.value);
+                checkedCategories.push(event.target.value)
+            }
+        })
+
+        const checkbox2=document.getElementById('cat2')
+        checkbox2.addEventListener('input',(event)=>{
+            if(event.target.checked){
+                console.log(event.target.value);
+                checkedSortOptions.high=event.target.value
+            }
+        })
+
+        const checkbox3=document.getElementById('cat3')
+        checkbox3.addEventListener('input',(event)=>{
+            if(event.target.checked){
+                console.log(event.target.value);
+                checkedSortOptions.low=event.target.value
+            }
+        })
+
+        const checkbox4=document.getElementById('cat4')
+        checkbox4.addEventListener('input',(event)=>{
+            if(event.target.checked){
+                console.log(event.target.value);
+                checkedCategories.push(event.target.value)
+            }
+        })
+
+        console.log(checkedCategories);
+        console.log(checkedSortOptions);
+
+        // $(document).ready(()=>{
+        //      var checkedSearchValue=$('input:checkbox:checked').val()
+        //     console.log(checkedSearchValue)
+        // })
+        
+        // var checkedSearchValue=$('input:checkbox:checked').val()
+
+        /////////////////////////////////////////
+        // var checkedSearchValue= {}
+        // function productFilter(filterKey){
+        //     // let checkedSearchValue=document.querySelector("input[type='checkbox']").value
+        //     if (filterKey=='Highest Price'){
+        //         checkedSearchValue.desc=-1
+        //     }
+        //     if (filterKey=='Lowest Price'){
+        //         checkedSearchValue.asce=1
+        //     }
+        //     if (filterKey=='Popular'){
+        //         checkedSearchValue.popular='popular'
+        //     }
+        //     if (filterKey=='New Arrivals'){
+        //         checkedSearchValue.new='newArrivals'
+        //     }
+        //     // checkedSearchValue.push(filterKey)
+        //     // console.log(checkedSearchValue);
+        //     $.ajax({
+        //         url:`/products`,
+        //         method:'post',
+        //         data:{filterArray:checkedSearchValue},
+        //         succes:(response)=>{
+        //             // if(response.status){
+        //             //     location.reload()
+        //             // }
+        //         }
+        //     })
+
+        /////////////////////////////////
+
+            // let values=checkedSearchValue.join(" ").split(",")
+            // console.log(values)
+
+            // checkedSearchValue.forEach((e)=>{
+            // console.log(e);
+            // })
+
+            // console.log(...checkedSearchValue);
+            //     let keys={}
+            //  keys=checkedSearchValue.reduce((acc,cur,index)=>{
+            //     acc[index]=cur
+            //     return acc
+            // },{})
+            // console.log(keys);
+
+
+        // }    
 
         function addToCart(productId) {
             console.log(productId);

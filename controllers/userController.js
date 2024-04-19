@@ -239,8 +239,8 @@ const verifyLogin = async (req, res) => {
                         cartCount = cart.quantity
                         // or this also could be used:- cartCount=cart.products.length
                         req.session.cartCount = cartCount
-                    }else{
-                        cartCount=0
+                    } else {
+                        cartCount = 0
                         req.session.cartCount = cartCount
                     }
                     res.redirect('/home')
@@ -305,6 +305,7 @@ const loadUserHome = async (req, res) => {
 }
 const loadProducts = async (req, res) => {
     try {
+      
         const products = await productModel.find({ _id: { $exists: true }, is_listed: true })
         if (products) {
             res.render('allproducts', { page: 'Products', data: products, id: req.session.userId, cartCount: req.session.cartCount })
@@ -313,6 +314,39 @@ const loadProducts = async (req, res) => {
         }
     } catch (error) {
         console.log(error.message);
+    }
+}
+
+const loadFilteredProducts=async(req,res)=>{
+    try {
+       
+        let filterArray=req.body.filterArray
+        console.log(filterArray);
+        let products=[]
+      
+            if(filterArray.desc=='-1'){
+                let product=await productModel.find({_id: { $exists: true }, is_listed: true}).sort({discounted_price:-1})
+                products.push(...product)
+            }
+            if(filterArray.asce=='-1'){
+                let product=await productModel.find({_id: { $exists: true }, is_listed: true}).sort({discounted_price:1})
+                products.push(...product)
+
+            }
+            if(filterArray.popular=='popular'){
+                let product=await productModel.find({is_listed: true,tags:{$elemMatch:{ $regex: `.*popular.*`, $options: 'i' }}})
+                products.push(...product)
+            }
+       
+
+        console.log('products: /n'+products);
+        
+        // res.render('allproducts', { page: 'Products', data: products, id: req.session.userId, cartCount: req.session.cartCount })
+
+
+    } catch (error) {
+        console.log(error.message);
+        
     }
 }
 
@@ -504,11 +538,35 @@ const changePassword = async (req, res) => {
 const loadProfile = async (req, res) => {
     try {
 
-        res.render('userProfile', { page: 'Profile', data: '', id: req.session.userId, cartCount: req.session.cartCount })
+        let userId = req.session.userId
+
+        let user = await userModel.findOne({ _id: userId })
+        // console.log(user);
+
+        let address = await addressModel.findOne({ userId: userId })
+        // console.log(address);
+        if (address) {
+            res.render('userProfile', { page: 'Profile', userData: user, addressData: address, id: req.session.userId, name: req.session.user.name, cartCount: req.session.cartCount })
+
+        } else {
+            res.render('userProfile', { page: 'Profile', userData: user, addressData: '', id: req.session.userId, name: req.session.user.name, cartCount: req.session.cartCount })
+
+        }
 
     } catch (error) {
         console.log(error.message);
 
+    }
+}
+
+//load address
+
+const loadAddAddress = async (req, res) => {
+    try {
+        res.render('addAddress', { form: "Add Address", id: req.session.userId, message: '', text: '' })
+
+    } catch (error) {
+        console.log(error.message);
     }
 }
 
@@ -517,37 +575,214 @@ const loadProfile = async (req, res) => {
 const addAddress = async (req, res) => {
     try {
 
-        const newAddress = new addressModel({
-            userId: req.body.userId,
-            billingAddress: {
-                building: req.body.building,
-                city: req.body.city,
-                state: req.body.state,
-                country: req.body.country,
-                pbNumber: req.body.pbNumber,
-                contactNumber: req.body.mobile,
-            },
-            shippingAddress: [
-                {
+        let userId = req.session.userId
+        console.log(userId);
+        console.log(req.body);
+        let addressData = await addressModel.findOne({ userId })
+        console.log(addressData);
+
+        if (addressData._id) {
+            if (req.body.type == 'Shipping Address') {
+
+                let shippingAddress = {
+
+                    name: req.body.name,
                     building: req.body.building,
                     city: req.body.city,
                     state: req.body.state,
                     country: req.body.country,
                     pbNumber: req.body.pbNumber,
-                    contactNumber: req.body.mobile,
+                    contactNumber: req.body.mobile
                 }
-            ]
-        })
 
-        const address=await newAddress.save()
+                let updateAddress = await addressModel.updateOne({ userId }, { $push: { shippingAddress: shippingAddress } })
 
-        if(address){
-            console.log(address);
+                if (updateAddress) {
+                    console.log('shipping address updated');
+                    res.redirect('/userProfile')
+                }
+
+            } else {
+
+                let billingAddress = {
+
+                    name: req.body.name,
+                    building: req.body.building,
+                    city: req.body.city,
+                    state: req.body.state,
+                    country: req.body.country,
+                    pbNumber: req.body.pbNumber,
+                    contactNumber: req.body.mobile
+                }
+
+                let updateAddress = await addressModel.updateOne({ userId }, { $set: { billingAddress: billingAddress } })
+
+                if (updateAddress) {
+                    console.log('billing address updated');
+                    res.redirect('/userProfile')
+
+                }
+            }
+        } else {
+
+            const newAddress = new addressModel({
+                userId: req.body.userId,
+                billingAddress: {
+                    name: req.body.name,
+                    building: req.body.building,
+                    city: req.body.city,
+                    state: req.body.state,
+                    country: req.body.country,
+                    pbNumber: req.body.pbNumber,
+                    contactNumber: req.body.mobile
+                },
+                shippingAddress: [
+                    {
+                        name: req.body.name,
+                        building: req.body.building,
+                        city: req.body.city,
+                        state: req.body.state,
+                        country: req.body.country,
+                        pbNumber: req.body.pbNumber,
+                        contactNumber: req.body.mobile
+                    }
+                ]
+            })
+
+            const address = await newAddress.save()
+
+            if (address) {
+                console.log('address added');
+                res.redirect('/userProfile')
+            }
+        }
+
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+// load update address
+
+const loadUpdateAddress = async (req, res) => {
+    try {
+
+        let userId = req.session.userId
+        const address = await addressModel.findOne({ userId })
+
+        res.render('updateAddress', { form: "Update Address", data: address, id: req.session.userId, message: '', text: '' })
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+// update address
+
+const updateAddress = async (req, res) => {
+    try {
+        let userId = req.query.id
+
+        if (req.body.type == 'Shipping Address') {
+
+            let shippingAddress = {
+
+                building: req.body.building,
+                city: req.body.city,
+                state: req.body.state,
+                country: req.body.country,
+                pbNumber: req.body.pbNumber,
+                contactNumber: req.body.mobile
+            }
+
+            let updateAddress = await addressModel.updateOne({ userId }, { $push: { shippingAddress: shippingAddress } })
+            if (updateAddress) {
+                console.log('shipping address updated');
+                res.redirect('/userProfile')
+
+            }
+
+        } else {
+
+            let billingAddress = {
+                building: req.body.building,
+                city: req.body.city,
+                state: req.body.state,
+                country: req.body.country,
+                pbNumber: req.body.pbNumber,
+                contactNumber: req.body.mobile
+            }
+
+            let updateAddress = await addressModel.updateOne({ userId }, { $set: { billingAddress: billingAddress } })
+
+            if (updateAddress) {
+                console.log('billing address updated');
+                res.redirect('/userProfile')
+
+            }
         }
 
     } catch (error) {
         console.log(error.message);
 
+    }
+}
+
+// load update profile
+
+const loadUpdateProfile = async (req, res) => {
+    try {
+        let userId = req.session.userId
+        let user = await userModel.findOne({ _id: userId })
+
+        res.render('updateProfile', { form: "Update Profile", data: user, id: req.session.userId, message: '', text: '' })
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+// update address
+
+const updateProfile = async (req, res) => {
+    try {
+
+        let userId = req.session.userId
+        let name = req.body.name
+        let email = req.body.email
+        let mobile = req.body.mobile
+
+
+        let updateUser = await userModel.updateOne({ _id: userId }, { $set: { name: name, email: email, mobile: mobile } })
+
+
+        // console.log(user);
+        if (updateUser) {
+            console.log('user profile updated');
+            res.redirect('/userProfile')
+        }
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+const deleteAddress=async (req,res)=>{
+
+    try {
+        let shippingAddressId=req.query.id
+        console.log(shippingAddressId);
+        let userId=req.session.userId
+        let deleteAddress=await addressModel.updateOne({userId},{$pull:{shippingAddress:{_id:shippingAddressId}}})
+        if(deleteAddress){
+            res.json('address deleted')
+        }
+    } catch (error) {
+        console.log(error.message);
+        
     }
 }
 
@@ -570,6 +805,7 @@ module.exports = {
     loadBoys,
     loadGirls,
     loadProduct,
+    loadFilteredProducts,
     loadLogin,
     verifyLogin,
     sendVerificationMail,
@@ -585,7 +821,13 @@ module.exports = {
     loadChangePassword,
     changePassword,
     loadProfile,
-    addAddress
+    loadAddAddress,
+    addAddress,
+    loadUpdateAddress,
+    updateAddress,
+    loadUpdateProfile,
+    updateProfile,
+    deleteAddress
     // goBackLogin404
 }
 

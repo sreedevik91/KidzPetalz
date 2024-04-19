@@ -6,6 +6,10 @@ const addressSchema= mongoose.Schema({
         required:true
     },
     billingAddress:{
+        name: {
+            type: String,
+            required: true
+          },
         building: {
             type: String,
             required: true
@@ -33,6 +37,10 @@ const addressSchema= mongoose.Schema({
     },
     shippingAddress:[
         {
+            name: {
+              type: String,
+              required: true
+              },
             building: {
                 type: String,
                 required: true

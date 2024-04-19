@@ -1,69 +1,260 @@
 <%- include('../layout/homeheader.ejs') %>
 
-    <div class="container">
 
-        <form action="/addAddress" method="post" id="placeOrderForm" class="creditly-card-form shopf-sear-headinfo_form">
 
-            <div class="row checkout-left mt-5">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- inner banner -->
+    <div class="ibanner_w3 pt-sm-5 pt-3">
+        <h4 class="head_agileinfo text-center text-capitalize text-center pt-5">
+            <span>K</span>iddos
+        </h4>
+    </div>
+    <!-- //inner banner -->
+    <!-- breadcrumbs -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="home">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <%= page%>
+            </li>
+        </ol>
+    </nav>
+    <!-- //breadcrumbs -->
+    <section class="checkout_wthree py-sm-5 py-3">
+        <% var userData%>
+            <% var addressData%>
 
-                <div class="col-md-6 address_form">
 
-                    <div class="information-wrapper">
-                        <div class="first-row form-group">
-                            <div class="controls">
-                                <label class="control-label">Name: </label>
-                                <input class="billing-address-name form-control" type="text" name="name"
-                                    placeholder="Full name">
-                            </div>
-                            <div class="card_number_grids">
-                                <div class="card_number_grid_left">
-                                    <div class="controls">
-                                        <label class="control-label">Mobile number:</label>
-                                        <input class="form-control" name="mobile" type="number"
-                                            placeholder="Mobile number">
+                <div class="container">
+                    <div class="view-account">
+                        <section class="module">
+                            <div class="module-inner">
+                                <div class="side-bar">
+                                    <div class="user-info">
+                                        <img class="img-profile img-circle img-responsive center-block"
+                                            src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="">
+                                        <ul class="meta list list-unstyled">
+                                            <li class="name">Welcome <%= name%>
+                                                    <!-- <label class="label label-info">UX Designer</label> -->
+                                            </li>
+                                            <!-- <li class="email"><a href="#">Rebecca.S@website.com</a></li>
+                            <li class="activity">Last logged in: Today at 2:18pm</li> -->
+                                        </ul>
                                     </div>
+                                    <nav class="side-menu">
+                                        <ul class="nav">
+                                            <li class="active"><a href="#"><span class="fa fa-user"></span> Profile</a>
+                                            </li>
+                                            <li><a href="orders"><span class="fa fa-cog"></span> Orders</a></li>
+                                            <li><a href="#"><span class="fa fa-credit-card"></span> Wallet</a></li>
+                                            <li><a href="changePassword"><span class="fa fa-envelope"></span> Change
+                                                    Password</a></li>
+                                            <li><a href="logout"><span class="fa fa-th"></span> Logout</a></li>
+                                            <!-- <li><a href="#"><span class="fa fa-clock-o"></span> Reminders</a></li> -->
+                                        </ul>
+                                    </nav>
                                 </div>
-                                <div class="card_number_grid_right">
-                                    <div class="controls">
-                                        <label class="control-label">Building: </label>
-                                        <input class="form-control" name="building" type="text" placeholder="Landmark">
-                                    </div>
-                                </div>
-                                <div class="clear"> </div>
-                            </div>
-                            <div class="controls">
-                                <label class="control-label">Town/City: </label>
-                                <input class="form-control" type="text" name="city" placeholder="Town/City">
-                            </div>
-                            <div class="controls">
-                                <label class="control-label">State: </label>
-                                <input class="form-control" type="text" name="state" placeholder="Town/City">
-                            </div>
-                            <div class="controls">
-                                <label class="control-label">Country: </label>
-                                <input class="form-control" type="text" name="country" placeholder="Town/City">
-                            </div>
-                            <div class="controls">
-                                <label class="control-label">Pb Number: </label>
-                                <input class="form-control" type="number" name="pbNumber" placeholder="Town/City">
-                            </div>
-                            <div class="controls">
-                                <label class="control-label">Address type: </label>
-                                <select class="form-control option-fieldf" name="type">
-                                    <option>Office</option>
-                                    <option>Home</option>
-                                    <option>Commercial</option>
+                                <div class="content-panel">
+                                    <h4 class="title">Profile<span class="pro-label label label-warning"></span></h4>
+                                    <hr>
 
-                                </select>
+                                    <form class="form-horizontal">
+                                        <fieldset class="fieldset">
+                                            <h3 class="fieldset-title">Personal Info</h3>
+                                            <!-- <div class="form-group avatar">
+                                    <figure class="figure col-md-2 col-sm-3 col-xs-12">
+                                        <img class="img-rounded img-responsive" src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="">
+                                    </figure>
+                                    <div class="form-inline col-md-10 col-sm-9 col-xs-12">
+                                        <input type="file" class="file-uploader pull-left">
+                                        <button type="submit" class="btn btn-sm btn-default-alt pull-left">Update Image</button>
+                                    </div>
+                                </div> -->
+
+                                            <div class="form-group">
+                                                <label class="control-label">Name: </label>
+                                                <input class="billing-address-name form-control" type="text" name="name"
+                                                    placeholder="Full name" value="<%= userData.name%>" disabled>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="control-label">Email: </label>
+                                                <input class="billing-address-name form-control" type="text"
+                                                    name="email" placeholder="Email" value="<%= userData.email%>"
+                                                    disabled>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Mobile: </label>
+                                                <input class="billing-address-name form-control" type="text"
+                                                    name="mobile" placeholder="Mobile" value="<%= userData.mobile%>"
+                                                    disabled>
+                                            </div>
+
+
+                                        </fieldset>
+
+                                        <hr>
+                                        <div class="form-group">
+                                            <!-- <div class="col-md-10 col-sm-9 col-xs-12 col-md-push-2 col-sm-push-3 col-xs-push-0">
+                                            <input class="btn btn-info" type="submit" value="Update Profile">
+                                        </div> -->
+
+                                            <div
+                                                class="col-md-10 col-sm-9 col-xs-12 col-md-push-2 col-sm-push-3 col-xs-push-0 mt-3">
+                                                <a href="updateProfile?id=<%=id%>" class="btn btn-info">Update Profile
+                                                </a>
+                                            </div>
+
+                                        </div>
+                                    </form>
+
+
+                                    <% if(addressData){ %>
+                                        <form class="form-horizontal">
+                                            <fieldset class="fieldset">
+                                                <h3 class="fieldset-title">Contact Info</h3>
+
+                                                <h2 class="fieldset-title">Billing Address</h2>
+
+                                                <div class="form-group">
+                                                    <label class="control-label">Name: </label>
+                                                    <input class="billing-address-name form-control" type="text"
+                                                        name="name" placeholder="Full name"
+                                                        value="<%= addressData.billingAddress.name%>" disabled>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label">Building: </label>
+                                                    <input class="form-control" name="building" type="text"
+                                                        placeholder="Landmark"
+                                                        value="<%= addressData.billingAddress.building%>" disabled>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label">Town/City: </label>
+                                                    <input class="form-control" name="city" type="text"
+                                                        placeholder="Town/City"
+                                                        value="<%= addressData.billingAddress.city%>" disabled>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label">State: </label>
+                                                    <input class="form-control" type="text" name="state"
+                                                        placeholder="State"
+                                                        value="<%= addressData.billingAddress.state%>" disabled>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label">Country: </label>
+                                                    <input class="form-control" type="text" name="country"
+                                                        placeholder="Town/City"
+                                                        value="<%= addressData.billingAddress.country%>" disabled>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label">Pb Number: </label>
+                                                    <input class="form-control" type="number" name="pbNumber"
+                                                        placeholder="Pb Number"
+                                                        value="<%= addressData.billingAddress.pbNumber%>" disabled>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label">Contact number:</label>
+                                                    <input class="form-control" name="mobile" type="number"
+                                                        placeholder="Mobile number"
+                                                        value="<%= addressData.billingAddress.contactNumber%>" disabled>
+                                                </div>
+
+                                                <!-- <input type="hidden" name="addressType" value="Billing Address"> -->
+
+
+                                                <!-- <div class="form-group">
+                                            <label class="control-label">Address type: </label>
+                                            <select class="form-control option-fieldf" name="type">
+                                                <option></option>
+                                                <option>Shipping Address</option>
+                                                <option>Billing Address</option>
+    
+                                            </select>
+                                        </div> -->
+                                                <!-- <input type="hidden" name="userId" value="<%=id%>"> -->
+                                            </fieldset>
+                                            <hr>
+                                            <div class="form-group">
+                                                <!-- <div class="col-md-10 col-sm-9 col-xs-12 col-md-push-2 col-sm-push-3 col-xs-push-0">
+    
+                                            <input class="btn btn-info" type="submit" value="Update Address">
+    
+                                        </div> -->
+
+
+                                            </div>
+
+                                        </form>
+
+                                        <div class="form-group">
+                                            <div
+                                                class="col-md-10 col-sm-9 col-xs-12 col-md-push-2 col-sm-push-3 col-xs-push-0 mt-3">
+                                                <a href="updateAddress?id=<%=id%>" class="btn btn-info">Update Address
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <hr>
+
+                                        <h2 class="fieldset-title">Shipping Address</h2>
+                                        <div>
+
+                                            <% addressData.shippingAddress.forEach((item)=>{
+                                                %>
+                                                <div>
+
+                                                    <p>
+                                                        <%= item.name%>,<%=item.building%>,<%= item.city%>,
+                                                                    <%=item.state%>,<%= item.country%>,<%=
+                                                                                item.pbNumber%>
+                                                                                <br>
+                                                                                <%= item.contactNumber%>
+                                                    </p>
+                                                    <a><span class="position-relative"
+                                                            style="top: -70px;right: -350px;cursor:pointer"
+                                                            onclick="deleteAddress('<%=item._id%>')">&times;</span></a>
+                                                    <hr>
+                                                </div>
+                                                <% }) %>
+
+                                        </div>
+                                        <% } %>
+
+                                            <hr>
+
+                                            <div
+                                                class="col-md-10 col-sm-9 col-xs-12 col-md-push-2 col-sm-push-3 col-xs-push-0 mt-3">
+                                                <span
+                                                    style="font-size: x-large; padding-top: 50px; margin-right: 10px;">+</span>
+                                                <a href="addAddress?id=<%=id%>" class="btn btn-info">Add Address </a>
+                                            </div>
+                                            <hr>
+                                </div>
                             </div>
-                            <input type="hidden" name="userId" value="<%=id%>">
-                        </div>
-                        <button class="btn btn-info float-right" style="border-radius: 10px;">Add
-                            Address</button>
+                        </section>
                     </div>
                 </div>
-            </div>
-        </form>
-    </div>
-   
+    </section>
+
+<script>
+
+function deleteAddress(shippingAddressId){
+    console.log(shippingAddressId);
+    $.ajax({
+        url:`/deleteAddress?id=${shippingAddressId}`,
+        type:'get',
+        success:(response)=>{
+            location.reload()
+            alert(response)
+        }
+    })
+}
+
+
+</script>
+
+
+
     <%- include('../layout/homefooter.ejs') %>
