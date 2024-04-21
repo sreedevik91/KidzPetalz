@@ -46,6 +46,7 @@
                                     <th>Amount</th>
                                     <th>Payment Method</th>
                                     <th>Status</th>
+                                    <th>Options</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -64,8 +65,9 @@
                                             <%=e.title%><br>
                                             <%=e.amount%><br>
                                             <%=e.quantity%><br><hr>
-                                        
-                                        <%})%>
+
+                                            <%})%>
+                                       
                                     </td>
                                         <td class="invert-image">
                                             <%=item.shippingAddress.building%>, <%=item.shippingAddress.city%>, <%=item.shippingAddress.state%>, 
@@ -83,7 +85,13 @@
                                         <td class="invert">
                                             <%=item.status%>
                                         </td>
+                                     
+                                        <td>
+                                            <a class="btn btn-info" href="cancelOrder?id=<%=item._id%>">Cancel</a>
+                                        </td>
                                     </tr>
+
+                                  
 
                                     <% }) %>
 

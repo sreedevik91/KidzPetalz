@@ -2,6 +2,7 @@
 const userModel = require('../models/userModel')
 const categoryModel = require('../models/categoryModel')
 const productModel = require('../models/productModel')
+const orderModel = require('../models/orderModel')
 const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer')
 const dotenv = require('dotenv')
@@ -37,7 +38,7 @@ const loadAdminHome = async (req, res) => {
 const adminLogout = async (req, res) => {
     try {
         req.session.destroy()
-        res.redirect('/admin')  
+        res.redirect('/admin')
     } catch (error) {
         console.log(error.message);
 
@@ -181,17 +182,6 @@ const resetAdminPassword = async (req, res) => {
     }
 }
 
-const loadAdminOrderManagement = async (req, res) => {
-    try {
-
-        const users = await userModel.find({ is_admin: false })
-        res.render('adminOrderManagement', { data: users })
-
-    } catch (error) {
-        console.log(error.message);
-
-    }
-}
 
 
 const loadAdminCouponManagement = async (req, res) => {
@@ -518,7 +508,7 @@ const addCategory = async (req, res) => {
         const description = req.body.description
         const image = req.file.filename
 
-  
+
         const category = new categoryModel({
             name,
             description,
@@ -560,6 +550,7 @@ const loadEditCategory = async (req, res) => {
 
 const editCategory = async (req, res) => {
     try {
+       
         const name = req.body.name
         const description = req.body.description
         const image = req.file.filename
@@ -638,7 +629,7 @@ const loadAdminProductManagement = async (req, res) => {
             skip = (page - 1) * limit
         }
 
-        const product = await productModel.find({ _id: { $exists: true }, $or: [{ name: { $regex: `.*${search}.*`, $options: 'i' } }, { tags: { $regex: `.*${search}.*`, $options: 'i' } }] })
+        const product = await productModel.find({ _id: { $exists: true }, $or: [{ name: { $regex: `.*${search}.*`, $options: 'i' } }, { tags: { $regex: `.*${search}.*`, $options: 'i' } }, { description: { $regex: `.*${search}.*`, $options: 'i' } }] })
             .skip(skip)
             .limit(limit)
             .exec()
@@ -649,7 +640,7 @@ const loadAdminProductManagement = async (req, res) => {
             console.log('no data');
         }
 
-        const count = await productModel.find({ _id: { $exists: true }, $or: [{ name: { $regex: `.*${search}.*`, $options: 'i' } }, { description: { $regex: `.*${search}.*`, $options: 'i' } }] })
+        const count = await productModel.find({ _id: { $exists: true }, $or: [{ name: { $regex: `.*${search}.*`, $options: 'i' } }, { tags: { $regex: `.*${search}.*`, $options: 'i' } }, { description: { $regex: `.*${search}.*`, $options: 'i' } }] })
             .countDocuments()
 
         res.render('adminProductManagement', { data: product, totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1, search: search })
@@ -773,6 +764,7 @@ const loadEditProduct = async (req, res) => {
 const editProduct = async (req, res) => {
     try {
 
+        console.log(req.body.tag2);
         var arrImages = []
         for (let i = 0; i < req.files.length; i++) {
             arrImages[i] = req.files[i].filename
@@ -803,7 +795,7 @@ const editProduct = async (req, res) => {
         const title = req.body.title
         const description = desc
         const tags = pTags
-        const actual_price= req.body.actualPrice
+        const actual_price = req.body.actualPrice
         const discount = req.body.discount
         const discounted_price = req.body.discountedPrice
         const quantity = req.body.quantity
@@ -814,7 +806,7 @@ const editProduct = async (req, res) => {
         const is_listed = req.body.verify
 
 
-        const updateProduct = await productModel.findByIdAndUpdate({ _id: id }, { $set: { title: title, description: description, tags: tags, actual_price: actual_price, discount: discount, discounted_price:discounted_price, quantity: quantity, category_id: category_id, image: image, is_listed: is_listed } })
+        const updateProduct = await productModel.findByIdAndUpdate({ _id: id }, { $set: { title: title, description: description, tags: tags, actual_price: actual_price, discount: discount, discounted_price: discounted_price, quantity: quantity, category_id: category_id, image: image, is_listed: is_listed } })
         if (updateProduct) {
             res.redirect('/admin/product')
         } else {
@@ -858,8 +850,71 @@ const unlistProduct = async (req, res) => {
     }
 }
 
+// ordermanagement
+
+const loadAdminOrderManagement = async (req, res) => {
+    try {
+
+        const orders = await orderModel.find({})
+        res.render('adminOrderManagement', { data: orders })
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
 
 
+const loadEditOrder = async (req, res) => {
+    try {
+        const orderId = req.query.id
+        console.log(orderId);
+        let orders = await orderModel.findOne({ _id: orderId })
+
+        // send orders and display in edit page and design edit orders ejs page 
+        res.render('editOrder', { data: orders })
+
+
+    } catch (error) {
+        console.log(error);
+
+    }
+}
+
+const editOrder=async(req,res)=>{
+    try {
+        const status=req.body.status
+        const orderId=req.body.id
+        console.log(status);
+        let orders = await orderModel.updateOne({ _id: orderId },{$set:{status:status}})
+        if(orders){
+        res.redirect('/admin/order')
+        }else{
+            console.log('could not update');
+        }
+
+    } catch (error) {
+        console.log(error);
+        
+    }
+}
+
+const adminCancelOrder = async (req, res) => {
+    try {
+        const orderId = req.query.id
+        let orderCancelled = await orderModel.updateOne({ _id: orderId }, { $set: { status: 'cancelled' } })
+        //check if update happened else display error in a message span 
+        if(orderCancelled){
+            res.redirect('/admin/order')
+            }else{
+                console.log('could not update');
+            }
+
+    } catch (error) {
+        console.log(error);
+
+    }
+}
 
 module.exports = {
     loadAdminHome,
@@ -897,5 +952,8 @@ module.exports = {
     loadEditProduct,
     editProduct,
     listProduct,
-    unlistProduct
+    unlistProduct,
+    adminCancelOrder,
+    loadEditOrder,
+    editOrder
 }

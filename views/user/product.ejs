@@ -13,7 +13,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="index.html">Home</a>
+                <a href="home">Home</a>
             </li>
             <li class="breadcrumb-item active" aria-current="page"><%= page%></li>
         </ol>
@@ -122,6 +122,24 @@
                                 <input type="submit" value="Check">
                             </form>
                         </div>
+
+                        <div style=" margin: 20px 20px 20px 0;">
+                            <%
+                            if(message=='In Stock'){
+                                %>
+                                <p>
+                                    <span style="color: rgb(30, 187, 30);font-size: x-large;"><%= message %></span>
+                                </p>
+                                <%}else{  %>
+                                <p>
+                                    <span style="color: red;font-size: x-large;"><%= message %></span>
+                                </p>
+                                <%
+                            }
+                            %>
+                            
+                        </div>
+
                         <div class="occasion-cart">
                             <div class="chr single-item single_page_b">
                                 <form action="#" method="post">

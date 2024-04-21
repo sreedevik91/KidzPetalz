@@ -66,7 +66,7 @@ const loadCheckout=async (req,res)=>{
 const placeOrder= async (req,res)=>{
     try {
 
-        // console.log(req.body)
+        console.log(req.body)
         let userId=req.body.userId
         let shippingAddressId=req.body.shippingAddress
         let paymentMethod=req.body.paymentMethod

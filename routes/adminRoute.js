@@ -13,8 +13,10 @@ const sharp = require('sharp');
 
 dotenv.config()
 
-adminRoute.use(bodyparser.json())
-adminRoute.use(bodyparser.urlencoded({extended:true}))
+// adminRoute.use(bodyparser.json())
+// adminRoute.use(bodyparser.urlencoded({extended:true}))
+adminRoute.use(express.json({limit:'10mb'}))
+adminRoute.use(express.urlencoded({extended:true}))
 adminRoute.use(express.static('public'));
 adminRoute.use(session({secret:process.env.KEY,cookie:{maxAge:600000},resave:false,saveUninitialized:false}))
 adminRoute.use(nocache());
@@ -73,7 +75,6 @@ router.route('/resetPassword')
 .get(adminController.loadAdminResetPassword)
 .post(adminController.resetAdminPassword)
 
-router.get('/order',adminController.loadAdminOrderManagement)
 router.get('/coupon',adminController.loadAdminCouponManagement)
 router.get('/offer',adminController.loadAdminOfferManagement)
 router.get('/banner',adminController.loadAdminBannerManagement)
@@ -125,6 +126,17 @@ router.route('/editProduct')
 
 router.get('/listProduct',adminController.listProduct)
 router.get('/unlistProduct',adminController.unlistProduct)
+
+//order management
+
+router.get('/order',adminController.loadAdminOrderManagement)
+
+router.route('/editOrder')
+.get(adminController.loadEditOrder)
+.post(adminController.editOrder)
+
+router.get('/cancelOrder',adminController.adminCancelOrder)
+
 
 
 router.get('*',adminController.loadAdminDefault) // keep this default route at the end of all the routes

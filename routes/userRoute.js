@@ -25,6 +25,7 @@ userRoute.use(nocache());
 userRoute.use(passport.initialize());
 userRoute.use(passport.session());
 
+
 userRoute.set('view engine', 'ejs')
 userRoute.set('views', './views/user')
 
@@ -95,6 +96,8 @@ router.get('/checkout',auth.isLogin, checkoutController.loadCheckout)
 router.get('/orders',auth.isLogin, orderController.loadOrders)
 
 router.get('/orderSuccess',auth.isLogin, orderController.loadOrderSuccess)
+
+router.get('/cancelOrder',auth.isLogin, orderController.cancelOrder)
 
 router.get('/userProfile',auth.isLogin, userController.loadProfile)
 

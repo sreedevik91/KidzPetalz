@@ -1,0 +1,101 @@
+<%-include("../layout/adminHeader.ejs")%>
+
+
+    <main id="main" class="main">
+        <% var search%>
+        <% var previous%>
+        <% var totalPages%>
+        <% var next%>
+
+        <div style="display: flex;">
+            <div style="width: 50%;">
+                <!-- <a class="btn btn-success" href="addCategory"></a> -->
+            </div>
+            <div class="float-end text-end" style="width: 50%;">
+                <form action="">
+                    <input type="text" placeholder="Search category by name,description" name="search" style="width:250px;height:35px;border-radius:10px;padding-left: 20px;">
+                    <input type="submit" class="btn btn-primary" value="Search">
+                  </form>
+            </div>
+        </div>
+      
+        <div class="row mt-5">
+            <table class="table table-striped">
+                <thead>
+                    <!-- can also try with data tables, a javascript table library comes with sorting -->
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Product</th>
+                        <th scope="col">Shipping To</th>
+                        <th scope="col">Order Date</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Payment Method</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% data.forEach((item)=>{
+                        %>
+                        <tr>
+                            <td>
+                                <%=data.indexOf(item)%>
+                            </td>
+                            <td>                               
+                                <%
+                                item.products.forEach((product)=>{
+                                    %>
+                                    <img src="/productImages/<%=product.image%>" alt="<%=product.image%>" width="50px" height="50px"><br>
+                                    <%= product.title%> <br>
+                                    <%
+                                })
+                                %>
+                            </td>
+                            <td>
+                                <%=item.shippingAddress.building%>, <%=item.shippingAddress.city%>, <br><%=item.shippingAddress.state%>, 
+                                <%=item.shippingAddress.country%>,<br> <%=item.shippingAddress.pbNumber%>, <%=item.shippingAddress.contactNumber%>
+                            </td>
+                            <td>
+                                <%=item.orderDate%>
+                            </td>
+                            <td>
+                                <%=item.orderAmount%>
+                            </td>
+                            <td>
+                                <%=item.paymentMethod%>
+                            </td>
+                            <td>
+                                <%=item.status%>
+                                 
+                            </td>
+                            
+                            <td>
+                                <a class="btn btn-info" href="editOrder?id=<%=item._id%>">Edit</a>
+                                <a class="btn btn-danger" href="cancelOrder?id=<%=item._id%>">Cancel</a>
+                                    
+                            </td>
+                        </tr>
+
+                        <% }) %>
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="mt-3 text-center">
+           <a href="?search=<%=search%>&page=<%= previous%>">Previous</a>
+           
+            <%
+            for(let i=1;i<=totalPages;i++){
+                %>
+                <a href="?search=<%=search%>&page=<%= i %>"><%= i %></a> 
+                <%
+            }
+            %>
+            
+            <a href="?search=<%=search%>&page=<%= next%>">Next</a>
+        </div>
+    </main>
+
+    <%-include("../layout/adminFooter.ejs")%>

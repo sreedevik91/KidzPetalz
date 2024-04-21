@@ -28,24 +28,39 @@
                 <div class="side-bar col-lg-3">
                     <!--preference -->
                     <div class="left-side">
+                        <div class="dropdown">
+                            <label for="dropdownP">Sort By</label>
+                            <select name="sort" id="dropdownP"
+                                style="border-radius: 10px; width: 150px; margin: 5px;padding: 3px; text-align: left;;font-size: 13px;">
+                                <!-- <option value=""><i class="a-icon a-icon-dropdown"></i></option> -->
+                                <option value="all">All</option>
+                                <option value="low">Price: Low to High</option>
+                                <option value="high">Price: High to Low</option>
+                                <option value="asce">aA - zZ</option>
+                                <option value="desce">zZ - aA</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="left-side">
                         <h3 class="shopf-sear-headits-sear-head">
-                            Sort by</h3>
+                            Search For</h3>
                         <ul>
                             <li>
-                                <input type="checkbox" class="checked"  name="cat1" id="cat1" value="Popular">
+                                <input type="checkbox" class="checked" name="cat1" id="cat1" value="Popular">
                                 <label for="cat1">Popular</label>
                             </li>
                             <li>
-                                <input type="checkbox" class="checked"  name="cat2" id="cat2" value="Highest Price">
-                                <label for="cat2">Highest Price</label>
+                                <input type="checkbox" class="checked" name="cat2" id="cat2" value="Highest Price">
+                                <label for="cat2">Featured</label>
                             </li>
                             <li>
                                 <input type="checkbox" class="checked" name="cat3" id="cat3" value="Lowest Price">
-                                <label for="cat3">Lowest Price</label>
+                                <label for="cat3">New Arrivals </label>
                             </li>
                             <li>
                                 <input type="checkbox" class="checked" name="cat4" id="cat4" value="New Arrivals">
-                                <label for="cat4">New Arrivals</label>
+                                <label for="cat4">Average Ratings </label>
                             </li>
 
                         </ul>
@@ -262,51 +277,56 @@
 
     <script>
 
-        var checkedCategories= []
+        ///////////////////////////////////////////////////////////////
+        // var checkedCategories= []
 
-        var checkedSortOptions={}
+        // var checkedSortOptions={}
 
-        const checkbox1=document.getElementById('cat1')
+        // const checkbox1=document.getElementById('cat1')
+
         // console.log(checkbox1);
-        checkbox1.addEventListener('input',(event)=>{
-            if(event.target.checked){
-                console.log(event.target.value);
-                checkedCategories.push(event.target.value)
-            }
-        })
 
-        const checkbox2=document.getElementById('cat2')
-        checkbox2.addEventListener('input',(event)=>{
-            if(event.target.checked){
-                console.log(event.target.value);
-                checkedSortOptions.high=event.target.value
-            }
-        })
+        // checkbox1.addEventListener('input',(event)=>{
+        //     if(event.target.checked){
+        //         console.log(event.target.value);
+        //         checkedCategories.push(event.target.value)
+        //     }
+        // })
 
-        const checkbox3=document.getElementById('cat3')
-        checkbox3.addEventListener('input',(event)=>{
-            if(event.target.checked){
-                console.log(event.target.value);
-                checkedSortOptions.low=event.target.value
-            }
-        })
+        // const checkbox2=document.getElementById('cat2')
+        // checkbox2.addEventListener('input',(event)=>{
+        //     if(event.target.checked){
+        //         console.log(event.target.value);
+        //         checkedSortOptions.high=event.target.value
+        //     }
+        // })
 
-        const checkbox4=document.getElementById('cat4')
-        checkbox4.addEventListener('input',(event)=>{
-            if(event.target.checked){
-                console.log(event.target.value);
-                checkedCategories.push(event.target.value)
-            }
-        })
+        // const checkbox3=document.getElementById('cat3')
+        // checkbox3.addEventListener('input',(event)=>{
+        //     if(event.target.checked){
+        //         console.log(event.target.value);
+        //         checkedSortOptions.low=event.target.value
+        //     }
+        // })
 
-        console.log(checkedCategories);
-        console.log(checkedSortOptions);
+        // const checkbox4=document.getElementById('cat4')
+        // checkbox4.addEventListener('input',(event)=>{
+        //     if(event.target.checked){
+        //         console.log(event.target.value);
+        //         checkedCategories.push(event.target.value)
+        //     }
+        // })
+
+        // console.log(checkedCategories);
+        // console.log(checkedSortOptions);
+
+        //////////////////////////////////////////////////////////////////////////////
 
         // $(document).ready(()=>{
         //      var checkedSearchValue=$('input:checkbox:checked').val()
         //     console.log(checkedSearchValue)
         // })
-        
+
         // var checkedSearchValue=$('input:checkbox:checked').val()
 
         /////////////////////////////////////////
@@ -340,23 +360,69 @@
 
         /////////////////////////////////
 
-            // let values=checkedSearchValue.join(" ").split(",")
-            // console.log(values)
+        // let values=checkedSearchValue.join(" ").split(",")
+        // console.log(values)
 
-            // checkedSearchValue.forEach((e)=>{
-            // console.log(e);
-            // })
+        // checkedSearchValue.forEach((e)=>{
+        // console.log(e);
+        // })
 
-            // console.log(...checkedSearchValue);
-            //     let keys={}
-            //  keys=checkedSearchValue.reduce((acc,cur,index)=>{
-            //     acc[index]=cur
-            //     return acc
-            // },{})
-            // console.log(keys);
+        // console.log(...checkedSearchValue);
+        //     let keys={}
+        //  keys=checkedSearchValue.reduce((acc,cur,index)=>{
+        //     acc[index]=cur
+        //     return acc
+        // },{})
+        // console.log(keys);
 
 
         // }    
+
+
+        let checkedValues = []
+        let sortValue ={}
+
+        let dropdown=document.getElementById('dropdownP')
+
+        dropdown.addEventListener('change', () => {
+            let sort = dropdown.value
+            sortValue.sort = sort
+            // console.log(sortValue);
+        })
+
+           console.log(sortValue);
+
+        let checkboxes = document.querySelectorAll('input[type=checkbox]')
+
+        checkboxes.forEach((checkbox) => {
+
+            checkbox.addEventListener('click', async () => {
+
+                if (checkbox.checked) {
+                    await checkedValues.push(checkbox.value)
+                } else {
+                    let index = checkedValues.indexOf(checkbox.value)
+                    if (index !== -1) {
+                        await checkedValues.splice(index, 1)
+                    }
+                }
+
+            })
+
+        })
+        console.log(checkedValues);
+
+        $.ajax({
+            url: `/products`,
+            method: 'post',
+            data: { filterArray: checkedValues, sort: sortValue },
+            succes: (response) => {
+                if (response.status) {
+                    location.reload()
+                }
+            }
+        })
+
 
         function addToCart(productId) {
             console.log(productId);
@@ -369,10 +435,10 @@
                     // or we can check if (response.update), because {update:true} is the json response sent from the backend after cart is updated
                     if (response.update) {
                         // let cartNumber = $('#cartCount').html()
-                        let cartNumber=document.getElementById('cartCount').innerHTML
-                       let cartValue = parseInt(cartNumber) + 1
-                         console.log(cartValue);
-                         document.getElementById('cartCount').innerHTML=cartValue
+                        let cartNumber = document.getElementById('cartCount').innerHTML
+                        let cartValue = parseInt(cartNumber) + 1
+                        console.log(cartValue);
+                        document.getElementById('cartCount').innerHTML = cartValue
                         console.log('success', response);
                         alert('Product added to cart')
                     }
