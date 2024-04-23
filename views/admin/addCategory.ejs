@@ -16,7 +16,8 @@
             </div>
             <div class="form-group">
               <label for="recipient-image" class="col-form-label">Image</label>
-              <input type="file" class="form-control" placeholder="Enter Contact Number" name="image" id="recipient-image" required="">
+              <span id="container" class="d-flex position-relative m-1 mb-1"></span>
+              <input type="file" class="form-control" name="image" id="image" required=""  onchange="getImage()" >
           </div>
           <div style="display: flex;">
             <div class="form-group">
@@ -37,5 +38,33 @@
     
         
     </main>
+
+    <script>
+        let image={}
+        function getImage(){
+            image={}
+            let file=document.getElementById('image').files  // this gives an array of file/files uploaded then if it is having 
+            //single image we can access it through files[0]//
+            console.log(file)
+            image.name=file[0].name
+            image.url=URL.createObjectURL(file[0])
+            document.getElementById('container').innerHTML=showImage()
+            
+        }
+
+        function showImage(){
+            let pic=''
+            pic+=`
+                <img src="${image.url}" alt="${image.name}" width="50 px" height="50 px" id="imageView">
+                <a><span class="position-relative" style="top: -18px;right: 2px;cursor:pointer" onclick="deleteImage()">&times;</span></a>
+            `
+            return pic
+        }
+
+        function deleteImage(){
+            document.getElementById('container').innerHTML=''
+            document.getElementById('image').value=''
+        }
+    </script>
 
     <%-include("../layout/adminFooter.ejs")%>

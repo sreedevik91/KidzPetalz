@@ -28,12 +28,7 @@
             <div class="container">
                 <div class="check_w3ls">
                     <div class="d-sm-flex justify-content-between mb-4">
-                        <h4>review your order
-                        </h4>
-                        <h4 class="mt-sm-0 mt-3">Your shopping cart contains:
-                            <span id="cartPageCount">
-                                <%=cartCount%>
-                            </span>Products
+                        <h4>Your Orders
                         </h4>
                     </div>
                     <div class="checkout-right">
@@ -70,7 +65,7 @@
                                        
                                     </td>
                                         <td class="invert-image">
-                                            <%=item.shippingAddress.building%>, <%=item.shippingAddress.city%>, <%=item.shippingAddress.state%>, 
+                                            <%=item.shippingAddress.name%>,<%=item.shippingAddress.building%>, <%=item.shippingAddress.city%>, <%=item.shippingAddress.state%>, 
                                             <%=item.shippingAddress.country%>, <%=item.shippingAddress.pbNumber%>, <%=item.shippingAddress.contactNumber%>
                                         </td>
                                         <td class="invert">
@@ -85,10 +80,24 @@
                                         <td class="invert">
                                             <%=item.status%>
                                         </td>
-                                     
-                                        <td>
-                                            <a class="btn btn-info" href="cancelOrder?id=<%=item._id%>">Cancel</a>
-                                        </td>
+                                   <%
+                                   if(item.status=='cancelled'){
+                                    %>
+                                    <td>
+                                    <button class="btn btn-info" id="cancelButton" disabled>Cancel</button>
+                                    </td>
+                                    <%
+                                   }else{
+                                    %>
+                                    <td>
+                                        <!-- <button class="btn btn-info" id="cancelButton" href="cancelOrder?id=<%=item._id%>">Cancel</button> -->
+                                        <a class="btn btn-info" id="cancelButton" href="cancelOrder?id=<%=item._id%>">Cancel</a>
+
+                                    </td>
+                                    <%
+                                   }
+                                   %>
+                                       
                                     </tr>
 
                                   
@@ -107,5 +116,7 @@
 
 
         <!--//checkout-->
+
+        
 
         <%- include('../layout/homefooter.ejs') %>

@@ -195,39 +195,44 @@
                         <!-- card group  -->
                         <div class="card-group">
                             <!-- card -->
-                            <div class="col-lg-3 col-sm-6 p-0">
-                                <div class="card product-men p-3">
-                                    <div class="men-thumb-item">
-                                        <img src="images/pg1.jpg" alt="img" class="card-img-top">
-                                        <div class="men-cart-pro">
-                                            <div class="inner-men-cart-pro">
-                                                <a href="product" class="link-product-add-cart">Quick View</a>
+                            <%
+                            data.forEach((item)=>{
+                                %>
+                                <div class="col-lg-3 col-sm-6 p-0"  style="margin-right: 25px;">
+                                    <div class="card product-men p-3">
+                                        <div class="men-thumb-item">
+                                            <img src="productImages/<%=item.image[0]%>" width="150px" height="200px"
+                                            alt="<%=item.image[0]%>" class="card-img-top">
+                                            <div class="men-cart-pro">
+                                                <div class="inner-men-cart-pro">
+                                                    <a href="product?id=<%=item._id%>" class="link-product-add-cart">Quick View</a>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <!-- card body -->
-                                    <div class="card-body  py-3 px-2">
-                                        <h5 class="card-title text-capitalize">Midi/Knee Length Casual Dress</h5>
-                                        <div class="card-text d-flex justify-content-between">
-                                            <p class="text-dark font-weight-bold">$20.00</p>
-                                            <p class="line-through">$39.99</p>
+                                        <!-- card body -->
+                                        <div class="card-body  py-3 px-2">
+                                            <h5 class="card-title text-capitalize"> <%=item.title%></h5>
+                                            <div class="card-text d-flex justify-content-between">
+                                                <p class="text-dark font-weight-bold">
+                                                    <%=item.discounted_price%>
+                                                </p>
+                                                <p class="line-through">
+                                                    <%=item.actual_price%>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <!-- card footer -->
+                                        <div class="card-footer d-flex justify-content-end">
+                                            <button type="submit" style="cursor: pointer;"
+                                            onclick="addToCart('<%=item._id%>')"><i class="fa fa-cart-plus"
+                                                aria-hidden="true"></i></button>
                                         </div>
                                     </div>
-                                    <!-- card footer -->
-                                    <div class="card-footer d-flex justify-content-end">
-                                        <form action="#" method="post">
-                                            <input type="hidden" name="cmd" value="_cart">
-                                            <input type="hidden" name="add" value="1">
-                                            <input type="hidden" name="hub_item" value="Midi/Knee Length Casual Dress">
-                                            <input type="hidden" name="amount" value="20.00">
-                                            <button type="submit" class="hub-cart phub-cart btn">
-                                                <i class="fa fa-cart-plus" aria-hidden="true"></i>
-                                            </button>
-                                            <a href="#" data-toggle="modal" data-target="#myModal1"></a>
-                                        </form>
-                                    </div>
                                 </div>
-                            </div>
+                                <%
+                             })
+                            %>
+                            
                             <!-- //card -->
                             
                             
@@ -239,5 +244,79 @@
             </div>
         </div>
         <!--// Shop -->
+
+        <script>
+
+let checkedValues = []
+        let sortValue ={}
+
+        let dropdown=document.getElementById('dropdownP')
+
+        dropdown.addEventListener('change', () => {
+            let sort = dropdown.value
+            sortValue.sort = sort
+            // console.log(sortValue);
+        })
+
+           console.log(sortValue);
+
+        let checkboxes = document.querySelectorAll('input[type=checkbox]')
+
+        checkboxes.forEach((checkbox) => {
+
+            checkbox.addEventListener('click', async () => {
+
+                if (checkbox.checked) {
+                    await checkedValues.push(checkbox.value)
+                } else {
+                    let index = checkedValues.indexOf(checkbox.value)
+                    if (index !== -1) {
+                        await checkedValues.splice(index, 1)
+                    }
+                }
+
+            })
+
+        })
+        console.log(checkedValues);
+
+        $.ajax({
+            url: `/products`,
+            method: 'post',
+            data: { filterArray: checkedValues, sort: sortValue },
+            succes: (response) => {
+                if (response.status) {
+                    location.reload()
+                }
+            }
+        })
+
+
+        function addToCart(productId) {
+            console.log(productId);
+            $.ajax({
+                url: `/addToCart?productId=${productId}`,
+                type: 'get',
+                // contentType:'application/json',
+                // data:JSON.stringify({productId:productId}),
+                success: (response) => {
+                    // or we can check if (response.update), because {update:true} is the json response sent from the backend after cart is updated
+                    if (response.update) {
+                        // let cartNumber = $('#cartCount').html()
+                        let cartNumber = document.getElementById('cartCount').innerHTML
+                        let cartValue = parseInt(cartNumber) + 1
+                        console.log(cartValue);
+                        document.getElementById('cartCount').innerHTML = cartValue
+                        console.log('success', response);
+                        alert('Product added to cart')
+                    }
+                },
+                error: (jqXHR, textStatus, errorThrown) => {
+                    console.log(textStatus, errorThrown);
+                }
+            })
+
+        }
+        </script>
       
         <%- include('../layout/homefooter.ejs') %>

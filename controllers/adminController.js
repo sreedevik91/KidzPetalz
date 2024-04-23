@@ -3,6 +3,7 @@ const userModel = require('../models/userModel')
 const categoryModel = require('../models/categoryModel')
 const productModel = require('../models/productModel')
 const orderModel = require('../models/orderModel')
+const path = require('path')
 const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer')
 const dotenv = require('dotenv')
@@ -508,11 +509,18 @@ const addCategory = async (req, res) => {
         const description = req.body.description
         const image = req.file.filename
 
+        const outputFile = `${req.file.destination}/${Date.now() + '-' + req.file.originalname}`
+
+        const cropImage = await sharp(req.file.path).resize(200, 200).toFile(outputFile)
+
+        console.log('Output Image', path.basename(outputFile));
+
+        let resizedImage = path.basename(outputFile)
 
         const category = new categoryModel({
             name,
             description,
-            image
+            image: resizedImage
         })
 
         const newCategory = await category.save()
@@ -550,17 +558,24 @@ const loadEditCategory = async (req, res) => {
 
 const editCategory = async (req, res) => {
     try {
-       
+
+        console.log('file', req.file);
+        console.log('body', req.body);
         const name = req.body.name
         const description = req.body.description
         const image = req.file.filename
         const id = req.body.id
         const is_listed = req.body.verify
 
-        // const cropImage=await sharp(image).resize(200,200).toFile(`/categoryImage/${Date.now()+'-'+image.originalname}`)
-        // console.log(cropImage);
+        const outputFile = `${req.file.destination}/${Date.now() + '-' + req.file.originalname}`
 
-        const updateCategory = await categoryModel.findByIdAndUpdate({ _id: id }, { $set: { name: name, description: description, image: image, is_listed: is_listed } })
+        const cropImage = await sharp(req.file.path).resize(200, 200).toFile(outputFile)
+
+        console.log('Output Image', path.basename(outputFile));
+
+        let resizedImage = path.basename(outputFile)
+
+        const updateCategory = await categoryModel.findByIdAndUpdate({ _id: id }, { $set: { name: name, description: description, image: resizedImage, is_listed: is_listed } })
         if (updateCategory) {
             res.redirect('/admin/category')
         } else {
@@ -629,7 +644,18 @@ const loadAdminProductManagement = async (req, res) => {
             skip = (page - 1) * limit
         }
 
-        const product = await productModel.find({ _id: { $exists: true }, $or: [{ name: { $regex: `.*${search}.*`, $options: 'i' } }, { tags: { $regex: `.*${search}.*`, $options: 'i' } }, { description: { $regex: `.*${search}.*`, $options: 'i' } }] })
+        const product = await productModel.find({
+            _id: { $exists: true },
+            $or: [
+                { title: { $regex: `.*${search}.*`, $options: 'i' } },
+                { tags: { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'description.size': { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'description.color': { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'description.material': { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'description.type': { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'description.description': { $regex: `.*${search}.*`, $options: 'i' } }
+            ]
+        })
             .skip(skip)
             .limit(limit)
             .exec()
@@ -640,7 +666,18 @@ const loadAdminProductManagement = async (req, res) => {
             console.log('no data');
         }
 
-        const count = await productModel.find({ _id: { $exists: true }, $or: [{ name: { $regex: `.*${search}.*`, $options: 'i' } }, { tags: { $regex: `.*${search}.*`, $options: 'i' } }, { description: { $regex: `.*${search}.*`, $options: 'i' } }] })
+        const count = await productModel.find({
+            _id: { $exists: true },
+            $or: [
+                { title: { $regex: `.*${search}.*`, $options: 'i' } },
+                { tags: { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'description.size': { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'description.color': { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'description.material': { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'description.type': { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'description.description': { $regex: `.*${search}.*`, $options: 'i' } }
+            ]
+        })
             .countDocuments()
 
         res.render('adminProductManagement', { data: product, totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1, search: search })
@@ -671,9 +708,18 @@ const addProduct = async (req, res) => {
         console.log(req.body);
 
         var arrImages = []
+
         for (let i = 0; i < req.files.length; i++) {
-            arrImages[i] = req.files[i].filename
+            const outputFile = `${req.files[i].destination}/${Date.now() + '-' + req.files[i].originalname}`
+            const cropImage = await sharp(req.files[i].path).resize(200, 200).toFile(outputFile)
+            let resizedImage = path.basename(outputFile)
+            // console.log('resizedImage', resizedImage);
+            arrImages[i] = resizedImage
         }
+
+        // for (let i = 0; i < req.files.length; i++) {
+        //     arrImages[i] = req.files[i].filename
+        // }
 
         let pTags = []
         let tag1 = req.body.tag1
@@ -764,12 +810,21 @@ const loadEditProduct = async (req, res) => {
 const editProduct = async (req, res) => {
     try {
 
-        console.log(req.body.tag2);
+        console.log(req.files);
         var arrImages = []
         for (let i = 0; i < req.files.length; i++) {
-            arrImages[i] = req.files[i].filename
+            const outputFile = `${req.files[i].destination}/${Date.now() + '-' + req.files[i].originalname}`
+            const cropImage = await sharp(req.files[i].path).resize(200, 200).toFile(outputFile)
+            let resizedImage = path.basename(outputFile)
+            // console.log('resizedImage', resizedImage);
+            arrImages[i] = resizedImage
         }
 
+        // for (let i = 0; i < req.files.length; i++){
+        //     arrImages[i] = req.files[i].filename
+        // }
+
+        // console.log('arrayImages', arrImages);
 
         let pTags = []
         let tag1 = req.body.tag1
@@ -855,8 +910,42 @@ const unlistProduct = async (req, res) => {
 const loadAdminOrderManagement = async (req, res) => {
     try {
 
-        const orders = await orderModel.find({})
-        res.render('adminOrderManagement', { data: orders })
+        let search = ''
+        if (req.query.search) {
+            search = req.query.search
+        }
+
+        let page = parseInt(req.query.page)
+        let sort = req.query.sort
+        let limit = 5
+        let skip;
+
+        if (page <= 1) {
+            skip = 0
+        } else {
+            skip = (page - 1) * limit
+        }
+
+        const orders = await orderModel.find({
+            $or: [
+                { products: { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'shippingAddress.building': { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'shippingAddress.city': { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'shippingAddress.state': { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'shippingAddress.country': { $regex: `.*${search}.*`, $options: 'i' } },
+                { 'shippingAddress.contactNumber': { $regex: `.*${search}.*`, $options: 'i' } },
+                { paymentMethod: { $regex: `.*${search}.*`, $options: 'i' } }
+            ]
+        })
+            .skip(skip)
+            .limit(limit)
+            .exec()
+        console.log(orders);
+
+        const count = await orderModel.find({ $or: [{ products: { $regex: `.*${search}.*`, $options: 'i' } }, { shippingAddress: { $regex: `.*${search}.*`, $options: 'i' } }, { paymentMethod: { $regex: `.*${search}.*`, $options: 'i' } }] })
+            .countDocuments()
+
+        res.render('adminOrderManagement', { data: orders, totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1, search: search })
 
     } catch (error) {
         console.log(error.message);
@@ -881,34 +970,41 @@ const loadEditOrder = async (req, res) => {
     }
 }
 
-const editOrder=async(req,res)=>{
+const editOrder = async (req, res) => {
     try {
-        const status=req.body.status
-        const orderId=req.body.id
+        const status = req.body.status
+        const orderId = req.body.id
         console.log(status);
-        let orders = await orderModel.updateOne({ _id: orderId },{$set:{status:status}})
-        if(orders){
-        res.redirect('/admin/order')
-        }else{
+        let orders = await orderModel.updateOne({ _id: orderId }, { $set: { status: status } })
+        if (orders) {
+            res.redirect('/admin/order')
+        } else {
             console.log('could not update');
         }
 
     } catch (error) {
         console.log(error);
-        
+
     }
 }
 
 const adminCancelOrder = async (req, res) => {
     try {
         const orderId = req.query.id
+
+        let orders=await orderModel.findOne({_id:orderId})
+
+        for(let product of orders.products){
+            let updateProductQuantity=await productModel.updateOne({_id:product.productId},{$inc:{quantity:1}})
+        }
+        
         let orderCancelled = await orderModel.updateOne({ _id: orderId }, { $set: { status: 'cancelled' } })
         //check if update happened else display error in a message span 
-        if(orderCancelled){
+        if (orderCancelled) {
             res.redirect('/admin/order')
-            }else{
-                console.log('could not update');
-            }
+        } else {
+            console.log('could not update');
+        }
 
     } catch (error) {
         console.log(error);

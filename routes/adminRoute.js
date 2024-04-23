@@ -33,6 +33,7 @@ const Storage1=multer.diskStorage({
         })
     },
     filename:function(req,file,cb){
+    
         const name=Date.now()+'-'+file.originalname
         cb(null,name,(error,success)=>{
             console.log(error.message);

@@ -136,7 +136,7 @@
 
             images.forEach((item=>{
                 image +=`
-                <img src="${item.url}" alt="" width="50 px" height="50 px" id="imageView">
+                <img src="${item.url}" alt="${item.name}" width="50 px" height="50 px" id="imageView">
                 <a><span class="position-relative" style="top: -18px;right: 2px;cursor:pointer" onclick="deleteImage(${images.indexOf(item)})">&times;</span></a>
                 `
             }))

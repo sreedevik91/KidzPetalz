@@ -355,7 +355,10 @@ const loadFilteredProducts=async(req,res)=>{
 
 const loadBoys = async (req, res) => {
     try {
-        res.render('boys', { page: 'Boys', id: req.session.userId, cartCount: req.session.cartCount })
+        let categoryId=req.query.id
+        const boys=await productModel.find({category_id:categoryId})
+        // console.log(boys);
+        res.render('boys', { page: 'Boys',data:boys, id: req.session.userId, cartCount: req.session.cartCount })
     } catch (error) {
         console.log(error.message);
     }
@@ -363,8 +366,10 @@ const loadBoys = async (req, res) => {
 
 const loadGirls = async (req, res) => {
     try {
-
-        res.render('girls', { page: 'Girls', id: req.session.userId, cartCount: req.session.cartCount })
+        let categoryId=req.query.id
+        const girls=await productModel.find({category_id:categoryId})
+        // console.log(girls);
+        res.render('girls', { page: 'Girls',data:girls, id: req.session.userId, cartCount: req.session.cartCount })
     } catch (error) {
         console.log(error.message);
     }
