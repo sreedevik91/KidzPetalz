@@ -30,9 +30,8 @@
                     <div class="left-side">
                         <div class="dropdown">
                             <label for="dropdownP">Sort By</label>
-                            <select name="sort" id="dropdownP"
+                            <select name="sort" id="dropdownP" 
                                 style="border-radius: 10px; width: 150px; margin: 5px;padding: 3px; text-align: left;;font-size: 13px;">
-                                <!-- <option value=""><i class="a-icon a-icon-dropdown"></i></option> -->
                                 <option value="all">All</option>
                                 <option value="low">Price: Low to High</option>
                                 <option value="high">Price: High to Low</option>
@@ -47,19 +46,19 @@
                             Search For</h3>
                         <ul>
                             <li>
-                                <input type="checkbox" class="checked" name="cat1" id="cat1" value="Popular">
+                                <input type="checkbox" class="checked" name="cat1" id="cat1" value="popular">
                                 <label for="cat1">Popular</label>
                             </li>
                             <li>
-                                <input type="checkbox" class="checked" name="cat2" id="cat2" value="Highest Price">
+                                <input type="checkbox" class="checked" name="cat2" id="cat2" value="featured">
                                 <label for="cat2">Featured</label>
                             </li>
                             <li>
-                                <input type="checkbox" class="checked" name="cat3" id="cat3" value="Lowest Price">
+                                <input type="checkbox" class="checked" name="cat3" id="cat3" value="newArrival">
                                 <label for="cat3">New Arrivals </label>
                             </li>
                             <li>
-                                <input type="checkbox" class="checked" name="cat4" id="cat4" value="New Arrivals">
+                                <input type="checkbox" class="checked" name="cat4" id="cat4" value="rating">
                                 <label for="cat4">Average Ratings </label>
                             </li>
 
@@ -210,7 +209,7 @@
                 <!-- grid right -->
                 <div class="col-lg-9 mt-lg-0 mt-5 right-product-grid">
                     <!-- card group  -->
-                    <div class="card-group">
+                    <div class="card-group" id="productDiv">
                         <!-- card -->
 
                         <% data.forEach((item)=>{
@@ -243,22 +242,9 @@
                                     </div>
                                     <!-- card footer -->
                                     <div class="card-footer d-flex justify-content-end">
-                                        <!-- <form action="#" method="post">
-                                            <input type="hidden" name="cmd" value="_cart">
-                                            <input type="hidden" name="add" value="1">
-                                            <input type="hidden" name="hub_item" value="Midi/Knee Length Casual Dress">
-                                            <input type="hidden" name="amount" value="20.00">
-                                            <button type="submit" class="hub-cart phub-cart btn">
-                                                <i class="fa fa-cart-plus" aria-hidden="true"></i>
-                                            </button>
-                                            <a href="#" data-toggle="modal" data-target="#myModal1"></a>
-                                        </form> -->
-                                        <!-- <form action="" method="">
-                                            <input type="submit"  onclick="addToCart('<%=item._id%>')" value="Add to Cart"> -->
                                         <button type="submit" style="cursor: pointer;"
                                             onclick="addToCart('<%=item._id%>')"><i class="fa fa-cart-plus"
                                                 aria-hidden="true"></i></button>
-                                        <!-- </form> -->
                                     </div>
                                 </div>
                             </div>
@@ -276,128 +262,16 @@
     <!--// Shop -->
 
     <script>
-
-        ///////////////////////////////////////////////////////////////
-        // var checkedCategories= []
-
-        // var checkedSortOptions={}
-
-        // const checkbox1=document.getElementById('cat1')
-
-        // console.log(checkbox1);
-
-        // checkbox1.addEventListener('input',(event)=>{
-        //     if(event.target.checked){
-        //         console.log(event.target.value);
-        //         checkedCategories.push(event.target.value)
-        //     }
-        // })
-
-        // const checkbox2=document.getElementById('cat2')
-        // checkbox2.addEventListener('input',(event)=>{
-        //     if(event.target.checked){
-        //         console.log(event.target.value);
-        //         checkedSortOptions.high=event.target.value
-        //     }
-        // })
-
-        // const checkbox3=document.getElementById('cat3')
-        // checkbox3.addEventListener('input',(event)=>{
-        //     if(event.target.checked){
-        //         console.log(event.target.value);
-        //         checkedSortOptions.low=event.target.value
-        //     }
-        // })
-
-        // const checkbox4=document.getElementById('cat4')
-        // checkbox4.addEventListener('input',(event)=>{
-        //     if(event.target.checked){
-        //         console.log(event.target.value);
-        //         checkedCategories.push(event.target.value)
-        //     }
-        // })
-
-        // console.log(checkedCategories);
-        // console.log(checkedSortOptions);
-
-        //////////////////////////////////////////////////////////////////////////////
-
-        // $(document).ready(()=>{
-        //      var checkedSearchValue=$('input:checkbox:checked').val()
-        //     console.log(checkedSearchValue)
-        // })
-
-        // var checkedSearchValue=$('input:checkbox:checked').val()
-
-        /////////////////////////////////////////
-        // var checkedSearchValue= {}
-        // function productFilter(filterKey){
-        //     // let checkedSearchValue=document.querySelector("input[type='checkbox']").value
-        //     if (filterKey=='Highest Price'){
-        //         checkedSearchValue.desc=-1
-        //     }
-        //     if (filterKey=='Lowest Price'){
-        //         checkedSearchValue.asce=1
-        //     }
-        //     if (filterKey=='Popular'){
-        //         checkedSearchValue.popular='popular'
-        //     }
-        //     if (filterKey=='New Arrivals'){
-        //         checkedSearchValue.new='newArrivals'
-        //     }
-        //     // checkedSearchValue.push(filterKey)
-        //     // console.log(checkedSearchValue);
-        //     $.ajax({
-        //         url:`/products`,
-        //         method:'post',
-        //         data:{filterArray:checkedSearchValue},
-        //         succes:(response)=>{
-        //             // if(response.status){
-        //             //     location.reload()
-        //             // }
-        //         }
-        //     })
-
-        /////////////////////////////////
-
-        // let values=checkedSearchValue.join(" ").split(",")
-        // console.log(values)
-
-        // checkedSearchValue.forEach((e)=>{
-        // console.log(e);
-        // })
-
-        // console.log(...checkedSearchValue);
-        //     let keys={}
-        //  keys=checkedSearchValue.reduce((acc,cur,index)=>{
-        //     acc[index]=cur
-        //     return acc
-        // },{})
-        // console.log(keys);
-
-
-        // }    
-
+    
+    function getValues(){
 
         let checkedValues = []
-        let sortValue ={}
-
-        let dropdown=document.getElementById('dropdownP')
-
-        dropdown.addEventListener('change', () => {
-            let sort = dropdown.value
-            sortValue.sort = sort
-            // console.log(sortValue);
-        })
-
-           console.log(sortValue);
 
         let checkboxes = document.querySelectorAll('input[type=checkbox]')
 
         checkboxes.forEach((checkbox) => {
 
-            checkbox.addEventListener('click', async () => {
-
+            checkbox.addEventListener('change', async () => {
                 if (checkbox.checked) {
                     await checkedValues.push(checkbox.value)
                 } else {
@@ -406,23 +280,86 @@
                         await checkedValues.splice(index, 1)
                     }
                 }
+                console.log(checkedValues);
+                sendData(checkedValues)
 
             })
 
         })
-        console.log(checkedValues);
 
-        $.ajax({
+        // var sortValue=''
+        let dropdown=document.getElementById('dropdownP')
+        dropdown.addEventListener('change', async () => {
+            // sortValue= await dropdown.value
+            // console.log(sortValue);
+            await checkedValues.push(dropdown.value)
+            sendData(checkedValues)
+        })
+
+        console.log(checkedValues);
+        // console.log(sortValue);
+
+    }
+
+        function sendData(checkedValues,sortValue){
+
+            $.ajax({
             url: `/products`,
             method: 'post',
-            data: { filterArray: checkedValues, sort: sortValue },
-            succes: (response) => {
-                if (response.status) {
-                    location.reload()
-                }
+            data: { filterArray: checkedValues,sort:sortValue},
+            success: (response) => {
+                    console.log('response', response);
+                  let prodDiv=document.getElementById('productDiv')
+                  prodDiv.innerHTML=''
+                  let products=''
+                  response.forEach((product)=>{
+                    products+=`
+                    <div class="col-lg-3 col-sm-6 p-0" style="margin-right: 25px;">
+                                <div class="card product-men p-3">
+                                    <div class="men-thumb-item">
+                                        <img src="productImages/${product.image[0]}" width="200 px" height="250 px"
+                                            alt="${product.image[0]}" class="card-img-top">
+                                        <div class="men-cart-pro">
+                                            <div class="inner-men-cart-pro">
+                                                <a href="product?id=${product._id}" class="link-product-add-cart">Quick
+                                                    View</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- card body -->
+                                    <div class="card-body  py-3 px-2">
+                                        <h5 class="card-title text-capitalize">
+                                            ${product.title}
+                                        </h5>
+                                        <div class="card-text d-flex justify-content-between">
+                                            <p class="text-dark font-weight-bold">
+                                                ${product.discounted_price}
+                                            </p>
+                                            <p class="line-through">
+                                                ${product.actual_price}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <!-- card footer -->
+                                    <div class="card-footer d-flex justify-content-end">
+                                        <button type="submit" style="cursor: pointer;"
+                                            onclick="addToCart('${product._id}')"><i class="fa fa-cart-plus"
+                                                aria-hidden="true"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                    `
+                  })
+                  prodDiv.innerHTML=products
             }
         })
 
+        }
+
+    getValues()
+
+
+    // Add to Cart
 
         function addToCart(productId) {
             console.log(productId);

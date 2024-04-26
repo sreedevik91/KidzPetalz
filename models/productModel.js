@@ -22,10 +22,6 @@ const productSchema = mongoose.Schema({
       type: String
     }
   },
-  tags: {
-    type: Array,
-    required: true
-  },
   actual_price: {
     type: Number,
     required: true
@@ -40,6 +36,18 @@ const productSchema = mongoose.Schema({
   },
   quantity: {
     type: Number,
+    required: true
+  },
+  ordered_quantity: {
+    type: Number,
+    required: true
+  },
+  rating: {
+    type: Number,
+    required: true
+  },
+  featured: {
+    type: Boolean,
     required: true
   },
   category_id: {

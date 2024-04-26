@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 const cartModel=require('../models/cartModel')
 const addressModel=require('../models/addressModel')
 const orderModel = require('../models/orderModel')
+const productModel = require('../models/productModel')
 
 const loadCheckout=async (req,res)=>{
     try {
@@ -190,12 +191,15 @@ const placeOrder= async (req,res)=>{
         })
 
         const orderNew=await newOrder.save()
-
+        console.log('new Order', orderNew);
         if(orderNew){
             // cartItems.products=[]
             // cartItems.quantity=0
             // await cartItems.save()
             await cartModel.deleteOne({user:userId})
+            orderNew.products.forEach(async (item)=>{
+            await productModel.updateOne({_id:item.productId},{$inc:{ordered_quantity:1}})
+            })
             req.session.cartCount=0    
             res.json({status:status})
         }

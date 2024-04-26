@@ -7,6 +7,7 @@ const userController = require('../controllers/userController')
 const cartController = require('../controllers/cartController')
 const checkoutController = require('../controllers/checkoutController')
 const orderController = require('../controllers/orderController')
+const productController = require('../controllers/productController')
 const session = require('express-session')
 const nocache = require('nocache');
 const dotenv = require('dotenv')
@@ -73,15 +74,19 @@ router.get('/',auth.isLogout,userController.loadHome)
 
 router.get('/home',auth.isLogin,blocked.isBlocked,userController.loadUserHome)
 
-router.get('/products',auth.isLogin, blocked.isBlocked,userController.loadProducts)
+router.route('/products')
+  .get(auth.isLogin, blocked.isBlocked,productController.loadProducts)
+  .post(auth.isLogin, blocked.isBlocked,productController.loadFilteredProducts)
 
-router.post('/products',auth.isLogin, blocked.isBlocked,userController.loadFilteredProducts)
+router.get('/product',auth.isLogin,blocked.isBlocked, productController.loadProduct)
 
-router.get('/boys',auth.isLogin,blocked.isBlocked, userController.loadBoys)
+router.get('/boys',auth.isLogin,blocked.isBlocked, productController.loadBoys)
 
-router.get('/girls',auth.isLogin,blocked.isBlocked, userController.loadGirls)
+router.get('/girls',auth.isLogin,blocked.isBlocked, productController.loadGirls)
 
-router.get('/product',auth.isLogin,blocked.isBlocked, userController.loadProduct)
+router.post('/search',auth.isLogin,blocked.isBlocked, productController.searchProduct)
+
+router.get('/searchedProducts',auth.isLogin,blocked.isBlocked, productController.loadSearchedProductsPage)
 
 router.get('/cart',auth.isLogin,blocked.isBlocked, cartController.loadCart)
 
@@ -96,7 +101,7 @@ router.get('/checkout',auth.isLogin, checkoutController.loadCheckout)
 router.get('/orders',auth.isLogin, orderController.loadOrders)
 
 router.get('/orderSuccess',auth.isLogin, orderController.loadOrderSuccess)
-
+  
 router.get('/cancelOrder',auth.isLogin, orderController.cancelOrder)
 
 router.get('/userProfile',auth.isLogin, userController.loadProfile)

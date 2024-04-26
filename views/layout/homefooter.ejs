@@ -3,7 +3,7 @@
     <div class="footerv2-w3ls">
         <div class="footer-w3lagile-innerr">
             <!-- footer-top -->
-            
+
             <!-- //footer-top -->
             <div class="footer-bottomv2 py-5">
                 <div class="container">
@@ -39,7 +39,7 @@
                 </div>
             </div>
         </div>
-        
+
     </div>
 </footer>
 <!-- //footer -->
@@ -62,19 +62,23 @@
                         <form action="#" method="post">
                             <div class="form-group">
                                 <label for="recipient-name1" class="col-form-label">Your Name</label>
-                                <input type="text" class="form-control" placeholder=" " name="Name" id="recipient-name1" required="">
+                                <input type="text" class="form-control" placeholder=" " name="Name" id="recipient-name1"
+                                    required="">
                             </div>
                             <div class="form-group">
                                 <label for="recipient-email" class="col-form-label">Email</label>
-                                <input type="email" class="form-control" placeholder=" " name="Email" id="recipient-email" required="">
+                                <input type="email" class="form-control" placeholder=" " name="Email"
+                                    id="recipient-email" required="">
                             </div>
                             <div class="form-group">
                                 <label for="password1" class="col-form-label">Password</label>
-                                <input type="password" class="form-control" placeholder=" " name="Password" id="password1" required="">
+                                <input type="password" class="form-control" placeholder=" " name="Password"
+                                    id="password1" required="">
                             </div>
                             <div class="form-group">
                                 <label for="password2" class="col-form-label">Confirm Password</label>
-                                <input type="password" class="form-control" placeholder=" " name="Confirm Password" id="password2" required="">
+                                <input type="password" class="form-control" placeholder=" " name="Confirm Password"
+                                    id="password2" required="">
                             </div>
                             <div class="sub-w3l">
                                 <div class="sub-agile">
@@ -99,7 +103,8 @@
 </div>
 <!-- //signup modal -->
 <!-- signin Modal -->
-<div class="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModal1" aria-hidden="true">
+<div class="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModal1"
+    aria-hidden="true">
     <div class="agilemodal-dialog modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -117,7 +122,8 @@
                         <form action="#" method="post">
                             <div class="form-group">
                                 <label for="recipient-name" class="col-form-label">Your Name</label>
-                                <input type="text" class="form-control" placeholder=" " name="Name" id="recipient-name" required="">
+                                <input type="text" class="form-control" placeholder=" " name="Name" id="recipient-name"
+                                    required="">
                             </div>
                             <div class="form-group">
                                 <label class="col-form-label">Password</label>
@@ -134,6 +140,70 @@
     </div>
 </div>
 <!-- signin Modal -->
+
+<!----Search-->
+
+<script>
+
+    function search() {
+        let query = document.getElementById('search').value
+        let resultDiv=document.getElementById('searchResults')
+    let match=query.match(/.*[ a-zA-Z ].*/)
+    let match2=query.match(/\s*/)
+
+    if(match2[0]==query){
+        resultDiv.innerHTML=''
+    }
+    if(match[0]==query){
+        console.log(query);
+        fetch('/search', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ search: query })
+        }).then(response => response.json()).then((data) => {
+            console.log(data.result);
+            let products=data.result
+            resultDiv.innerHTML=''
+            if(products.length<1){
+                resultDiv.innerHTML=`<p>Sorry. Nothing found</p>`
+            }
+            products.forEach(element => {
+                resultDiv.innerHTML+=`<p><a href="/product?id=${element._id}">${element.title}</a></p>`
+            });
+            
+        })
+
+    }
+
+    resultDiv.innerHTML=''
+
+        // $.ajax({
+        //     url:'/search',
+        //     method:'post',
+        //     data:{search:query},
+        //     success:(response)=>{
+        //         console.log(response);
+        //         location.href=
+        //     }
+        // })
+    }
+
+    function showProducts(){
+        let query = document.getElementById('search').value
+         $.ajax({
+            url:'/searchedProducts',
+            method:'get',
+            data:{search:query},
+            success:(response)=>{
+                console.log(response);
+                location.href
+            }
+        })
+    }
+</script>
+
+<!---//Search-->
+
 <!-- js -->
 <script src="js/jquery-2.2.3.min.js"></script>
 <!-- //js -->
@@ -236,7 +306,7 @@
         if (this.subtotal() > 0) {
             items = this.items();
 
-            for (i = 0, len = items.length; i < len; i++) {}
+            for (i = 0, len = items.length; i < len; i++) { }
         }
     });
 </script>
@@ -322,18 +392,18 @@
     });
 </script>
 <!-- //end-smooth-scrolling -->
- <!-- FlexSlider -->
- <script src="js/jquery.flexslider.js"></script>
- <script>
-     // Can also be used with $(document).ready()
-     $(window).load(function () {
-         $('.flexslider1').flexslider({
-             animation: "slide",
-             controlNav: "thumbnails"
-         });
-     });
- </script>
- <!-- //FlexSlider-->
+<!-- FlexSlider -->
+<script src="js/jquery.flexslider.js"></script>
+<script>
+    // Can also be used with $(document).ready()
+    $(window).load(function () {
+        $('.flexslider1').flexslider({
+            animation: "slide",
+            controlNav: "thumbnails"
+        });
+    });
+</script>
+<!-- //FlexSlider-->
 
 <!-- smooth-scrolling-of-move-up -->
 <script>

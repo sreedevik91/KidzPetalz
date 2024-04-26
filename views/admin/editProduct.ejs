@@ -35,15 +35,6 @@
             </div>
 
             <div class="form-group">
-                <label for="recipient-tags" class="col-form-label">Tags</label>
-                <input type="text" class="form-control" value="<%=data.tags[0]%>" name="tag1" id="recipient-tags" >
-                <input type="text" class="form-control" value="<%=data.tags[1]%>" name="tag2" id="recipient-tags" >
-                <input type="text" class="form-control" value="<%=data.tags[2]%>" name="tag3" id="recipient-tags" >
-                <input type="text" class="form-control" value="<%=data.tags[3]%>" name="tag4" id="recipient-tags" >
-                <input type="text" class="form-control" value="<%=data.tags[4]%>" name="tag5" id="recipient-tags" >
-                <input type="text" class="form-control" value="<%=data.tags[5]%>" name="tag6" id="recipient-tags" >
-            </div>
-            <div class="form-group">
                 <label for="recipient-price" class="col-form-label">Actual Price</label>
                 <input type="number" class="form-control" value="<%=data.actual_price%>" name="actualPrice" id="recipient-price" required="">
             </div>
@@ -58,6 +49,18 @@
             <div class="form-group">
                 <label for="recipient-quantity" class="col-form-label">Quantity</label>
                 <input type="number" class="form-control" value="<%=data.quantity%>" name="quantity" id="recipient-quantity" required="">
+            </div>
+            <div class="form-group">
+                <label for="recipient-tags" class="col-form-label">Ordered Quantity</label>
+                <input type="text" class="form-control" value="<%=data.ordered_quantity%>" name="orderedQuantity" id="recipient-tags" >
+            </div>
+            <div class="form-group">
+                <label for="recipient-tags" class="col-form-label">Rating</label>
+                <input type="text" class="form-control" value="<%=data.rating%>" name="rating" id="recipient-tags" >
+            </div>
+            <div class="form-group">
+                <label for="recipient-tags" class="col-form-label">Featured</label>
+                <input type="text" class="form-control" value="<%=data.featured%>" name="featured" id="recipient-tags" >
             </div>
             <div class="form-group">
                 <label for="recipient-category" class="col-form-label">Category ID</label>

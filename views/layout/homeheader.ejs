@@ -68,10 +68,16 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                 <!-- //logo -->
                 <div class="w3ls_right_nav ml-auto d-flex">
                     <!-- search form -->
-                    <form class="nav-search form-inline my-0 form-control" action="#" method="post">                       
-                            <input type="text" placeholder="Search products" name="search" style="width:250px;height:35px;border-radius:10px;padding-left: 10px;">
-                            <input type="submit" class="btn btn-info ml-3 my-sm-0" value="Search">
-                          </form>                    
+                    
+                            <div style="display: flex;flex-direction: column;">  
+                                <div>      
+                            <input type="text" placeholder="Search products" onkeyup="search()" name="search" id="search" style="width:250px;height:35px;border-radius:10px;padding-left: 10px;">
+                           <a href="searchedProducts"><input type="submit" class="btn btn-info ml-3 my-sm-0" onclick="showProducts()" value="Search"></a> 
+                        </div>  
+                            <div id="searchResults" style="z-index: -2;">
+                            </div>
+                            </div>
+                         
                  
                     <!-- search form -->
                                         

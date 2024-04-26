@@ -721,14 +721,14 @@ const addProduct = async (req, res) => {
         //     arrImages[i] = req.files[i].filename
         // }
 
-        let pTags = []
-        let tag1 = req.body.tag1
-        let tag2 = req.body.tag2
-        let tag3 = req.body.tag3
-        let tag4 = req.body.tag4
-        let tag5 = req.body.tag5
-        let tag6 = req.body.tag6
-        pTags.push(tag1, tag2, tag3, tag4, tag5, tag6)
+        // let pTags = []
+        // let tag1 = req.body.tag1
+        // let tag2 = req.body.tag2
+        // let tag3 = req.body.tag3
+        // let tag4 = req.body.tag4
+        // let tag5 = req.body.tag5
+        // let tag6 = req.body.tag6
+        // pTags.push(tag1, tag2, tag3, tag4, tag5, tag6)
 
         // let desc=new Object()
         // desc.size=req.body.size
@@ -753,22 +753,26 @@ const addProduct = async (req, res) => {
 
         const title = req.body.title
         const description = desc
-        const tags = pTags
         const actual_price = req.body.actualPrice
         const discount = req.body.discount
         const discounted_price = req.body.discountedPrice
         const quantity = req.body.quantity
+        const ordered_quantity = req.body.orderedQuantity
+        const rating = req.body.rating
+        const featured = req.body.featured
         const category_id = req.body.categoryid
         const image = arrImages
 
         const product = new productModel({
             title,
             description,
-            tags,
             actual_price,
             discount,
             discounted_price,
             quantity,
+            ordered_quantity,
+            rating,
+            featured,
             category_id,
             image
         })
@@ -826,14 +830,14 @@ const editProduct = async (req, res) => {
 
         // console.log('arrayImages', arrImages);
 
-        let pTags = []
-        let tag1 = req.body.tag1
-        let tag2 = req.body.tag2
-        let tag3 = req.body.tag3
-        let tag4 = req.body.tag4
-        let tag5 = req.body.tag5
-        let tag6 = req.body.tag6
-        pTags.push(tag1, tag2, tag3, tag4, tag5, tag6)
+        // let pTags = []
+        // let tag1 = req.body.tag1
+        // let tag2 = req.body.tag2
+        // let tag3 = req.body.tag3
+        // let tag4 = req.body.tag4
+        // let tag5 = req.body.tag5
+        // let tag6 = req.body.tag6
+        // pTags.push(tag1, tag2, tag3, tag4, tag5, tag6)
 
         let pSize = []
         pSize.push(req.body.size1, req.body.size2, req.body.size3, req.body.size4, req.body.size5, req.body.size6)
@@ -849,11 +853,13 @@ const editProduct = async (req, res) => {
 
         const title = req.body.title
         const description = desc
-        const tags = pTags
         const actual_price = req.body.actualPrice
         const discount = req.body.discount
         const discounted_price = req.body.discountedPrice
         const quantity = req.body.quantity
+        const ordered_quantity = req.body.orderedQuantity
+        const rating = req.body.rating
+        const featured = req.body.featured
         const category_id = req.body.categoryid
         const image = arrImages
 
@@ -861,7 +867,22 @@ const editProduct = async (req, res) => {
         const is_listed = req.body.verify
 
 
-        const updateProduct = await productModel.findByIdAndUpdate({ _id: id }, { $set: { title: title, description: description, tags: tags, actual_price: actual_price, discount: discount, discounted_price: discounted_price, quantity: quantity, category_id: category_id, image: image, is_listed: is_listed } })
+        const updateProduct = await productModel.findByIdAndUpdate({ _id: id }, {
+            $set: {
+                title: title,
+                description: description,
+                actual_price: actual_price,
+                discount: discount,
+                discounted_price: discounted_price,
+                quantity: quantity,
+                ordered_quantity: ordered_quantity,
+                rating: rating, 
+                featured: featured,
+                category_id: category_id,
+                image: image,
+                is_listed: is_listed
+            }
+        })
         if (updateProduct) {
             res.redirect('/admin/product')
         } else {
@@ -992,12 +1013,12 @@ const adminCancelOrder = async (req, res) => {
     try {
         const orderId = req.query.id
 
-        let orders=await orderModel.findOne({_id:orderId})
+        let orders = await orderModel.findOne({ _id: orderId })
 
-        for(let product of orders.products){
-            let updateProductQuantity=await productModel.updateOne({_id:product.productId},{$inc:{quantity:1}})
+        for (let product of orders.products) {
+            let updateProductQuantity = await productModel.updateOne({ _id: product.productId }, { $inc: { quantity: 1 } })
         }
-        
+
         let orderCancelled = await orderModel.updateOne({ _id: orderId }, { $set: { status: 'cancelled' } })
         //check if update happened else display error in a message span 
         if (orderCancelled) {

@@ -303,102 +303,7 @@ const loadUserHome = async (req, res) => {
         console.log(error.message);
     }
 }
-const loadProducts = async (req, res) => {
-    try {
-      
-        const products = await productModel.find({ _id: { $exists: true }, is_listed: true })
-        if (products) {
-            res.render('allproducts', { page: 'Products', data: products, id: req.session.userId, cartCount: req.session.cartCount })
-        } else {
-            res.render('404', { message: 'Page Not Found !' })
-        }
-    } catch (error) {
-        console.log(error.message);
-    }
-}
 
-const loadFilteredProducts=async(req,res)=>{
-    try {
-       
-        let filterArray=req.body.filterArray
-        let sort=req.body.sort
-        console.log(filterArray);
-        console.log(sort);
-
-        let products=[]
-      
-        //     if(filterArray.desc=='-1'){
-        //         let product=await productModel.find({_id: { $exists: true }, is_listed: true}).sort({discounted_price:-1})
-        //         products.push(...product)
-        //     }
-        //     if(filterArray.asce=='-1'){
-        //         let product=await productModel.find({_id: { $exists: true }, is_listed: true}).sort({discounted_price:1})
-        //         products.push(...product)
-
-        //     }
-        //     if(filterArray.popular=='popular'){
-        //         let product=await productModel.find({is_listed: true,tags:{$elemMatch:{ $regex: `.*popular.*`, $options: 'i' }}})
-        //         products.push(...product)
-        //     }
-       
-
-        // console.log('products: /n'+products);
-        
-        // res.render('allproducts', { page: 'Products', data: products, id: req.session.userId, cartCount: req.session.cartCount })
-
-
-    } catch (error) {
-        console.log(error.message);
-        
-    }
-}
-
-const loadBoys = async (req, res) => {
-    try {
-        let categoryId=req.query.id
-        const boys=await productModel.find({category_id:categoryId})
-        // console.log(boys);
-        res.render('boys', { page: 'Boys',data:boys, id: req.session.userId, cartCount: req.session.cartCount })
-    } catch (error) {
-        console.log(error.message);
-    }
-}
-
-const loadGirls = async (req, res) => {
-    try {
-        let categoryId=req.query.id
-        const girls=await productModel.find({category_id:categoryId})
-        // console.log(girls);
-        res.render('girls', { page: 'Girls',data:girls, id: req.session.userId, cartCount: req.session.cartCount })
-    } catch (error) {
-        console.log(error.message);
-    }
-}
-
-const loadProduct = async (req, res) => {
-    try {
-        const id = req.query.id
-        const product = await productModel.find({ _id: id })
-        console.log(product[0].quantity);
-        let quantity=product[0].quantity
-        var text=''
-        if(quantity>10){
-            text='In Stock'
-        }
-        else if(quantity<=10 && quantity>0){
-            text='Few Numbers Left'
-        }
-        else if(quantity<=0){
-            text='Out of Stock'
-        }else{
-            text=''
-        }
-        console.log('text: '+ text);
-        res.render('product', { page: 'Product', data: product,message:text, id: id, cartCount: req.session.cartCount })
-    } catch (error) {
-        console.log(error.message);
-    }
-}
 
 const logout = async (req, res) => {
     try {
@@ -792,19 +697,19 @@ const updateProfile = async (req, res) => {
     }
 }
 
-const deleteAddress=async (req,res)=>{
+const deleteAddress = async (req, res) => {
 
     try {
-        let shippingAddressId=req.query.id
+        let shippingAddressId = req.query.id
         console.log(shippingAddressId);
-        let userId=req.session.userId
-        let deleteAddress=await addressModel.updateOne({userId},{$pull:{shippingAddress:{_id:shippingAddressId}}})
-        if(deleteAddress){
+        let userId = req.session.userId
+        let deleteAddress = await addressModel.updateOne({ userId }, { $pull: { shippingAddress: { _id: shippingAddressId } } })
+        if (deleteAddress) {
             res.json('address deleted')
         }
     } catch (error) {
         console.log(error.message);
-        
+
     }
 }
 
@@ -823,11 +728,6 @@ module.exports = {
     verifyUser,
     loadHome,
     loadUserHome,
-    loadProducts,
-    loadBoys,
-    loadGirls,
-    loadProduct,
-    loadFilteredProducts,
     loadLogin,
     verifyLogin,
     sendVerificationMail,

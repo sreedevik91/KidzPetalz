@@ -35,7 +35,7 @@ const cancelOrder=async(req,res)=>{
         let orders=await orderModel.findOne({_id:orderId})
 
         for(let product of orders.products){
-            let updateProductQuantity=await productModel.updateOne({_id:product.productId},{$inc:{quantity:1}})
+            let updateProductQuantity=await productModel.updateOne({_id:product.productId},{$inc:{quantity:1,ordered_quantity:-1}})
         }
 
         let cancelOrders=await orderModel.updateOne({_id:orderId},{$set:{status:'cancelled'}})
