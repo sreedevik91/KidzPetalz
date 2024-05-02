@@ -9,6 +9,7 @@ const nodemailer = require('nodemailer')
 const dotenv = require('dotenv')
 const randomString = require('randomstring')
 const sharp = require('sharp')
+var mongoose = require('mongoose');
 
 dotenv.config()
 
@@ -74,6 +75,7 @@ const verifyAdmin = async (req, res) => {
         const email = req.body.email
         const password = req.body.password
         const admin = await userModel.findOne({ email })
+        console.log('admin: ', admin);
         if (admin) {
             const passwordMatch = await bcrypt.compare(password, admin.password)
             if (passwordMatch) {
@@ -118,7 +120,7 @@ const resetPasswordMail = async (email, name, id) => {
             subject: 'Reset Password',
             html: `<div>
                     //     <p> Hi ${name}</p>
-                    //     <p>Please <a href="http://localhost:3333/admin/resetPassword?token=${id}">click</a> to reset your password</p>
+                    //     <p>Please <a href="http://localhost:3333/admin/resetPassword?id=${id}">click</a> to reset your password</p>
                     //     </div>`
         }
 
@@ -138,7 +140,8 @@ const resetPasswordMail = async (email, name, id) => {
 const sendForgotPasswordMail = async (req, res) => {
     try {
         const email = req.body.email
-        const admin = userModel.findOne({ email })
+        const admin = await userModel.findOne({ email:email })
+        console.log('admin',admin);
         if (admin) {
             const id = admin._id
             const name = admin.name
@@ -171,9 +174,11 @@ const resetAdminPassword = async (req, res) => {
         const password = req.body.password
         const user_id = req.body.id
         const hashedPassword = await bcrypt.hash(password, 10)
-        const updateAdmin = userModel.updateOne({ _id: user_id }, { $set: { password: hashedPassword } })
-        if (updateAdmin) {
-            res.render('adminLogin', { form: "Admin LogIn", message: 'Password Updated. Please login', text: '' })
+        const updateAdmin = await userModel.updateOne({ _id: user_id }, { $set: { password: hashedPassword } })
+        console.log('updateAdmin: ',updateAdmin);
+        if (updateAdmin.modifiedCount>0) {
+            // res.render('adminLogin', { form: "Admin LogIn", message: 'Password Updated. Please login', text: '' })
+            // res.redirect('/admin')
         } else {
             res.render('adminResetpassword', { message: 'Password Update failed. Try again', token: token })
         }
@@ -505,13 +510,27 @@ const loadAddCategory = async (req, res) => {
 
 const addCategory = async (req, res) => {
     try {
+        let categories=await categoryModel.find()
         const name = req.body.name
+        console.log(name.toLowerCase());
         const description = req.body.description
         const image = req.file.filename
 
+        let isCategory=false
+        categories.forEach((item)=>{
+            let catName=item.name.toLowerCase()
+            let givenName=name.toLowerCase()
+            if(catName===givenName){
+                isCategory=true
+            }
+        })
+        // console.log(isCategory);
+
+        if(isCategory===false){
+
         const outputFile = `${req.file.destination}/${Date.now() + '-' + req.file.originalname}`
 
-        const cropImage = await sharp(req.file.path).resize(200, 200).toFile(outputFile)
+        const cropImage = await sharp(req.file.path).resize(200, 150).toFile(outputFile)
 
         console.log('Output Image', path.basename(outputFile));
 
@@ -530,6 +549,12 @@ const addCategory = async (req, res) => {
         } else {
             res.render('addCategory', { message: 'Add category failed' })
         }
+        }else{
+            res.render('addCategory', { message: 'Category Already Existing' })
+
+        }
+
+        
 
     } catch (error) {
         console.log(error.message);
@@ -561,20 +586,27 @@ const editCategory = async (req, res) => {
 
         console.log('file', req.file);
         console.log('body', req.body);
-        const name = req.body.name
-        const description = req.body.description
-        const image = req.file.filename
+        
         const id = req.body.id
-        const is_listed = req.body.verify
+        const category = await categoryModel.findOne({ _id: id })
+        const name = req.body.name || category.name
+        const description = req.body.description || category.description
+        const is_listed = req.body.verify || category.is_listed
+        let resizedImage=''
 
-        const outputFile = `${req.file.destination}/${Date.now() + '-' + req.file.originalname}`
+        if(req.file !=undefined){
+            const image = req.file.filename
+            const outputFile = `${req.file.destination}/${Date.now() + '-' + req.file.originalname}`
 
-        const cropImage = await sharp(req.file.path).resize(200, 200).toFile(outputFile)
-
-        console.log('Output Image', path.basename(outputFile));
-
-        let resizedImage = path.basename(outputFile)
-
+            const cropImage = await sharp(req.file.path).resize(200, 150).toFile(outputFile)
+    
+            console.log('Output Image', path.basename(outputFile));
+    
+            resizedImage = path.basename(outputFile) || category.image
+        }else{
+            resizedImage = category.image
+        }
+       
         const updateCategory = await categoryModel.findByIdAndUpdate({ _id: id }, { $set: { name: name, description: description, image: resizedImage, is_listed: is_listed } })
         if (updateCategory) {
             res.redirect('/admin/category')
@@ -711,7 +743,7 @@ const addProduct = async (req, res) => {
 
         for (let i = 0; i < req.files.length; i++) {
             const outputFile = `${req.files[i].destination}/${Date.now() + '-' + req.files[i].originalname}`
-            const cropImage = await sharp(req.files[i].path).resize(200, 200).toFile(outputFile)
+            const cropImage = await sharp(req.files[i].path).resize(200, 150).toFile(outputFile)
             let resizedImage = path.basename(outputFile)
             // console.log('resizedImage', resizedImage);
             arrImages[i] = resizedImage
@@ -818,7 +850,7 @@ const editProduct = async (req, res) => {
         var arrImages = []
         for (let i = 0; i < req.files.length; i++) {
             const outputFile = `${req.files[i].destination}/${Date.now() + '-' + req.files[i].originalname}`
-            const cropImage = await sharp(req.files[i].path).resize(200, 200).toFile(outputFile)
+            const cropImage = await sharp(req.files[i].path).resize(200, 150).toFile(outputFile)
             let resizedImage = path.basename(outputFile)
             // console.log('resizedImage', resizedImage);
             arrImages[i] = resizedImage
@@ -949,7 +981,6 @@ const loadAdminOrderManagement = async (req, res) => {
 
         const orders = await orderModel.find({
             $or: [
-                { products: { $regex: `.*${search}.*`, $options: 'i' } },
                 { 'shippingAddress.building': { $regex: `.*${search}.*`, $options: 'i' } },
                 { 'shippingAddress.city': { $regex: `.*${search}.*`, $options: 'i' } },
                 { 'shippingAddress.state': { $regex: `.*${search}.*`, $options: 'i' } },
@@ -963,9 +994,12 @@ const loadAdminOrderManagement = async (req, res) => {
             .exec()
         console.log(orders);
 
-        const count = await orderModel.find({ $or: [{ products: { $regex: `.*${search}.*`, $options: 'i' } }, { shippingAddress: { $regex: `.*${search}.*`, $options: 'i' } }, { paymentMethod: { $regex: `.*${search}.*`, $options: 'i' } }] })
-            .countDocuments()
+        // { products: { $regex: `.*${search}.*`, $options: 'i' } },
+        // { products: { $regex: `.*${search}.*`, $options: 'i' } }, 
 
+        const count = await orderModel.find({ $or: [{ shippingAddress: { $regex: `.*${search}.*`, $options: 'i' } }, { paymentMethod: { $regex: `.*${search}.*`, $options: 'i' } }] })
+            .countDocuments()
+        console.log(count);
         res.render('adminOrderManagement', { data: orders, totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1, search: search })
 
     } catch (error) {
@@ -978,11 +1012,17 @@ const loadAdminOrderManagement = async (req, res) => {
 const loadEditOrder = async (req, res) => {
     try {
         const orderId = req.query.id
+        const productId = req.query.productId
         console.log(orderId);
-        let orders = await orderModel.findOne({ _id: orderId })
-
+        // let orders = await orderModel.findOne({ _id: orderId,'products.productId':productId })
+        let orders = await orderModel.aggregate([
+            { $match: { _id: new mongoose.Types.ObjectId(orderId) } },
+            { $unwind: '$products' },
+            {$match:{'products.productId':productId}}
+        ])
+        console.log(orders);
         // send orders and display in edit page and design edit orders ejs page 
-        res.render('editOrder', { data: orders })
+        res.render('editOrder', { data: orders[0] })
 
 
     } catch (error) {
@@ -996,12 +1036,17 @@ const editOrder = async (req, res) => {
         const status = req.body.status
         const orderId = req.body.id
         console.log(status);
-        let orders = await orderModel.updateOne({ _id: orderId }, { $set: { status: status } })
+        if(status==='cancelled'){
+        let orders = await orderModel.updateOne({ _id: orderId,'products.productId': productId }, { $set: { 'products.$.is_listed': false,'products.$.status': status } })
+        }else{
+        let orders = await orderModel.updateOne({ _id: orderId,'products.productId': productId }, { $set: { 'products.$.status': status } })
+        }
         if (orders) {
             res.redirect('/admin/order')
         } else {
             console.log('could not update');
         }
+
 
     } catch (error) {
         console.log(error);
@@ -1012,16 +1057,20 @@ const editOrder = async (req, res) => {
 const adminCancelOrder = async (req, res) => {
     try {
         const orderId = req.query.id
+        const productId = req.query.productId
+        
+        let orderCancelled = await orderModel.updateOne({ _id: orderId,'products.productId': productId }, { $set: { 'products.$.is_listed': false,'products.$.status': 'cancelled' } })
 
-        let orders = await orderModel.findOne({ _id: orderId })
-
-        for (let product of orders.products) {
-            let updateProductQuantity = await productModel.updateOne({ _id: product.productId }, { $inc: { quantity: 1 } })
-        }
-
-        let orderCancelled = await orderModel.updateOne({ _id: orderId }, { $set: { status: 'cancelled' } })
+        
         //check if update happened else display error in a message span 
         if (orderCancelled) {
+            let orders = await orderModel.findOne({ _id: orderId })
+
+        for(let product of orders.products){
+            if(product.is_listed===false){
+            let updateProductQuantity=await productModel.updateOne({_id:product.productId},{$inc:{quantity:1,ordered_quantity:-1}})
+            }
+        }
             res.redirect('/admin/order')
         } else {
             console.log('could not update');

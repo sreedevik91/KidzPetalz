@@ -52,16 +52,15 @@
                                     %>
                                     <tr class="rem1">
                                         <td class="invert">
-                                        <% item.products.forEach((e)=>{
-                                            %>
+                                        
                                             <a href="">
-                                                <img src="productImages/<%=e.image%>" alt="" width="20px" height="20px" class="img-responsive">
+                                                <img src="productImages/<%=item.products.image%>" alt="" width="20px" height="20px" class="img-responsive">
                                             </a><br>
-                                            <%=e.title%><br>
-                                            <%=e.amount%><br>
-                                            <%=e.quantity%><br><hr>
+                                            <%=item.products.title%><br>
+                                            
+                                            <%=item.products.quantity%><br>
 
-                                            <%})%>
+                                           
                                        
                                     </td>
                                         <td class="invert-image">
@@ -72,26 +71,26 @@
                                             <%=item.orderDate%>
                                         </td>
                                         <td class="invert">
-                                             ₹<%=item.orderAmount%>
+                                             ₹<%=item.products.price%>
                                         </td>
 
                                         <td class="invert"><%=item.paymentMethod%>
                                         </td>
                                         <td class="invert">
-                                            <%=item.status%>
+                                            <%=item.products.status%>
                                         </td>
                                    <%
-                                   if(item.status=='cancelled'){
+                                   if(item.products.is_listed==false){
                                     %>
                                     <td>
-                                    <button class="btn btn-info" id="cancelButton" disabled>Cancel</button>
+                                    <button class="btn btn-info" id="cancelButton" disabled>Cancelled</button>
                                     </td>
                                     <%
                                    }else{
                                     %>
                                     <td>
                                         <!-- <button class="btn btn-info" id="cancelButton" href="cancelOrder?id=<%=item._id%>">Cancel</button> -->
-                                        <a class="btn btn-info" id="cancelButton" href="cancelOrder?id=<%=item._id%>">Cancel</a>
+                                        <a class="btn btn-info" id="cancelButton" href="cancelOrder?id=<%=item._id%>&productId=<%=item.products.productId%>">Cancel</a>
 
                                     </td>
                                     <%

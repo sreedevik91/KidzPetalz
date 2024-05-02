@@ -221,8 +221,19 @@
                                             alt="<%=item.image[0]%>" class="card-img-top">
                                         <div class="men-cart-pro">
                                             <div class="inner-men-cart-pro">
-                                                <a href="product?id=<%=item._id%>" class="link-product-add-cart">Quick
-                                                    View</a>
+                                                <%
+                                                if(item.quantity===0){
+                                                    %>
+                                                    <a href="product?id=<%=item._id%>" class="link-product-add-cart">Out of Stock</a>
+                                                    <%
+                                                }else{
+                                                    %>
+                                                    <a href="product?id=<%=item._id%>" class="link-product-add-cart">Quick
+                                                        View</a>
+                                                    <%
+                                                }
+                                                %>
+                                               
                                             </div>
                                         </div>
                                     </div>

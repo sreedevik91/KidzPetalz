@@ -104,6 +104,7 @@ const loadCart = async (req, res) => {
 
                 }
             ])
+            console.log('cartItems',cartItems);
             // console.log(cartItems,cartTotalAmount);
             // console.log('cartItems products: '+ cartItems[0].cartProducts[0].title);
 
@@ -162,7 +163,7 @@ const addToCart = async (req, res) => {
                     productUpdated = await productModel.updateOne({ _id: product }, { $inc: { quantity: -1 } })
 
                     if (cartUpdated) {
-                        console.log('cart updated');
+                        console.log('cart number updated');
                         let cart = await cartModel.findOne({ user })
                         req.session.cartCount = cart.quantity
                         res.json({ update: true })
@@ -180,7 +181,7 @@ const addToCart = async (req, res) => {
                 }
 
                 if (cartUpdated) {
-                    console.log('cart updated');
+                    console.log('cart item pushed');
                     let cart = await cartModel.findOne({ user })
                     req.session.cartCount = cart.quantity
                     res.json({ update: true })
@@ -219,15 +220,18 @@ const changeProductQuantity = async (req, res) => {
     try {
 
         const { cartId, productId, count, quantity } = req.body
-        // console.log(quantity,cartId,count);
+        // console.log('count',count);
+        // console.log('cartId',cartId);
+        // console.log('quantity',quantity);
+        // console.log('productId',productId);
         const products = await productModel.findOne({ _id: productId })
         let stock = products.quantity
-        if (stock < quantity) {
-        
-            res.json('Requested quantity exceeds available stock')
+        console.log('stock',stock);
+        if (stock < count) {
+            res.json({lessStock:true})
         }
         if(stock<=0){
-            res.json('Product out of stock')
+            res.json({outOfStock:true})
         }
 
         if (quantity == 1 && count == -1) {

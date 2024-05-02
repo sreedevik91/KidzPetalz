@@ -29,6 +29,14 @@
         </div>
         </form>
 
+        <div style="display: flex;">
+            <div>
+                <img src="/images/a1.jpg" id="imageInput">
+                <button id="btn">Crop</button>
+            </div>
+
+            <img src="" id="output">
+        </div>
         
         <div>
             <p>
@@ -40,6 +48,20 @@
     </main>
 
     <script>
+
+        const imageInput=document.getElementById('imageInput')
+        console.log(imageInput);
+        const cropper= new Cropper(imageInput,{
+            aspectRatio:0,
+            viewMode:0
+
+        })
+        document.getElementById('btn').addEventListener('click',()=>{
+            var croppedImg=cropper.getCroppedCanvas().toDataURL()
+            console.log(croppedImg);
+            document.getElementById('output').src=croppedImg
+        })
+
         let image={}
         function getImage(){
             image={}

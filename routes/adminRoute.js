@@ -9,6 +9,7 @@ const nocache=require('nocache');
 const dotenv=require('dotenv')
 const multer=require('multer')
 const sharp = require('sharp');
+const Cropper=require('cropperjs')
 
 
 dotenv.config()

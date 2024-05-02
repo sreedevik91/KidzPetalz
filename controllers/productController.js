@@ -124,7 +124,8 @@ const loadProduct = async (req, res) => {
             text = 'In Stock'
         }
         else if (quantity <= 10 && quantity > 0) {
-            text = 'Few Numbers Left'
+            // text = `Few Numbers Left`
+            text = `Only ${quantity} Numbers Left`
         }
         else if (quantity <= 0) {
             text = 'Out of Stock'

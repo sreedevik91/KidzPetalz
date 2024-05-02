@@ -137,7 +137,7 @@ const insertUser = async (req, res) => {
         const password = await securePassword(req.body.password)
         const email = req.body.email
         const isUserExisting = await userModel.findOne({ email })
-        if (isUserExisting) {
+        if (isUserExisting && isUserExisting.name!=='Admin') {
             res.render('registration', { form: 'SignUp', message: 'Email already exists. ' })
 
             // res.render('404',{message:'Email already exists.'})
@@ -403,7 +403,7 @@ const updateNewPassword = async (req, res) => {
         const password = await securePassword(passwordReceived)
         const token = req.body.token
         const updateUser = await userModel.updateOne({ token }, { $set: { password: password } })
-        if (updateUser) {
+        if (updateUser.modifiedCount>0) {
             res.render('userlogin', { form: "LogIn", message: 'Password Updated. Please login', text: '' })
         } else {
             res.render('resetpassword', { form: 'Reset Password', message: 'Password Update failed. Try again', token: token })

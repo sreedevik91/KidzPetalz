@@ -50,11 +50,41 @@ const loadCheckout=async (req,res)=>{
             }
         ])
         
+        let cartProducts = await cartModel.aggregate([
+            { $match: { user: userId } },
+            { $unwind: '$products' },
+            {
+                $project: {
+                    product: '$products.productId',
+                    quantity: '$products.quantity'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'product',
+                    foreignField: '_id',
+                    as: 'cartProduct'
+                }
+            },
+            {
+                $project: {
+                    product: 1, quantity: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+                }
+            },
+            {
+                $project: {
+                    product: 1, quantity: 1, amount: '$cartProduct.discounted_price',name:'$cartProduct.title'  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+                }
+            }
+        ])
+
     //    console.log(cartTotalAmount[0]);
     //    console.log(shippingAddress[0]);
+    console.log(cartProducts);
 
 
-        res.render('checkout',{page: 'Checkout', data:shippingAddress,cartTotalAmount:cartTotalAmount[0].total , id: req.session.userId, message: '', cartCount: req.session.cartCount })
+        res.render('checkout',{page: 'Checkout', data:shippingAddress,cartTotalAmount:cartTotalAmount[0].total,products:cartProducts, id: req.session.userId, message: '', cartCount: req.session.cartCount })
 
     } catch (error) {
 
@@ -161,15 +191,28 @@ const placeOrder= async (req,res)=>{
         
         console.log(cartItems)
         let products=[]
-        
-        cartItems.forEach((item)=>{
-            products.push({
-                productId:item.cartProduct._id,
-                title:item.cartProduct.title,
-                image:item.cartProduct.image[0],
-                price:item.cartProduct.discounted_price,
-                quantity:item.quantity
-            })
+
+        let stockAvailable=true
+
+        // if the stock is to be checked before checkout use the commented code
+
+        // let product=await productModel.findOne({_id:item.cartProduct._id})
+        // if(product.quantity<item.quantity){
+        //     res.json({status:'lessQuantity'})
+        // }else{
+            cartItems.forEach(async (item)=>{
+      
+                products.push({
+                    productId:item.cartProduct._id,
+                    title:item.cartProduct.title,
+                    image:item.cartProduct.image[0],
+                    price:item.cartProduct.discounted_price,
+                    quantity:item.quantity,
+                    is_listed:true,
+                    status:status
+                }) 
+            
+           
         })
 
         // let products=[]
@@ -186,8 +229,7 @@ const placeOrder= async (req,res)=>{
             shippingAddress,
             paymentMethod,
             products,
-            orderAmount,
-            status
+            orderAmount
         })
 
         const orderNew=await newOrder.save()
@@ -203,6 +245,11 @@ const placeOrder= async (req,res)=>{
             req.session.cartCount=0    
             res.json({status:status})
         }
+
+
+        // }
+
+       
 
     } catch (error) {
         console.log(error.message);

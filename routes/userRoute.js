@@ -35,9 +35,21 @@ userRoute.get('/auth/google', passport.authenticate('google', { scope: ['profile
 
 // Callback URL for handling the Google Login response
 userRoute.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
-  // Successful authentication, redirect to the home page
+  try {
+    // Successful authentication, redirect to the home page
+
+    // req.session.user = user || googleUser || result
+    // req.session.userId = user._id || googleUser._id || result._id
+  
+  const user=req.user
+  console.log(user.name); 
   req.session.login = true
+  req.session.user=user
+  console.log('user login: ',req.session.login);
   res.redirect('/home');
+  } catch (error) {
+    console.log('Google auth error: ', error.message);
+  }
 });
 
 router.route('/signup')

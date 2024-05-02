@@ -8,13 +8,14 @@
         <h3><strong>Edit Order</strong></h3>
 
         <form action="" method="post" class="mt-5">
+
             <div class="form-group">
                 <label class="col-form-label">Product</label>
-                <input type="text" class="form-control" name="name" value="product" disabled>
+                <input type="text" class="form-control" name="name" value="<%=data.products.title%>" disabled>
             </div>
             <div class="form-group">
                 <label class="col-form-label">Shipping To</label>
-                <input type="text" class="form-control" value= "<%=data.shippingAddress.building%>, <%=data.shippingAddress.city%>, <%=data.shippingAddress.state%>, <%=data.shippingAddress.country%>, <%=data.shippingAddress.pbNumber%>, <%=data.shippingAddress.contactNumber%>
+                <input type="text" class="form-control" value= "<%=data.shippingAddress.name%>,<%=data.shippingAddress.building%>, <%=data.shippingAddress.city%>, <%=data.shippingAddress.state%>, <%=data.shippingAddress.country%>, <%=data.shippingAddress.pbNumber%>, <%=data.shippingAddress.contactNumber%>
                 " name="shippingAddress" disabled>
             </div>
             <div class="form-group">
@@ -23,7 +24,7 @@
           </div>
           <div class="form-group">
             <label class="col-form-label">Amount</label> 
-            <input type="number" class="form-control" name="amount" value="<%=data.orderAmount%>" disabled>
+            <input type="number" class="form-control" name="amount" value="<%=data.products.price%>" disabled>
         </div>
         <div class="form-group">
             <label class="col-form-label">Payment Method</label> 
@@ -31,7 +32,7 @@
         </div>
         <div class="form-group">
             <label class="col-form-label">Status</label> 
-            <input type="text" class="form-control" name="status" value="<%=data.status%>">
+            <input type="text" class="form-control" name="status" value="<%=data.products.status%>">
         </div>
         <div class="form-group">
             <input type="hidden" class="form-control" value="<%=data._id%>" name="id"  required>

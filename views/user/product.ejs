@@ -53,7 +53,9 @@
                         <h3><%=item.title%>
                         </h3>
                         <div class="caption">
+                            
                             <ul class="rating-single">
+                                <li><span><%=item.rating%> </span> </li>
                                 <li>
                                     <a href="#">
                                         <span class="fa fa-star yellow-star" aria-hidden="true"></span>
@@ -80,7 +82,7 @@
                                     </a>
                                 </li>
                             </ul>
-                            <div class="clearfix"> </div>
+                            <div class="clearfix"></div>
                             <h6>₹ <%=item.discounted_price%></h6>
                             <h5 > <span style="text-decoration: line-through;color:grey"> ₹ <%=item.actual_price%></span>   <span style="text-decoration: none;color:red;margin-left: 15px;"><%=item.discount%> off</span></h5> 
                            

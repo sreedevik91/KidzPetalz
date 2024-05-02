@@ -175,7 +175,13 @@
                         } else if (response.maxLimit) {
                             alert('Maximun number of product to cart exceeded')
 
-                        } else {
+                        }  else if (response.lessStock) {
+                            alert('Requested quantity exceeds available stock')
+
+                        }  else if (response.outOfStock) {
+                            alert('Product out of stock')
+
+                        }else {
                             if (quantity > 0) {
                                 document.getElementById(productId).innerHTML = quantity + count
                                 document.getElementById('cartCount').innerHTML = cartValue + count
