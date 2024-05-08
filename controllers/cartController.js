@@ -135,8 +135,11 @@ const addToCart = async (req, res) => {
         const cart = await cartModel.findOne({ user })
 
         if (stock <=0) {
+            // let productUpdated = await productModel.updateOne({ _id: product }, { $set:{quantity:0} })
+            products.quantity=0
+            await products.save()
             res.json('Product is out of stock')
-        }
+        }else{
 
         if (cart) {
                 const isProduct = await cartModel.aggregate([
@@ -209,6 +212,8 @@ const addToCart = async (req, res) => {
             }
         }
 
+    }
+
     } catch (error) {
         console.log(error.message);
 
@@ -231,6 +236,8 @@ const changeProductQuantity = async (req, res) => {
             res.json({lessStock:true})
         }
         if(stock<=0){
+            let productUpdated = await productModel.updateOne({ _id: productId }, { $set:{quantity:0} })
+
             res.json({outOfStock:true})
         }
 

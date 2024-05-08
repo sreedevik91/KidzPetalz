@@ -145,65 +145,69 @@
 
 <script>
 
-    function search() {
-        let query = document.getElementById('search').value
-        let resultDiv=document.getElementById('searchResults')
-    let match=query.match(/.*[ a-zA-Z ].*/)
-    let match2=query.match(/\s*/)
+    // function search() {
+    //     let query = document.getElementById('search').value
+    //     let resultDiv=document.getElementById('searchResults')
+    // let match=query.match(/.*[ a-zA-Z ].*/)
+    // let match2=query.match(/\s*/)
 
-    if(match2[0]==query){
-        resultDiv.innerHTML=''
-    }
-    if(match[0]==query){
-        console.log(query);
-        fetch('/search', {
-            method: 'post',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ search: query })
-        }).then(response => response.json()).then((data) => {
-            console.log(data.result);
-            let products=data.result
-            resultDiv.innerHTML=''
-            if(products.length<1){
-                resultDiv.innerHTML=`<p>Sorry. Nothing found</p>`
-            }
-            products.forEach(element => {
-                resultDiv.innerHTML+=`<p><a href="/product?id=${element._id}">${element.title}</a></p>`
-            });
+    // if(match2[0]==query){
+    //     resultDiv.innerHTML=''
+    // }
+    // if(match[0]==query){
+    //     console.log(query);
+    //     fetch('/search', {
+    //         method: 'post',
+    //         headers: { 'Content-Type': 'application/json' },
+    //         body: JSON.stringify({ search: query })
+    //     }).then(response => response.json()).then((data) => {
+    //         console.log(data.result);
+    //         let products=data.result
+    //         resultDiv.innerHTML=''
+    //         if(products.length<1){
+    //             resultDiv.innerHTML=`<p>Sorry. Nothing found</p>`
+    //         }
+    //         products.forEach(element => {
+    //             resultDiv.innerHTML+=`<p><a href="/product?id=${element._id}">${element.title}</a></p>`
+    //         });
             
-        })
+    //     })
 
-    }
+    // }
 
-    resultDiv.innerHTML=''
+    // resultDiv.innerHTML=''
 
-        // $.ajax({
-        //     url:'/search',
-        //     method:'post',
-        //     data:{search:query},
-        //     success:(response)=>{
-        //         console.log(response);
-        //         location.href=
-        //     }
-        // })
-    }
+    //     // $.ajax({
+    //     //     url:'/search',
+    //     //     method:'post',
+    //     //     data:{search:query},
+    //     //     success:(response)=>{
+    //     //         console.log(response);
+    //     //         location.href=
+    //     //     }
+    //     // })
+    // }
 
-    function showProducts(){
-        let query = document.getElementById('search').value
-         $.ajax({
-            url:'/searchedProducts',
-            method:'get',
-            data:{search:query},
-            success:(response)=>{
-                console.log(response);
-                location.href
-            }
-        })
-    }
+    // function showProducts(){
+    //     let query = document.getElementById('search').value
+    //      $.ajax({
+    //         url:'/searchedProducts',
+    //         method:'get',
+    //         data:{search:query},
+    //         success:(response)=>{
+    //             console.log(response);
+    //             location.href
+    //         }
+    //     })
+    // }
 </script>
 
 <!---//Search-->
 
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
 <!-- js -->
 <script src="js/jquery-2.2.3.min.js"></script>
 <!-- //js -->

@@ -1,0 +1,225 @@
+<%- include('../layout/homeheader.ejs') %>
+
+
+    <!-- inner banner -->
+    <div class="ibanner_w3 pt-sm-5 pt-3">
+        <h4 class="head_agileinfo text-center text-capitalize text-center pt-5">
+            <span>K</span>iddos
+        </h4>
+    </div>
+    <!-- //inner banner -->
+    <!-- breadcrumbs -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="home">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <%= page%>
+            </li>
+        </ol>
+    </nav>
+    <!-- //breadcrumbs -->
+    <section class="checkout_wthree py-sm-5 py-3">
+        <% var userData%>
+            <% var addressData%>
+
+
+                <div class="container">
+                    <div class="view-account">
+                        <section class="module">
+                            <div class="module-inner">
+                                <div class="side-bar">
+                                    <div class="user-info">
+                                        <!-- <img class="img-profile img-circle img-responsive center-block"
+                                            src="" alt=""> -->
+                                        <ul class="meta list list-unstyled">
+                                            <li class="name">
+                                                <h4>Welcome <%= name%>
+                                                </h4>
+                                                <!-- <label class="label label-info">UX Designer</label> -->
+                                            </li>
+                                            <!-- <li class="email"><a href="#">Rebecca.S@website.com</a></li>
+                            <li class="activity">Last logged in: Today at 2:18pm</li> -->
+                                        </ul>
+                                    </div>
+                                    <nav class="side-menu">
+                                        <ul class="nav">
+                                            <li><a href="userProfile"><span class="fa fa-user"></span> Profile</a>
+                                            </li>
+                                            <li><a href="orders"><span class="fa fa-cog"></span> Orders</a></li>
+                                            <li class="active"><a href="wallet"><span class="fa fa-credit-card"></span>
+                                                    Wallet</a></li>
+                                            <li><a href="changePassword"><span class="fa fa-envelope"></span> Change
+                                                    Password</a></li>
+                                            <li><a href="logout"><span class="fa fa-th"></span> Logout</a></li>
+                                            <!-- <li><a href="#"><span class="fa fa-clock-o"></span> Reminders</a></li> -->
+                                        </ul>
+                                    </nav>
+                                </div>
+                                <div class="content-panel">
+                                    <div>
+                                        <h1 class="">Wallet</h1>
+                                    </div>
+
+                                    <hr>
+
+                                    <div style="display: flex;">
+                                        <!-- <fieldset> -->
+                                        <div>
+                                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvqtG83740IZMB1PTbHkeam3z7Orduzjm8Sf5371T8og&s"
+                                                width="100px" height="100px" alt="">
+                                        </div>
+                                        <!-- </fieldset> -->
+                                        <!-- <fieldset class="fieldset"> -->
+                                        <div>
+                                            <h4 class="ml-5 mt-3">Wallet Balance</h4>
+                                            <% if(data!='' ){ %>
+                                                <p>
+                                                <h5 class="ml-5 mt-3"> ₹<%=data.amount%>
+                                                </h5>
+                                                </p>
+                                                <% }else{ %>
+                                                    <p>
+                                                    <h5 class="ml-5 mt-3" style="color: rgb(24, 24, 239);">
+                                                        <%=message%>
+                                                    </h5>
+                                                    </p>
+                                                    <% } %>
+
+                                        </div>
+                                        <!-- </fieldset> -->
+
+                                    </div>
+
+
+                                    <hr>
+
+                                    <form class="form-horizontal mt-5" method="post" action="wallet">
+
+                                        <div class="form-group">
+
+                                            <div class="">
+                                                <h3>Add Amount</h3>
+                                            </div>
+                                            <br>
+                                            <div
+                                                class="col-md-10 col-sm-9 col-xs-12 col-md-push-2 col-sm-push-3 col-xs-push-0 mt-3">
+                                                <label for="" class="form-label">Enter Amount: </label>
+                                                <input type="number" name="walletAmount"
+                                                    style="width: 300px; height: 35px; border: 1px solid grey; border-radius: 50px;">
+                                                <% if(data!='' ){ %>
+                                                    <input type="hidden" name="walletId" value="<%=data._id%>">
+                                                    <% }else{ %>
+                                                        <input type="hidden" name="walletId" value="">
+
+                                                        <% } %>
+
+                                            </div>
+
+                                            <div>
+                                                <input type="submit" class="btn btn-info"
+                                                    style="width: 100px; margin:20px 125px;" value="Add">
+                                            </div>
+
+                                        </div>
+                                    </form>
+
+                                    <hr>
+                                    <div class="form-group mt-5">
+                                        <div
+                                            class="col-md-10 col-sm-9 col-xs-12 col-md-push-2 col-sm-push-3 col-xs-push-0 mt-3">
+
+                                            <!-- Try using accordions/modals/collapse for transactions -->
+
+                                            <!-- Button trigger modal -->
+                                            <button type="button" class="btn btn-info" data-bs-toggle="modal"
+                                                data-bs-target="#exampleModal">
+                                                View Transactions
+                                            </button>
+
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="exampleModal" tabindex="-1"
+                                                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog modal-xl" style="width: 1500px;">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5" id="exampleModalLabel">
+                                                                Transactions</h1>
+                                                            <button type="button" class="btn-close"
+                                                                data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <% if(data!='' ){ %>
+
+                                                                <table class="table">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Date</th>
+                                                                            <th>Amount</th>
+                                                                            <th>Type</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <% data.transactions.forEach((elem)=>{
+                                                                        %>
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td>
+                                                                                    <%=elem.date.toLocaleDateString()%>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <%=elem.amount%>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <%=elem.type%>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                        <% }) %>
+                                                                </table>
+
+                                                                <% }else{ %>
+                                                                    <div></div>
+                                                                    <% } %>
+
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Close</button>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+    </section>
+
+    <script>
+
+        function deleteAddress(shippingAddressId) {
+            console.log(shippingAddressId);
+            $.ajax({
+                url: `/deleteAddress?id=${shippingAddressId}`,
+                type: 'get',
+                success: (response) => {
+                    location.reload()
+                    alert(response)
+                }
+            })
+        }
+
+
+    </script>
+
+
+
+    <%- include('../layout/homefooter.ejs') %>

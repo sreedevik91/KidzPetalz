@@ -21,7 +21,8 @@ const loadFilteredProducts = async (req, res) => {
         // let sort = req.body.sort
 
         // console.log('sort', sort);
-        console.log('filters', req.body.filterArray)
+        console.log('filters: ', req.body.filterArray)
+        console.log('query: ', req.body.query)
 
         // let sortQ = {}
         // if (sort!=undefined) {
@@ -143,7 +144,8 @@ const searchProduct=async(req,res)=>{
 
     try {
         let query=req.body.search
-        // console.log(query);
+        console.log(query);
+        
         // let products=await productModel.find({is_listed:true,$or: [
         //     { title: { $regex: `.*${search}.*`, $options: 'i' } },
         //     { tags: { $regex: `.*${search}.*`, $options: 'i' } },
@@ -160,7 +162,7 @@ const searchProduct=async(req,res)=>{
         res.json({result:products});
     } catch (error) {
         console.log(error.message);
-  
+
     }
 }
 

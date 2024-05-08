@@ -60,8 +60,6 @@
                                             
                                             <%=item.products.quantity%><br>
 
-                                           
-                                       
                                     </td>
                                         <td class="invert-image">
                                             <%=item.shippingAddress.name%>,<%=item.shippingAddress.building%>, <%=item.shippingAddress.city%>, <%=item.shippingAddress.state%>, 
@@ -90,7 +88,7 @@
                                     %>
                                     <td>
                                         <!-- <button class="btn btn-info" id="cancelButton" href="cancelOrder?id=<%=item._id%>">Cancel</button> -->
-                                        <a class="btn btn-info" id="cancelButton" href="cancelOrder?id=<%=item._id%>&productId=<%=item.products.productId%>">Cancel</a>
+                                        <a class="btn btn-info" id="cancelButton" href="cancelOrder?orderId=<%=item._id%>&productId=<%=item.products.productId%>&amount=<%=item.products.price%>">Cancel</a>
 
                                     </td>
                                     <%
@@ -98,8 +96,6 @@
                                    %>
                                        
                                     </tr>
-
-                                  
 
                                     <% }) %>
 

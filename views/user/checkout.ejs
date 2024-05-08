@@ -38,7 +38,7 @@
                                 <div class="" style="display: flex; margin-bottom: 0;">
                                     <input type="radio" name="shippingAddress" value="<%= item.shippingAddress._id%>"
                                         style="margin-top: -25%;" required>
-                                        
+
                                     <label style="padding-top: 0%; padding-left: 5%;">
                                         <p>
                                             <%= item.shippingAddress.building%>
@@ -107,7 +107,7 @@
 
                                 <% }) %>
 
-                                <input type="hidden" name="userId" value="<%=id%>">
+                                    <input type="hidden" name="userId" value="<%=id%>">
 
 
                                     <a href="" style="color: #777;"> <span style="font-size:x-large;">+ </span> Add
@@ -171,32 +171,31 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                    <%
-                                    products.forEach((p)=>{
-                                        %>
-                                        <tr class="rem1" style="width: 100%;  height: 20px;">
-                                            <td class="invert"><%=products.indexOf(p)%></td>
-                                            <td class="invert">
-                                                <!-- <a href="">
+                                        <% products.forEach((p)=>{
+                                            %>
+                                            <tr class="rem1" style="width: 100%;  height: 20px;">
+                                                <td class="invert">
+                                                    <%=products.indexOf(p)%>
+                                                </td>
+                                                <td class="invert">
+                                                    <!-- <a href="">
                                                     <img src="" alt="" width="200px" height="30px"
                                                         class="img-responsive">
                                                 </a> -->
-                                                <%=p.name%>
-                                            </td>
-                                            <td class="invert">
-                                                <%=p.quantity%>
-                                            </td>
-                                            <td class="invert">
-                                               ₹ <%=p.amount%>
-                                            </td>
-                                            <!-- <td class="invert">
+                                                    <%=p.name%>
+                                                </td>
+                                                <td class="invert">
+                                                    <%=p.quantity%>
+                                                </td>
+                                                <td class="invert">
+                                                    ₹ <%=p.amount%>
+                                                </td>
+                                                <!-- <td class="invert">
                                                 <button type="button" class="btn-danger">Remove</button>
                                             </td> -->
-                                        </tr>
-                                        <%
-                                    })
-                                    %>
-                                        
+                                            </tr>
+                                            <% }) %>
+
                                     </tbody>
                                 </table>
                             </div>
@@ -235,7 +234,7 @@
             </div>
         </div>
     </section>
-
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
 
 
@@ -246,14 +245,72 @@
                 method: 'post',
                 data: $('#placeOrderForm').serialize(),
                 success: (response) => {
-                    if(response.status==='placed'){
-                        location.href='/orderSuccess'
-                    }else if(response.status==='lessQuantity'){
-                        alert('The required quantity of product is currently not available. Please change the product quantity and try')
+                    if (response.cod == true) {
+                        location.href = '/orderSuccess'
+                        // }else if(response.quantity==='lessQuantity'){
+                        //     alert('The required quantity of product is currently not available. Please change the product quantity and try')
+                        // }
+                    } else {
+
+                        razorpayPayment(response)
+
                     }
                 }
             })
         })
+
+        function razorpayPayment(order) {
+            // let amount=parseInt(order.amount)*100
+            // console.log(amount);
+            var options = {
+                "key": "rzp_test_85xo26IPuPICSY", // Enter the Key ID generated from the Dashboard
+                "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                "currency": "INR",
+                "name": "Kiddos",
+                "description": "Test Transaction",
+                "image": "https://example.com/your_logo",
+                "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                "handler": function (response) {
+                    alert(response.razorpay_payment_id);
+                    alert(response.razorpay_order_id);
+                    alert(response.razorpay_signature)
+
+                    varifyPayment(response,order)
+                },
+                "prefill": {
+                    "name": "Gaurav Kumar",
+                    "email": "gaurav.kumar@example.com",
+                    "contact": "9000090000"
+                },
+                "notes": {
+                    "address": "Razorpay Corporate Office"
+                },
+                "theme": {
+                    "color": "#3399cc"
+                }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+        }
+
+        function varifyPayment(payment,order){
+            $.ajax({
+                url:'/verifyPayment',
+                method:'post',
+                data:{
+                    payment,
+                    order
+                },
+                success:(response)=>{
+                    if(response.paymentSuccess===true){
+                        location.href = '/orderSuccess'
+                    }else{
+                        alert('payment failed')
+                    }
+                }
+            })
+        }
+
 
         function addShippingAddress(userId) {
             $.ajax({

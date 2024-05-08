@@ -1,0 +1,160 @@
+<%- include('../layout/homeHeader.ejs') %>
+
+    <!-- //header -->
+    <!-- inner banner -->
+    <div class="ibanner_w3 pt-sm-5 pt-3">
+        <h4 class="head_agileinfo text-center text-capitalize text-center pt-5">
+            <span>K</span>iddos
+        </h4>
+    </div>
+    <!-- //inner banner -->
+    <!-- breadcrumbs -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="home">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <%= page%>
+            </li>
+        </ol>
+    </nav>
+    <!-- //breadcrumbs -->
+
+    <section class="checkout_wthree py-sm-5 py-3">
+        <div class="container">
+
+            <div>
+                <% if(data===''){ %>
+                    <span>
+                        <%=message%>
+                    </span>
+                    <% }else if(quantity<=0){ %>
+                            <span>
+                               <p> Your wishlist is empty</p>
+                            </span>
+                            <% }else{ 
+                                %>
+                                <div class="d-sm-flex justify-content-between mb-4">
+                                    <h4>Review your wishlist
+                                    </h4>
+                                    <h4 class="mt-sm-0 mt-3">Your wishlist contains:
+                                        <span id="cartPageCount">
+                                            <%=quantity%>
+                                        </span>Products
+                                    </h4>
+                                </div>
+                                <div>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <% data.forEach((item)=>{
+                                            %>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <div style="display: flex;">
+                                                            <div style="margin: 10px ;">
+                                                                <a href="product?id=<%=item.productId%>">
+                                                                    <img src="/productImages/<%=item.image[0]%>"
+                                                                        alt="<%=item.image[0]%>" width="40px" height="40px"
+                                                                        class="img-responsive">
+                                                                </a>
+                                                            </div>
+                                                            <div style="margin: 10px ;">
+                                                                <p>
+                                                                    <%=item.name%>
+                                                                </p>
+                                                                <p>
+                                                                    <%=item.price%>
+                                                                </p>
+        
+                                                            </div>
+                                                        </div>
+                                                    </td>
+        
+                                                    <td>
+                                                        <div style="display: flex;flex-direction: column;">
+                                                            <div style="margin-bottom: 10px ;"><button onclick="addToCart('<%=item.productId%>')">Add to Cart</button></div>
+                                                            <div style="margin-top: 10px ;"><button onclick="removeWishlist('<%=item.productId%>')">Remove</button></div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            <% }) %>
+        
+                                    </table>
+                                </div>
+
+                                <%}%>
+
+            </div>
+
+
+        </div>
+    </section>
+
+<script>
+
+
+//-----------------------------------------Remove wishlist------------------------------------------------------------
+
+function removeWishlist(productId){
+    $.ajax({
+                url: `/removeWishlist?productId=${productId}`,
+                type: 'get',
+                // contentType:'application/json',
+                // data:JSON.stringify({productId:productId}),
+                success: (response) => {
+                  if(response.wishlistRemoved){
+                    location.reload()
+                  }else{
+                    alert('Could not remove product')
+                  }
+                },
+                error: (jqXHR, textStatus, errorThrown) => {
+                    console.log(textStatus, errorThrown);
+                }
+            })
+}
+
+
+//-----------------------------------------------------------------------------------------------------
+
+//----------------------------------------Add to Cart-------------------------------------------------------------
+
+    function addToCart(productId) {
+            console.log(productId);
+            $.ajax({
+                url: `/addToCart?productId=${productId}`,
+                type: 'get',
+                // contentType:'application/json',
+                // data:JSON.stringify({productId:productId}),
+                success: (response) => {
+                    // or we can check if (response.update), because {update:true} is the json response sent from the backend after cart is updated
+                    if (response.update) {
+                        // let cartNumber = $('#cartCount').html()
+                        let cartNumber = document.getElementById('cartCount').innerHTML
+                        let cartValue = parseInt(cartNumber) + 1
+                        console.log(cartValue);
+                        document.getElementById('cartCount').innerHTML = cartValue
+                        console.log('success', response);
+                        alert('Product added to cart')
+                    }else{
+                        alert(response)
+                    }
+                },
+                error: (jqXHR, textStatus, errorThrown) => {
+                    console.log(textStatus, errorThrown);
+                }
+            })
+
+        }
+//-----------------------------------------------------------------------------------------------------
+
+</script>
+    <%- include('../layout/homefooter.ejs') %>

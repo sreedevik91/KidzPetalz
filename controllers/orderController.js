@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 const orderModel = require('../models/orderModel')
 const productModel = require('../models/productModel')
+const walletModel=require('../models/walletModel')
 
 const loadOrderSuccess = async (req, res) => {
     try {
@@ -37,11 +38,11 @@ const loadOrders = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
     try {
-        const orderId = req.query.id
-        const productId = req.query.productId
-        // const {id,productId}=req.query
+       
+        const{orderId,productId,amount}=req.query
         console.log('orderId', orderId);
         console.log('productId', productId);
+        console.log('amount', amount);
 
         //---------------if the cancelled order is to be removed from the list-----
         // let cancelOrder=await orderModel.updateOne({_id:orderId},{
@@ -58,17 +59,18 @@ const cancelOrder = async (req, res) => {
 
         //-----------------------------------------------------------------------------------------------
 
+        let orderToBeCancelled=await orderModel.findOne({ _id: orderId, 'products.productId': productId })
+        orderToBeCancelled.orderAmount-=parseInt(amount)
+        orderToBeCancelled.save()   
+
         let cancelOrder = await orderModel.updateOne({ _id: orderId, 'products.productId': productId }, {
             $set: {
                 'products.$.is_listed': false,
                 'products.$.status': 'cancelled'
-            }
-
+            }      
         })
-
+       
         console.log('cancelOrder', cancelOrder);
-
-
 
         if (cancelOrder) {
             let orders = await orderModel.findOne({ _id: orderId })
@@ -77,6 +79,31 @@ const cancelOrder = async (req, res) => {
                 if (product.is_listed === false) {
                     let updateProductQuantity = await productModel.updateOne({ _id: product.productId }, { $inc: { quantity: 1, ordered_quantity: -1 } })
                 }
+            }
+
+            let wallet=await walletModel.findOne({userId:req.session.userId})
+            if(wallet){
+                wallet.amount+=parseInt(amount)
+                wallet.transactions.unshift({
+                    type:'credit',
+                    amount:parseInt(amount),
+                    date:Date.now()
+                })
+                wallet.save()
+               console.log('wallet amount updated' );
+            }else{
+                let wallet= new walletModel({
+                    userId,
+                    amount:parseInt(amount),
+                    transactions:[{
+                        type:'credit',
+                        amount:parseInt(amount),
+                        date:Date.now()
+                    }]
+                })
+                wallet.save()
+                console.log('wallet created and updated');
+                res.redirect('/wallet')
             }
             console.log('Order cancelled');
             res.redirect('/orders')
