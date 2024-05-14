@@ -2,6 +2,9 @@ var mongoose = require('mongoose');
 const cartModel = require('../models/cartModel');
 const userModel = require('../models/userModel');
 const productModel = require('../models/productModel');
+const categoryOfferModel = require('../models/categoryOfferModel');
+const productOfferModel = require('../models/productOfferModel');
+const referralOfferModel = require('../models/referralOfferModel');
 
 
 
@@ -29,7 +32,8 @@ const loadCart = async (req, res) => {
                 {
                     $project: {
                         product: '$products.productId',
-                        quantity: '$products.quantity'
+                        quantity: '$products.quantity',
+                        offerAmount: '$products.offerAmount'
                     }
                 },
                 {
@@ -42,11 +46,11 @@ const loadCart = async (req, res) => {
                 },
                 {
                     $project: {
-                        product: 1, quantity: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+                        product: 1, quantity: 1, offerAmount: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
                     }
                 },
                 {
-                    $addFields: { totalAmount: { $multiply: ['$quantity', '$cartProduct.discounted_price'] } }
+                    $addFields: { totalAmount: { $multiply: ['$quantity', '$offerAmount'] } }
                 }
 
                 // {
@@ -80,7 +84,8 @@ const loadCart = async (req, res) => {
                 {
                     $project: {
                         product: '$products.productId',
-                        quantity: '$products.quantity'
+                        quantity: '$products.quantity',
+                        offerAmount: '$products.offerAmount'
                     }
                 },
                 {
@@ -93,19 +98,19 @@ const loadCart = async (req, res) => {
                 },
                 {
                     $project: {
-                        product: 1, quantity: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+                        product: 1, quantity: 1, offerAmount: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
                     }
                 },
                 {
                     $group: {
                         _id: null,
-                        total: { $sum: { $multiply: ['$quantity', '$cartProduct.discounted_price'] } }
+                        total: { $sum: { $multiply: ['$quantity', '$offerAmount'] } }
                     }
 
                 }
             ])
-            console.log('cartItems',cartItems);
-            // console.log(cartItems,cartTotalAmount);
+            console.log('cartItems', cartItems);
+            console.log(cartItems, cartTotalAmount);
             // console.log('cartItems products: '+ cartItems[0].cartProducts[0].title);
 
             res.render('cart', { page: 'Cart', data: cartItems, cartTotalAmount: cartTotalAmount[0].total, id: req.session.userId, message: '', cartCount: req.session.cartCount })
@@ -134,14 +139,14 @@ const addToCart = async (req, res) => {
         let stock = products.quantity
         const cart = await cartModel.findOne({ user })
 
-        if (stock <=0) {
+        if (stock <= 0) {
             // let productUpdated = await productModel.updateOne({ _id: product }, { $set:{quantity:0} })
-            products.quantity=0
+            products.quantity = 0
             await products.save()
             res.json('Product is out of stock')
-        }else{
+        } else {
 
-        if (cart) {
+            if (cart) {
                 const isProduct = await cartModel.aggregate([
                     {
                         $project: {
@@ -174,10 +179,72 @@ const addToCart = async (req, res) => {
                         console.log('could not update cart');
                     }
                 } else {
+
+                    let finalAmount = products.price
+                    let appliedOffers = []
+
+                    let categoryId = products.category_id
+                    let catId = categoryId.toString()
+                    console.log('categoryId: ', catId);
+                    let isCatOffer = await categoryOfferModel.aggregate([
+                        {
+                            $project: {
+                                index: {
+                                    $indexOfArray: ['$categories', catId]
+                                }
+                            }
+                        }
+                    ])
+
+                    console.log('isCatOffer: ', isCatOffer[0].index);
+
+
+                    if (isCatOffer[0].index != -1) {
+                        let categoryOffer = await categoryOfferModel.findOne({ categories: { $in: [catId] } })
+                        console.log('categoryOffer: ', categoryOffer);
+                        if (categoryOffer.valid_till >= Date.now()) {
+                            finalAmount -= (finalAmount * (categoryOffer.offerPercentage)) / 100
+                            appliedOffers.push({ name: categoryOffer.name, offerId: categoryOffer._id })
+                        } else {
+                            return
+                        }
+                    }
+
+                    let isProdOffer = await productOfferModel.aggregate([
+                        {
+                            $project: {
+                                index: {
+                                    $indexOfArray: ['$products', product]
+                                }
+                            }
+                        }
+                    ])
+
+                    console.log('isProdOffer: ', isProdOffer[0].index);
+
+                    if (isProdOffer[0].index != -1) {
+                        let productOffer = await productOfferModel.findOne({ products: { $in: [product] } })
+                        console.log('productOffer: ', productOffer);
+                        if (productOffer.valid_till >= Date.now()) {
+                            finalAmount -= (finalAmount * (productOffer.offerPercentage)) / 100
+                            appliedOffers.push({ name: productOffer.name, offerId: productOffer._id })
+                        } else {
+                            return
+                        }
+
+                    }
+
+                    console.log('finalAmount: ', finalAmount);
+
+                    let concatedOfferfArrays = [...cart.offersApplied, ...appliedOffers]
+
+                    // console.log('concatedOfferfArrays: ', concatedOfferfArrays);
+
                     cartUpdated = await cartModel.updateOne({ user },
                         {
-                            $push: { products: { productId: product } },
-                            $inc: { quantity: 1 }
+                            $push: { products: { productId: product, offerAmount: finalAmount } },
+                            $inc: { quantity: 1 },
+                            $set: { offersApplied: concatedOfferfArrays }
                         })
                     productUpdated = await productModel.updateOne({ _id: product }, { $inc: { quantity: -1 } })
 
@@ -191,28 +258,89 @@ const addToCart = async (req, res) => {
                 } else {
                     console.log('could not update cart');
                 }
-            
-        } else {
-            const cartData = new cartModel({
-                user,
-                products: [{ productId: product }]
 
-            })
-
-            const cart = await cartData.save()
-
-            if (cart) {
-
-                let productUpdated = await productModel.updateOne({ _id: product }, { $inc: { quantity: -1 } })
-                console.log(`added to cart: ${cart}`);
-                req.session.cartCount = cart.quantity
-                res.json({ update: true })
             } else {
-                console.log('add to cart failed');
-            }
-        }
 
-    }
+                let appliedOffers = []
+                let finalAmount = products.price
+
+                let categoryId = products.category_id
+                let catId = categoryId.toString()
+                let isCatOffer = await categoryOfferModel.aggregate([
+                    {
+                        $project: {
+                            index: {
+                                $indexOfArray: ['$categories', catId]
+                            }
+                        }
+                    }
+                ])
+
+                console.log('isCatOffer:', isCatOffer[0].index);
+
+
+
+                if (isCatOffer[0].index != -1) {
+                    let categoryOffer = await categoryOfferModel.findOne({ categories: { $in: [catId] } })
+                    console.log('categoryOffer: ', categoryOffer);
+                    if (categoryOffer.valid_till >= Date.now()) {
+                        finalAmount -= (finalAmount * (categoryOffer.offerPercentage)) / 100
+                        appliedOffers.push({ name: categoryOffer.name, offerId: categoryOffer._id })
+                    } else {
+                        return
+                    }
+                }
+
+
+                let isProdOffer = await productOfferModel.aggregate([
+                    {
+                        $project: {
+                            index: {
+                                $indexOfArray: ['$products', product]
+                            }
+                        }
+                    }
+                ])
+
+                console.log('isProdOffer:', isProdOffer[0].index);
+
+
+                if (isProdOffer[0].index != -1) {
+                    let productOffer = await productOfferModel.findOne({ products: { $in: [product] } })
+                    console.log('productOffer: ', productOffer);
+                    if (productOffer.valid_till >= Date.now()) {
+                        finalAmount -= (finalAmount * (productOffer.offerPercentage)) / 100
+                        appliedOffers.push({ name: productOffer.name, offerId: productOffer._id })
+                    } else {
+                        return
+                    }
+
+                }
+
+                console.log('finalAmount: ', finalAmount);
+                console.log('appliedOffers: ', appliedOffers);
+
+
+                const cartData = new cartModel({
+                    user,
+                    products: [{ productId: product, offerAmount: finalAmount }],
+                    offersApplied: appliedOffers
+                })
+
+                const cart = await cartData.save()
+
+                if (cart) {
+
+                    let productUpdated = await productModel.updateOne({ _id: product }, { $inc: { quantity: -1 } })
+                    console.log(`added to cart: ${cart}`);
+                    req.session.cartCount = cart.quantity
+                    res.json({ update: true })
+                } else {
+                    console.log('add to cart failed');
+                }
+            }
+
+        }
 
     } catch (error) {
         console.log(error.message);
@@ -231,18 +359,19 @@ const changeProductQuantity = async (req, res) => {
         // console.log('productId',productId);
         const products = await productModel.findOne({ _id: productId })
         let stock = products.quantity
-        console.log('stock',stock);
+        console.log('stock', stock);
         if (stock < count) {
-            res.json({lessStock:true})
+            res.json({ lessStock: true })
         }
-        if(stock<=0){
-            let productUpdated = await productModel.updateOne({ _id: productId }, { $set:{quantity:0} })
+        if (stock <= 0) {
+            let productUpdated = await productModel.updateOne({ _id: productId }, { $set: { quantity: 0 } })
 
-            res.json({outOfStock:true})
+            res.json({ outOfStock: true })
         }
 
         if (quantity == 1 && count == -1) {
             console.log('entered 1st');
+            console.log('cartId:', cartId);
             let pullItem = await cartModel.updateOne({ _id: cartId },
                 {
                     $pull: {
@@ -253,13 +382,20 @@ const changeProductQuantity = async (req, res) => {
                     $inc: { quantity: -1 }
                 })
 
-            console.log(`pullItem: ${pullItem[0]}`);
+            console.log(`pullItem: ${pullItem}`);
 
             if (pullItem) {
                 let productUpdated = await productModel.updateOne({ _id: productId }, { $inc: { quantity: 1 } })
                 let cart = await cartModel.findOne({ _id: cartId })
-                req.session.cartCount = cart.quantity
-                res.json({ itemRemoved: true })
+                if (cart.quantity <= 0) {
+                    await cartModel.deleteOne({ _id: cartId })
+                    req.session.cartCount = 0
+                    res.json({ itemRemoved: true })
+                } else {
+                    req.session.cartCount = cart.quantity
+                    res.json('Product Removed')
+                }
+
             }
         } else if (quantity == 10 && count == 1) {
             res.json({ maxLimit: true })

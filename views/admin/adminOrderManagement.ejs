@@ -44,7 +44,6 @@
                                             <tr>
                                                
                                                 <td>
-
                                                     <img src="/productImages/<%=product.image%>"
                                                         alt="<%=product.image%>" width="50px" height="50px"><br>
                                                     <%= product.title%> <br>
@@ -60,7 +59,7 @@
                                                                             <%=item.shippingAddress.contactNumber%>
                                                 </td>
                                                 <td>
-                                                    <%=item.orderDate%>
+                                                    <%=item.orderDate.toLocaleDateString()%>
                                                 </td>
                                                 <td>
                                                     <%=product.price%>
@@ -70,7 +69,6 @@
                                                 </td>
                                                 <td>
                                                     <%=product.status%>
-
                                                 </td>
 
                                                 <td>

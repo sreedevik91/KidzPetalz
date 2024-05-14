@@ -21,7 +21,8 @@ const loadCheckout = async (req, res) => {
             {
                 $project: {
                     product: '$products.productId',
-                    quantity: '$products.quantity'
+                    quantity: '$products.quantity',
+                    offerAmount: '$products.offerAmount'
                 }
             },
             {
@@ -34,7 +35,7 @@ const loadCheckout = async (req, res) => {
             },
             {
                 $project: {
-                    product: 1, quantity: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+                    product: 1, quantity: 1, offerAmount: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
                 }
             },
             {
@@ -45,7 +46,7 @@ const loadCheckout = async (req, res) => {
             {
                 $group: {
                     _id: null,
-                    total: { $sum: { $multiply: ['$quantity', '$cartProduct.discounted_price'] } }
+                    total: { $sum: { $multiply: ['$quantity', '$offerAmount'] } }
                 }
 
             }
@@ -69,7 +70,8 @@ const loadCheckout = async (req, res) => {
             {
                 $project: {
                     product: '$products.productId',
-                    quantity: '$products.quantity'
+                    quantity: '$products.quantity',
+                    offerAmount: '$products.offerAmount'
                 }
             },
             {
@@ -82,22 +84,23 @@ const loadCheckout = async (req, res) => {
             },
             {
                 $project: {
-                    product: 1, quantity: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+                    product: 1, quantity: 1, offerAmount: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
                 }
             },
             {
                 $project: {
-                    product: 1, quantity: 1, amount: '$cartProduct.discounted_price', name: '$cartProduct.title'  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+                    product: 1, quantity: 1, amount: '$offerAmount', name: '$cartProduct.title'  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
                 }
             }
         ])
 
-        //    console.log(cartTotalAmount[0]);
+        //    console.log('cartTotalAmount: ',cartTotalAmount[0]);
         //    console.log(shippingAddress[0]);
-        console.log(cartProducts);
+        // console.log('cartProducts: ', cartProducts);
 
+        let cart=await cartModel.find({user: userId })
 
-        res.render('checkout', { page: 'Checkout', data: shippingAddress, cartTotalAmount: cartTotalAmount[0].total, products: cartProducts, id: req.session.userId, message: '', cartCount: req.session.cartCount })
+        res.render('checkout', { page: 'Checkout', data: shippingAddress,cartId:cart[0]._id, cartTotalAmount: cartTotalAmount[0].total, products: cartProducts, id: req.session.userId, message: '', cartCount: req.session.cartCount })
 
     } catch (error) {
 
@@ -150,7 +153,8 @@ const placeOrder = async (req, res) => {
             {
                 $project: {
                     product: '$products.productId',
-                    quantity: '$products.quantity'
+                    quantity: '$products.quantity',
+                    offerAmount: '$products.offerAmount'
                 }
             },
             {
@@ -163,13 +167,13 @@ const placeOrder = async (req, res) => {
             },
             {
                 $project: {
-                    product: 1, quantity: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+                    product: 1, quantity: 1, offerAmount: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
                 }
             },
             {
                 $group: {
                     _id: null,
-                    total: { $sum: { $multiply: ['$quantity', '$cartProduct.discounted_price'] } }
+                    total: { $sum: { $multiply: ['$quantity', '$offerAmount'] } }
                 }
 
             }
@@ -177,7 +181,7 @@ const placeOrder = async (req, res) => {
 
         // console.log(cartItems,totalAmount[0].total);
 
-        console.log('status true: ', totalAmount[0]);
+        console.log('Cart Total: ', totalAmount[0]);
 
         let orderAmount = totalAmount[0].total
 
@@ -187,7 +191,9 @@ const placeOrder = async (req, res) => {
             {
                 $project: {
                     product: '$products.productId',
-                    quantity: '$products.quantity'
+                    quantity: '$products.quantity',
+                    offerAmount: '$products.offerAmount',
+                    offersApplied:'$offersApplied'
                 }
             },
             {
@@ -200,7 +206,7 @@ const placeOrder = async (req, res) => {
             },
             {
                 $project: {
-                    _id: 0, quantity: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+                    _id: 0, quantity: 1, offerAmount: 1,offersApplied:1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
                 }
             }
         ])
@@ -224,7 +230,7 @@ const placeOrder = async (req, res) => {
                 productId: item.cartProduct._id,
                 title: item.cartProduct.title,
                 image: item.cartProduct.image[0],
-                price: item.cartProduct.discounted_price,
+                price: item.offerAmount,
                 quantity: item.quantity,
                 is_listed: true,
                 status: status
@@ -245,12 +251,21 @@ const placeOrder = async (req, res) => {
         // console.log(products)
         //-----------------------------------------------------------------------------------------------------------------
 
+        let offersApplied=cartItems[0].offersApplied
+        console.log('offersApplied: ',offersApplied);
+        console.log('couponCode',req.session.couponCode);
+        console.log('checkoutAmount',req.session.checkoutAmount);
         const newOrder = new orderModel({
             userId,
             shippingAddress,
             paymentMethod,
             products,
-            orderAmount
+            orderAmount,
+            offersApplied,
+            couponCode: req.session.couponCode,
+            discountAmount:req.session.discountAmount,
+            checkoutAmount:req.session.checkoutAmount || orderAmount
+            
         })
 
         const orderNew = await newOrder.save()
@@ -267,9 +282,10 @@ const placeOrder = async (req, res) => {
             if (paymentMethod === 'cod') {
                 res.json({ cod: true })
             } else {
-                let amount = orderAmount * 100
+                let amount= req.session.checkoutAmount || orderAmount
+                let checkoutAmount = amount * 100
                 var options = {
-                    amount: amount,  // amount in the smallest currency unit
+                    amount: checkoutAmount,  // amount in the smallest currency unit
                     currency: "INR",
                     receipt: orderNew._id
                 };

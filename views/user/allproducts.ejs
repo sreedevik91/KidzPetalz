@@ -30,7 +30,7 @@
                     <div class="left-side">
                         <div class="dropdown">
                             <label for="dropdownP">Sort By</label>
-                            <select name="sort" id="dropdownP" 
+                            <select name="sort" id="dropdownP"
                                 style="border-radius: 10px; width: 150px; margin: 5px;padding: 3px; text-align: left;;font-size: 13px;">
                                 <option value="all">All</option>
                                 <option value="low">Price: Low to High</option>
@@ -207,15 +207,16 @@
                 </div>
                 <!-- //grid left -->
                 <!-- grid right -->
-                
+
                 <div class="col-lg-9 mt-lg-0 mt-5 right-product-grid">
-                    <div class="search-hotel">      
-                            <!-- Adding the Search Bar -->
-                            <input type="text" name="searchValue" id="searchValue" style="width:350px;height:35px;border-radius:10px;padding-left: 10px;" onkeyup="search()"/>
-                            <!-- Adding the Search Button -->
-                            <button type="submit">Search</button>
-                   </div>
-                  
+                    <div class="search-hotel">
+                        <!-- Adding the Search Bar -->
+                        <input type="text" name="searchValue" id="searchValue"
+                            style="width:350px;height:35px;border-radius:10px;padding-left: 10px;" onkeyup="search()" />
+                        <!-- Adding the Search Button -->
+                        <button type="submit">Search</button>
+                    </div>
+
                     <hr>
                     <!-- card group  -->
                     <div class="card-group" id="productDiv">
@@ -223,26 +224,22 @@
 
                         <% data.forEach((item)=>{
                             %>
-                            <div class="col-lg-3 col-sm-6 p-0" style="margin:5px 25px;width:1500px;height: 500px;">
+                            <div class="col-lg-3 col-sm-6 p-0" style="margin:5px 25px;width:500px;height: 500px;">
                                 <div class="card product-men p-3">
                                     <div class="men-thumb-item">
                                         <img src="productImages/<%=item.image[0]%>" width="200 px" height="250 px"
                                             alt="<%=item.image[0]%>" class="card-img-top">
                                         <div class="men-cart-pro">
                                             <div class="inner-men-cart-pro">
-                                                <%
-                                                if(item.quantity===0){
-                                                    %>
-                                                    <a href="product?id=<%=item._id%>" class="link-product-add-cart">Out of Stock</a>
-                                                    <%
-                                                }else{
-                                                    %>
-                                                    <a href="product?id=<%=item._id%>" class="link-product-add-cart">Quick
-                                                        View</a>
-                                                    <%
-                                                }
-                                                %>
-                                               
+                                                <% if(item.quantity===0){ %>
+                                                    <a href="product?id=<%=item._id%>" class="link-product-add-cart">Out
+                                                        of Stock</a>
+                                                    <% }else{ %>
+                                                        <a href="product?id=<%=item._id%>"
+                                                            class="link-product-add-cart">Quick
+                                                            View</a>
+                                                        <% } %>
+
                                             </div>
                                         </div>
                                     </div>
@@ -251,34 +248,29 @@
                                         <h5 class="card-title text-capitalize">
                                             <%=item.title%>
                                         </h5>
-                                        <div class="card-text d-flex justify-content-between">
-                                            <p class="text-dark font-weight-bold">
-                                                <%=item.discounted_price%>
-                                            </p>
-                                            <p class="line-through">
-                                                <%=item.actual_price%>
-                                            </p>
-                                        </div>
+                                        <p class="text-dark font-weight-bold"> <%=item.price%></p>
+                                        
+                                        
                                     </div>
                                     <!-- card footer -->
                                     <div class="card-footer d-flex justify-content-end">
-                                       
-                                                <%
-                            if(item.is_wishListed){ 
-                                %>
-                                <span id="wishlist"><button id="btnWishlist" style="border: none;background-color: white;" onclick="updateWishlist('<%=item._id%>')"><i style="color:red" class="fas fa-heart m-2"></i></button></span>
-                                <%
-                            }else{
-                                %>
-                               <span id="wishlist"><button id="btnWishlist" style="border: none;background-color: white;" onclick="updateWishlist('<%=item._id%>')"><i class="far fa-heart m-2"></i></button></span>
-                                
-                                <%
-                            }
-                            %>
 
-                            <button type="submit" style="cursor: pointer;"
-                            onclick="addToCart('<%=item._id%>')"><i class="fa fa-cart-plus"
-                                aria-hidden="true"></i></button>
+                                        <% if(item.is_wishListed){ %>
+                                            <span id="wishlist"><button id="<%=item._id%>"
+                                                    style="border: none;background-color: white;"
+                                                    onclick="updateWishlist('<%=item._id%>')"><i style="color:red"
+                                                        class="fas fa-heart m-2"></i></button></span>
+                                            <% }else{ %>
+                                                <span id="wishlist"><button id="<%=item._id%>"
+                                                        style="border: none;background-color: white;"
+                                                        onclick="updateWishlist('<%=item._id%>')"><i
+                                                            class="far fa-heart m-2"></i></button></span>
+
+                                                <% } %>
+
+                                                    <button type="submit" style="cursor: pointer;"
+                                                        onclick="addToCart('<%=item._id%>')"><i class="fa fa-cart-plus"
+                                                            aria-hidden="true"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -295,132 +287,105 @@
     </div>
     <!--// Shop -->
 
+
+    <script src="https://cdn.jsdelivr.net/npm/ejs/ejs.min.js"></script>
     <script>
-//------------------------Search-------------------------------------------------------------
+        //------------------------Search-------------------------------------------------------------
 
-function search() {
-    let search = document.getElementById('searchValue')
 
-        search.addEventListener('keyup', async () => {
-            let query=search.value
-            console.log(query);
-            $.ajax({
-            url:'/search',
-            method:'post',
-            data:{search:query},
-            success:(response)=>{
-                console.log(response.result);
-                let prodDiv=document.getElementById('productDiv')
-                  prodDiv.innerHTML=''
-                  let products=''
-                  response.result.forEach((product)=>{
-                    products+=`
-                    <div class="col-lg-3 col-sm-6 p-0" style="margin-right: 25px;">
+        function search() {
+            let search = document.getElementById('searchValue')
+
+            search.addEventListener('keyup', async () => {
+                let query = search.value
+                console.log(query);
+                $.ajax({
+                    url: '/search',
+                    method: 'post',
+                    data: { search: query },
+                    success: (response) => {
+                        console.log(response.result);
+                        let prodDiv = document.getElementById('productDiv')
+                        prodDiv.innerHTML = ''
+
+                        //-----------from let products=``------------ <%= `/recipes/${id}` %>
+                        let product = ``
+                        let data = response.result
+                        data.forEach((item) => {
+
+                            product += `<div class="col-lg-3 col-sm-6 p-0" style="margin:5px 25px;width:500px;height: 500px;">
                                 <div class="card product-men p-3">
                                     <div class="men-thumb-item">
-                                        <img src="productImages/${product.image[0]}" width="200 px" height="250 px"
-                                            alt="${product.image[0]}" class="card-img-top">
+                                        <img src="productImages/${item.image[0]}" width="200 px" height="250 px"
+                                            alt="${item.image[0]}" class="card-img-top">
                                         <div class="men-cart-pro">
                                             <div class="inner-men-cart-pro">
-                                                <%
-                                                if(${product.quantity}===0){
-                                                    %>
-                                                    <a href="product?id=${product._id}" class="link-product-add-cart">Out of Stock</a>
-                                                    <%
-                                                }else{
-                                                    %>
-                                                    <a href="product?id=${product._id}" class="link-product-add-cart">Quick
-                                                        View</a>
-                                                    <%
-                                                }
-                                                %>
-                                               
+
+
+                                                ${item.quantity === 0 ?
+                                    `<a href="product?id=${item._id}" class="link-product-add-cart">Out of Stock</a>`
+                                    :
+                                    `<a href="product?id=${item._id}" class="link-product-add-cart">Quick View</a>`
+                                }
+
                                             </div>
                                         </div>
                                     </div>
                                     <!-- card body -->
                                     <div class="card-body  py-3 px-2">
                                         <h5 class="card-title text-capitalize">
-                                            ${product.title}
+                                            ${item.title}
                                         </h5>
-                                        <div class="card-text d-flex justify-content-between">
-                                            <p class="text-dark font-weight-bold">
-                                                ${product.discounted_price}
-                                            </p>
-                                            <p class="line-through">
-                                                ${product.actual_price}
-                                            </p>
-                                        </div>
+
+                                        <p class="text-dark font-weight-bold">${item.price}</p>
+                                        
                                     </div>
                                     <!-- card footer -->
                                     <div class="card-footer d-flex justify-content-end">
-                                        <%
-                            if(${product.is_wishListed}){ 
-                                %>
-                                <span id="wishlist"><button id="btnWishlist" style="border: none;background-color: white;" onclick="updateWishlist('${product._id}')"><i style="color:red" class="fas fa-heart m-2"></i></button></span>
-                                <%
-                            }else{
-                                %>
-                               <span id="wishlist"><button id="btnWishlist" style="border: none;background-color: white;" onclick="updateWishlist('${product._id}')"><i class="far fa-heart m-2"></i></button></span>
-                                
-                                <%
-                            }
-                            %>
-                                        <button type="submit" style="cursor: pointer;"
-                                            onclick="addToCart('${product._id}')"><i class="fa fa-cart-plus"
-                                                aria-hidden="true"></i></button>
+
+
+                                        ${item.is_wishListed ?
+                                    `<span id="wishlist">
+                                        <button id="${item._id}" style="border: none;background-color: white;" onclick="updateWishlist('${item._id}')">
+                                        <i style="color:red" class="fas fa-heart m-2"></i>
+                                        </button>
+                                    </span>`
+                                    :
+                                    `<span id="wishlist">
+                                        <button id="${item._id}" style="border: none;background-color: white;" onclick="updateWishlist('${item._id}')">
+                                        <i class="far fa-heart m-2"></i>
+                                        </button>
+                                    </span>`
+                                }
+
+                                                    <button type="submit" style="cursor: pointer;"
+                                                        onclick="addToCart('${item._id}')"><i class="fa fa-cart-plus"
+                                                            aria-hidden="true"></i></button>
                                     </div>
                                 </div>
-                            </div>
-                    `
-                  })
-                  prodDiv.innerHTML=products
-            }
-        })
-        })
+                            </div>`
+
+                        })
+
+                        prodDiv.innerHTML = product
+                        //------------till })---------------
+
+                    }
+                })
+            })
 
 
+        }
 
-    // let match=query.match(/.*[ a-zA-Z ].*/)
-    // let match2=query.match(/\s*/)
 
-    // if(match2[0]==query){
-    //     resultDiv.innerHTML=''
-    // }
-    // if(match[0]==query){
-        // console.log(query);
-        // fetch('/search', {
-        //     method: 'post',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ search: query })
-        // }).then(response => response.json()).then((data) => {
-        //     console.log(data.result);
-            // let products=data.result
-            // resultDiv.innerHTML=''
-            // if(products.length<1){
-            //     resultDiv.innerHTML=`<p>Sorry. Nothing found</p>`
-            // }
-            // products.forEach(element => {
-            //     resultDiv.innerHTML+=`<p><a href="/product?id=${element._id}">${element.title}</a></p>`
-            // });
-            
-        // })
+        //---------------------------------------------------------------------------------------
 
-    // }
+        //----------------------Add to wishlist----------------------------------
 
-    // resultDiv.innerHTML=''
+        let wishlistSpan = document.getElementById('wishlist')
+        function updateWishlist(productId) {
+        let wishlistButton = document.getElementById(productId)
 
-        
-    }
-
-   
-//---------------------------------------------------------------------------------------
-
-//----------------------Add to wishlist----------------------------------
-
-let wishlistSpan=document.getElementById('wishlist')
-let wishlistButton=document.getElementById('btnWishlist')
-function updateWishlist(productId) {
             console.log(productId);
             $.ajax({
                 url: `/updateWishlist?productId=${productId}`,
@@ -428,31 +393,34 @@ function updateWishlist(productId) {
                 // contentType:'application/json',
                 // data:JSON.stringify({productId:productId}),
                 success: (response) => {
+                    console.log(response);
                     // or we can check if (response.update), because {update:true} is the json response sent from the backend after cart is updated
-                   if(response.outOfStock){
-                    alert('Product out of stock')
-                   }else if(response.productExists){
-                    // wishlistSpan.innerHTML=''
-                    // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;" onclick="updateWishlist(${productId})"><i class="far fa-heart m-2"></i></button>`
-                    wishlistButton.innerHTML=`<i class="far fa-heart m-2"></i>`
-                   
-                    alert('Product removed from wishlist')
+                    if (response.outOfStock) {
+                        alert('Product out of stock')
+                    } else if (response.productExists) {
+                        // wishlistSpan.innerHTML=''
+                        // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;" onclick="updateWishlist(${productId})"><i class="far fa-heart m-2"></i></button>`
+                        console.log('wishlistButton: ',wishlistButton);
+                        wishlistButton.innerHTML = `<i class="far fa-heart m-2"></i>`
+                        alert('Product removed from wishlist')
 
-                   }else if(response.productExists===false){ 
-                    // wishlistSpan.innerHTML=''
-                    // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;color: red" onclick="updateWishlist(${productId})"><i class="fas fa-heart m-2"></i></button>`
-                    wishlistButton.innerHTML=`<i style="color:red" class="fas fa-heart m-2"></i>`
-                    alert('Product added to wishlist')
+                    } else if (response.productExists === false) {
+                        // wishlistSpan.innerHTML=''
+                        // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;color: red" onclick="updateWishlist(${productId})"><i class="fas fa-heart m-2"></i></button>`
+                        console.log('wishlistButton: ',wishlistButton);
+                        wishlistButton.innerHTML = `<i style="color:red" class="fas fa-heart m-2"></i>`
+                        alert('Product added to wishlist')
 
-                   }else if(response.wishlistCreated){
-                    // wishlistSpan.innerHTML=''
-                    // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;color: red;" onclick="updateWishlist(${productId})"><i class="fas fa-heart m-2"></i></button>`
-                    wishlistButton.innerHTML=`<i style="color:red" class="fas fa-heart m-2"></i>`
-                   
-                    alert('Product added to wishlist')
-                   }else{
-                    alert('Could not add to wishlist')
-                   }
+                    } else if (response.wishlistCreated) {
+                        // wishlistSpan.innerHTML=''
+                        // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;color: red;" onclick="updateWishlist(${productId})"><i class="fas fa-heart m-2"></i></button>`
+                        console.log('wishlistButton: ',wishlistButton);
+                        wishlistButton.innerHTML = `<i style="color:red" class="fas fa-heart m-2"></i>`
+                        alert('Product added to wishlist')
+
+                    } else {
+                        alert('Could not add to wishlist')
+                    }
                 },
                 error: (jqXHR, textStatus, errorThrown) => {
                     console.log(textStatus, errorThrown);
@@ -462,76 +430,81 @@ function updateWishlist(productId) {
         }
 
 
-//-----------------------------------------------------------------------------------  
+        //-----------------------------------------------------------------------------------  
 
-//--------------------------------Filters and search---------------------------------------------------   
-    function getValues(){
+        //--------------------------------Filters and search---------------------------------------------------   
+        function getValues() {
 
-        let checkedValues = []
+            let checkedValues = []
 
-        let checkboxes = document.querySelectorAll('input[type=checkbox]')
+            let checkboxes = document.querySelectorAll('input[type=checkbox]')
 
-        checkboxes.forEach((checkbox) => {
+            checkboxes.forEach((checkbox) => {
 
-            checkbox.addEventListener('change', async () => {
-                if (checkbox.checked) {
-                    await checkedValues.push(checkbox.value)
-                } else {
-                    let index = checkedValues.indexOf(checkbox.value)
-                    if (index !== -1) {
-                        await checkedValues.splice(index, 1)
+                checkbox.addEventListener('change', async () => {
+                    if (checkbox.checked) {
+                        await checkedValues.push(checkbox.value)
+                    } else {
+                        let index = checkedValues.indexOf(checkbox.value)
+                        if (index !== -1) {
+                            await checkedValues.splice(index, 1)
+                        }
                     }
-                }
-                console.log(checkedValues);
-                sendData(checkedValues)
+                    console.log(checkedValues);
+                    sendData(checkedValues)
+
+                })
 
             })
 
-        })
+            // var sortValue=''
+            let dropdown = document.getElementById('dropdownP')
+            dropdown.addEventListener('change', async () => {
+                // sortValue= await dropdown.value
+                // console.log(sortValue);
+                await checkedValues.push(dropdown.value)
+                sendData(checkedValues)
+            })
 
-        // var sortValue=''
-        let dropdown=document.getElementById('dropdownP')
-        dropdown.addEventListener('change', async () => {
-            // sortValue= await dropdown.value
+            console.log(checkedValues);
             // console.log(sortValue);
-            await checkedValues.push(dropdown.value)
-            sendData(checkedValues)
-        })
 
-        console.log(checkedValues);
-        // console.log(sortValue);
+            //     let search = document.getElementById('search')
+            //     search.addEventListener('onkeyup', async () => {
+            //         await checkedValues.push(search.value)
+            //         sendData(checkedValues)
+            //     })
+            // console.log(query);
 
-    //     let search = document.getElementById('search')
-    //     search.addEventListener('onkeyup', async () => {
-    //         await checkedValues.push(search.value)
-    //         sendData(checkedValues)
-    //     })
-    // console.log(query);
+        }
 
-    }
-
-        function sendData(checkedValues,sortValue){
+        function sendData(checkedValues, sortValue) {
 
             $.ajax({
-            url: `/products`,
-            method: 'post',
-            data: { filterArray: checkedValues,sort:sortValue},
-            success: (response) => {
+                url: `/products`,
+                method: 'post',
+                data: { filterArray: checkedValues, sort: sortValue },
+                success: (response) => {
                     console.log('response', response);
-                  let prodDiv=document.getElementById('productDiv')
-                  prodDiv.innerHTML=''
-                  let products=''
-                  response.forEach((product)=>{
-                    products+=`
-                    <div class="col-lg-3 col-sm-6 p-0" style="margin-right: 25px;">
+                    let prodDiv = document.getElementById('productDiv')
+                    prodDiv.innerHTML = ''
+                    let products = ''
+                    response.forEach((product) => {
+                        products += `<div class="col-lg-3 col-sm-6 p-0" style="margin:5px 25px;width:500px;height: 500px;">
                                 <div class="card product-men p-3">
                                     <div class="men-thumb-item">
                                         <img src="productImages/${product.image[0]}" width="200 px" height="250 px"
                                             alt="${product.image[0]}" class="card-img-top">
                                         <div class="men-cart-pro">
                                             <div class="inner-men-cart-pro">
-                                                <a href="product?id=${product._id}" class="link-product-add-cart">Quick
-                                                    View</a>
+
+                                                ${product.quantity === 0 ? `<a href="product?id=${product._id}" class="link-product-add-cart">Out of Stock</a>`
+                                : `<a href="product?id=${product._id}"
+                                                            class="link-product-add-cart">Quick
+                                                            View</a>`
+                            }
+
+                                           
                                             </div>
                                         </div>
                                     </div>
@@ -540,36 +513,44 @@ function updateWishlist(productId) {
                                         <h5 class="card-title text-capitalize">
                                             ${product.title}
                                         </h5>
-                                        <div class="card-text d-flex justify-content-between">
-                                            <p class="text-dark font-weight-bold">
-                                                ${product.discounted_price}
-                                            </p>
-                                            <p class="line-through">
-                                                ${product.actual_price}
-                                            </p>
-                                        </div>
+                                        <p class="text-dark font-weight-bold">${product.price}</p>
+                                        
                                     </div>
                                     <!-- card footer -->
                                     <div class="card-footer d-flex justify-content-end">
-                                        <button type="submit" style="cursor: pointer;"
-                                            onclick="addToCart('${product._id}')"><i class="fa fa-cart-plus"
-                                                aria-hidden="true"></i></button>
+
+
+                                        ${product.is_wishListed ? `<span id="wishlist"><button id="${product._id}"
+                                                    style="border: none;background-color: white;"
+                                                    onclick="updateWishlist('${product._id}')"><i style="color:red"
+                                                        class="fas fa-heart m-2"></i></button></span>`
+                                : `<span id="wishlist"><button id="${product._id}"
+                                                        style="border: none;background-color: white;"
+                                                        onclick="updateWishlist('${product._id}')"><i
+                                                            class="far fa-heart m-2"></i></button></span>`
+                            }
+
+                                        
+
+
+                                                    <button type="submit" style="cursor: pointer;"
+                                                        onclick="addToCart('${product._id}')"><i class="fa fa-cart-plus"
+                                                            aria-hidden="true"></i></button>
                                     </div>
                                 </div>
-                            </div>
-                    `
-                  })
-                  prodDiv.innerHTML=products
-            }
-        })
+                            </div>`
+                    })
+                    prodDiv.innerHTML = products
+                }
+            })
 
         }
 
-    getValues()
-//-----------------------------------------------------------------------------------  
+        getValues()
+        //-----------------------------------------------------------------------------------  
 
 
-//-------------------------------Add to Cart----------------------------------------------------  
+        //-------------------------------Add to Cart----------------------------------------------------  
 
         function addToCart(productId) {
             console.log(productId);
@@ -588,7 +569,7 @@ function updateWishlist(productId) {
                         document.getElementById('cartCount').innerHTML = cartValue
                         console.log('success', response);
                         alert('Product added to cart')
-                    }else{
+                    } else {
                         alert(response)
                     }
                 },
@@ -598,7 +579,7 @@ function updateWishlist(productId) {
             })
 
         }
-//-----------------------------------------------------------------------------------  
+        //-----------------------------------------------------------------------------------  
 
     </script>
 

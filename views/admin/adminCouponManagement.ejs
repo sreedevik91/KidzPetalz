@@ -1,0 +1,84 @@
+<%-include("../layout/adminHeader.ejs")%>
+
+
+    <main id="main" class="main">
+        <div style="display: flex;">
+            <div style="width: 50%;">
+                <a class="btn btn-success" href="addCoupon">Add Coupon</a>
+            </div>
+            <div class="float-end text-end" style="width: 50%;">
+                <form action="">
+                    <input type="text" placeholder="Search category by name,description" name="search" style="width:250px;height:35px;border-radius:10px;padding-left: 20px;">
+                    <input type="submit" class="btn btn-primary" value="Search">
+                  </form>
+            </div>
+        </div>
+      
+        <div class="row mt-5">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Code</th>
+                        <th scope="col">Expiry Date</th>
+                        <th scope="col">Discount<br> Type</th>
+                        <th scope="col">Discount<br> Amount(₹)</th>
+                        <th scope="col">Min. Purchase<br> Amount(₹)</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <%
+                    data.forEach((item)=>{
+                        %>
+                        <tr>
+                            <td><%=item.name%></td>
+                            <td><%=item.code%></td>
+                            <td><%=item.valid_till.toLocaleDateString()%></td>
+                            <td><%=item.discountType%></td>
+                            <td><%=item.discountAmount%></td>
+                            <td><%=item.minPurchase%></td>
+                            <%
+                            if(item.is_active===true){
+                                %>
+                                <td>Active</td>
+                                <%
+                            }else{
+                                %>
+                            <td>Expired</td>
+                                <%
+                            }
+                            %>
+
+                            <td>
+                                <a class="btn btn-info" href="editCoupon?id=<%=item._id%>">Edit</a>
+                                <a class="btn btn-info" href="deleteCoupon?id=<%=item._id%>">Delete</a>
+                            </td>
+
+                        </tr>
+                        <%
+                    })
+                    %>
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="mt-3 text-center">
+           <a href="?search=<%=search%>&page=<%= previous%>">Previous</a>
+           
+            <%
+            for(let i=1;i<=totalPages;i++){
+                %>
+                <a href="?search=<%=search%>&page=<%= i %>"><%= i %></a> 
+                <%
+            }
+            %>
+            
+            <a href="?search=<%=search%>&page=<%= next%>">Next</a>
+        </div>
+    </main>
+
+    <%-include("../layout/adminFooter.ejs")%>

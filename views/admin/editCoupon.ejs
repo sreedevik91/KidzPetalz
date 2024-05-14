@@ -1,0 +1,86 @@
+<%-include("../layout/adminHeader.ejs")%>
+
+
+    <main id="main" class="main">
+      
+
+        <h3><strong>Edit Category</strong></h3>
+
+        <form action="" method="post" class="mt-5">
+            <div class="form-group">
+                <strong><label class="col-form-label">Name</label></strong>
+                <input type="text" class="form-control" value="<%=data.name%>" name="name" >
+            </div>
+            <div class="form-group">
+                <strong><label class="col-form-label">Description</label></strong>
+                <input type="text" class="form-control" value="<%=data.description%>" name="description">
+            </div>
+            <div class="form-group">
+                <strong><label class="col-form-label">Start Date</label></strong>
+                <p><%=data.valid_from.toLocaleDateString()%></p>
+                <input type="date" class="form-control" name="startDate">
+            </div>
+            <div class="form-group">
+                <strong><label class="col-form-label">End Date</label></strong>
+                <p><%=data.valid_till.toLocaleDateString()%></p>
+                <input type="date" class="form-control" name="endDate">
+            </div>
+            <div class="form-group">
+                <strong><label class="col-form-label">Discount Type</label></strong>
+                <!-- <input type="date" class="form-control" placeholder="Enter End Date" name="endDate" required=""> -->
+                <select name="discountType" class="form-control">
+                    <option value="<%=data.discountType%>"><%=data.discountType%></option>
+                    <option value="percentage">Percentage</option>
+                    <option value="amount">Amount</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <strong><label class="col-form-label">Discount Amount/Percentage</label></strong>
+                <input type="number" class="form-control" value="<%=data.discountAmount%>" name="discountAmount">
+            </div>
+           
+            <div class="form-group">
+                <strong><label class="col-form-label">Minimum Purchase Amount</label></strong>
+                <input type="number" class="form-control" value="<%=data.minPurchase%>" name="minAmount">
+            </div>
+            <div class="form-group">
+                <strong><label class="col-form-label">Maximun Usage</label></strong>
+                <input type="number" class="form-control" value="<%=data.max_use%>" name="maxUse">
+            </div>
+            <div class="form-group">
+                <strong><label class="col-form-label">Status</label></strong>
+                <select name="status" class="form-control">
+                <%
+                if(data.is_active){
+                    %>
+                    <option value="active">Active</option>
+                    <%
+                }else{
+                    %>
+                    <option value="expired">Expired</option>
+                    <%
+                }
+                %>
+                    <option value="active">Active</option>
+                    <option value="expired">Expired</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="submit" class="btn btn-success mt-4" value="Edit Coupon">
+                <a href="coupon" class="btn btn-primary mt-4" style="width:100px">Cancel</a>
+                <input type="hidden" name="couponId" value="<%=data._id%>">
+            </div>
+           </form>
+
+        <div>
+            <p>
+                <span style="color: red;"><%= message %></span>
+            </p>
+        </div>
+    
+        
+    </main>
+
+    
+
+    <%-include("../layout/adminFooter.ejs")%>

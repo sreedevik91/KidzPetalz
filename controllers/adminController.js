@@ -10,6 +10,10 @@ const dotenv = require('dotenv')
 const randomString = require('randomstring')
 const sharp = require('sharp')
 var mongoose = require('mongoose');
+const couponModel = require('../models/couponModel')
+const categoryOfferModel = require('../models/categoryOfferModel')
+const productOfferModel = require('../models/productOfferModel')
+
 
 dotenv.config()
 
@@ -140,8 +144,8 @@ const resetPasswordMail = async (email, name, id) => {
 const sendForgotPasswordMail = async (req, res) => {
     try {
         const email = req.body.email
-        const admin = await userModel.findOne({ email:email })
-        console.log('admin',admin);
+        const admin = await userModel.findOne({ email: email })
+        console.log('admin', admin);
         if (admin) {
             const id = admin._id
             const name = admin.name
@@ -175,8 +179,8 @@ const resetAdminPassword = async (req, res) => {
         const user_id = req.body.id
         const hashedPassword = await bcrypt.hash(password, 10)
         const updateAdmin = await userModel.updateOne({ _id: user_id }, { $set: { password: hashedPassword } })
-        console.log('updateAdmin: ',updateAdmin);
-        if (updateAdmin.modifiedCount>0) {
+        console.log('updateAdmin: ', updateAdmin);
+        if (updateAdmin.modifiedCount > 0) {
             // res.render('adminLogin', { form: "Admin LogIn", message: 'Password Updated. Please login', text: '' })
             // res.redirect('/admin')
         } else {
@@ -185,33 +189,6 @@ const resetAdminPassword = async (req, res) => {
 
     } catch (error) {
         console.log(error.message);
-    }
-}
-
-
-
-const loadAdminCouponManagement = async (req, res) => {
-    try {
-
-        const users = await userModel.find({ is_admin: false })
-        res.render('adminCouponManagement', { data: users })
-
-    } catch (error) {
-        console.log(error.message);
-
-    }
-}
-
-
-const loadAdminOfferManagement = async (req, res) => {
-    try {
-
-        const users = await userModel.find({ is_admin: false })
-        res.render('adminOfferManagement', { data: users })
-
-    } catch (error) {
-        console.log(error.message);
-
     }
 }
 
@@ -510,51 +487,51 @@ const loadAddCategory = async (req, res) => {
 
 const addCategory = async (req, res) => {
     try {
-        let categories=await categoryModel.find()
+        let categories = await categoryModel.find()
         const name = req.body.name
         console.log(name.toLowerCase());
         const description = req.body.description
         const image = req.file.filename
 
-        let isCategory=false
-        categories.forEach((item)=>{
-            let catName=item.name.toLowerCase()
-            let givenName=name.toLowerCase()
-            if(catName===givenName){
-                isCategory=true
+        let isCategory = false
+        categories.forEach((item) => {
+            let catName = item.name.toLowerCase()
+            let givenName = name.toLowerCase()
+            if (catName === givenName) {
+                isCategory = true
             }
         })
         // console.log(isCategory);
 
-        if(isCategory===false){
+        if (isCategory === false) {
 
-        const outputFile = `${req.file.destination}/${Date.now() + '-' + req.file.originalname}`
+            const outputFile = `${req.file.destination}/${Date.now() + '-' + req.file.originalname}`
 
-        const cropImage = await sharp(req.file.path).resize(200, 150).toFile(outputFile)
+            const cropImage = await sharp(req.file.path).resize(200, 150).toFile(outputFile)
 
-        console.log('Output Image', path.basename(outputFile));
+            console.log('Output Image', path.basename(outputFile));
 
-        let resizedImage = path.basename(outputFile)
+            let resizedImage = path.basename(outputFile)
 
-        const category = new categoryModel({
-            name,
-            description,
-            image: resizedImage
-        })
+            const category = new categoryModel({
+                name,
+                description,
+                image: resizedImage
+            })
 
-        const newCategory = await category.save()
+            const newCategory = await category.save()
 
-        if (newCategory) {
-            res.redirect('/admin/category')
+            if (newCategory) {
+                res.redirect('/admin/category')
+            } else {
+                res.render('addCategory', { message: 'Add category failed' })
+            }
         } else {
-            res.render('addCategory', { message: 'Add category failed' })
-        }
-        }else{
-            res.render('addCategory', { message: 'Category Already Existing' })
+            res.render('addCategory', { message: 'Category Already Exists' })
 
         }
 
-        
+
 
     } catch (error) {
         console.log(error.message);
@@ -586,34 +563,51 @@ const editCategory = async (req, res) => {
 
         console.log('file', req.file);
         console.log('body', req.body);
-        
+
         const id = req.body.id
         const category = await categoryModel.findOne({ _id: id })
+
         const name = req.body.name || category.name
         const description = req.body.description || category.description
         const is_listed = req.body.verify || category.is_listed
-        let resizedImage=''
+        let resizedImage = ''
 
-        if(req.file !=undefined){
-            const image = req.file.filename
-            const outputFile = `${req.file.destination}/${Date.now() + '-' + req.file.originalname}`
+        let categories = await categoryModel.find({ _id: { $ne: id } })
+        console.log('categories', categories);
+        let isCategory = false
+        categories.forEach((item) => {
+            let catName = item.name.toLowerCase()
+            let givenName = name.toLowerCase()
+            if (catName === givenName) {
+                isCategory = true
+            }
+        })
 
-            const cropImage = await sharp(req.file.path).resize(200, 150).toFile(outputFile)
-    
-            console.log('Output Image', path.basename(outputFile));
-    
-            resizedImage = path.basename(outputFile) || category.image
-        }else{
-            resizedImage = category.image
-        }
-       
-        const updateCategory = await categoryModel.findByIdAndUpdate({ _id: id }, { $set: { name: name, description: description, image: resizedImage, is_listed: is_listed } })
-        if (updateCategory) {
-            res.redirect('/admin/category')
+        if (isCategory === false) {
+
+            if (req.file != undefined) {
+                const image = req.file.filename
+                const outputFile = `${req.file.destination}/${Date.now() + '-' + req.file.originalname}`
+
+                const cropImage = await sharp(req.file.path).resize(200, 150).toFile(outputFile)
+
+                console.log('Output Image', path.basename(outputFile));
+
+                resizedImage = path.basename(outputFile) || category.image
+            } else {
+                resizedImage = category.image
+            }
+
+            const updateCategory = await categoryModel.findByIdAndUpdate({ _id: id }, { $set: { name: name, description: description, image: resizedImage, is_listed: is_listed } })
+            if (updateCategory) {
+                res.redirect('/admin/category')
+            } else {
+                res.render('editCategory', { message: 'Updation Failed' })
+            }
+
         } else {
-            res.render('editCategory', { message: 'Updation Failed' })
+            res.render('editCategory', { message: 'Category Already Exists' })
         }
-
     } catch (error) {
         console.log(error.message);
 
@@ -785,26 +779,16 @@ const addProduct = async (req, res) => {
 
         const title = req.body.title
         const description = desc
-        const actual_price = req.body.actualPrice
-        const discount = req.body.discount
-        const discounted_price = req.body.discountedPrice
+        const price = req.body.price
         const quantity = req.body.quantity
-        const ordered_quantity = req.body.orderedQuantity
-        const rating = req.body.rating
-        const featured = req.body.featured
         const category_id = req.body.categoryid
         const image = arrImages
 
         const product = new productModel({
             title,
             description,
-            actual_price,
-            discount,
-            discounted_price,
+            price,
             quantity,
-            ordered_quantity,
-            rating,
-            featured,
             category_id,
             image
         })
@@ -885,9 +869,7 @@ const editProduct = async (req, res) => {
 
         const title = req.body.title
         const description = desc
-        const actual_price = req.body.actualPrice
-        const discount = req.body.discount
-        const discounted_price = req.body.discountedPrice
+        const price = req.body.price
         const quantity = req.body.quantity
         const ordered_quantity = req.body.orderedQuantity
         const rating = req.body.rating
@@ -903,12 +885,10 @@ const editProduct = async (req, res) => {
             $set: {
                 title: title,
                 description: description,
-                actual_price: actual_price,
-                discount: discount,
-                discounted_price: discounted_price,
+                price: price,
                 quantity: quantity,
                 ordered_quantity: ordered_quantity,
-                rating: rating, 
+                rating: rating,
                 featured: featured,
                 category_id: category_id,
                 image: image,
@@ -991,15 +971,24 @@ const loadAdminOrderManagement = async (req, res) => {
         })
             .skip(skip)
             .limit(limit)
+            .sort({ updatedAt: -1 })
             .exec()
         console.log(orders);
 
         // { products: { $regex: `.*${search}.*`, $options: 'i' } },
         // { products: { $regex: `.*${search}.*`, $options: 'i' } }, 
 
-        const count = await orderModel.find({ $or: [{ shippingAddress: { $regex: `.*${search}.*`, $options: 'i' } }, { paymentMethod: { $regex: `.*${search}.*`, $options: 'i' } }] })
+        const count = await orderModel.find({
+            $or: [{ 'shippingAddress.building': { $regex: `.*${search}.*`, $options: 'i' } },
+            { 'shippingAddress.city': { $regex: `.*${search}.*`, $options: 'i' } },
+            { 'shippingAddress.state': { $regex: `.*${search}.*`, $options: 'i' } },
+            { 'shippingAddress.country': { $regex: `.*${search}.*`, $options: 'i' } },
+            { 'shippingAddress.contactNumber': { $regex: `.*${search}.*`, $options: 'i' } },
+            { paymentMethod: { $regex: `.*${search}.*`, $options: 'i' } }]
+        })
             .countDocuments()
         console.log(count);
+
         res.render('adminOrderManagement', { data: orders, totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1, search: search })
 
     } catch (error) {
@@ -1018,7 +1007,7 @@ const loadEditOrder = async (req, res) => {
         let orders = await orderModel.aggregate([
             { $match: { _id: new mongoose.Types.ObjectId(orderId) } },
             { $unwind: '$products' },
-            {$match:{'products.productId':productId}}
+            { $match: { 'products.productId': productId } }
         ])
         console.log(orders);
         // send orders and display in edit page and design edit orders ejs page 
@@ -1035,11 +1024,14 @@ const editOrder = async (req, res) => {
     try {
         const status = req.body.status
         const orderId = req.body.id
-        console.log(status);
-        if(status==='cancelled'){
-        let orders = await orderModel.updateOne({ _id: orderId,'products.productId': productId }, { $set: { 'products.$.is_listed': false,'products.$.status': status } })
-        }else{
-        let orders = await orderModel.updateOne({ _id: orderId,'products.productId': productId }, { $set: { 'products.$.status': status } })
+        const productId = req.body.productId
+        console.log('status: ', status);
+        console.log('reqBody: ', req.body);
+        let orders
+        if (status === 'cancelled') {
+            orders = await orderModel.updateOne({ _id: orderId, 'products.productId': productId }, { $set: { 'products.$.is_listed': false, 'products.$.status': status } })
+        } else {
+            orders = await orderModel.updateOne({ _id: orderId, 'products.productId': productId }, { $set: { 'products.$.status': status } })
         }
         if (orders) {
             res.redirect('/admin/order')
@@ -1058,19 +1050,19 @@ const adminCancelOrder = async (req, res) => {
     try {
         const orderId = req.query.id
         const productId = req.query.productId
-        
-        let orderCancelled = await orderModel.updateOne({ _id: orderId,'products.productId': productId }, { $set: { 'products.$.is_listed': false,'products.$.status': 'cancelled' } })
 
-        
+        let orderCancelled = await orderModel.updateOne({ _id: orderId, 'products.productId': productId }, { $set: { 'products.$.is_listed': false, 'products.$.status': 'cancelled' } })
+
+
         //check if update happened else display error in a message span 
         if (orderCancelled) {
             let orders = await orderModel.findOne({ _id: orderId })
 
-        for(let product of orders.products){
-            if(product.is_listed===false){
-            let updateProductQuantity=await productModel.updateOne({_id:product.productId},{$inc:{quantity:1,ordered_quantity:-1}})
+            for (let product of orders.products) {
+                if (product.is_listed === false) {
+                    let updateProductQuantity = await productModel.updateOne({ _id: product.productId }, { $inc: { quantity: 1, ordered_quantity: -1 } })
+                }
             }
-        }
             res.redirect('/admin/order')
         } else {
             console.log('could not update');
@@ -1081,6 +1073,535 @@ const adminCancelOrder = async (req, res) => {
 
     }
 }
+
+// coupon management
+
+const loadAdminCouponManagement = async (req, res) => {
+    try {
+
+        let search = ''
+        if (req.query.search) {
+            search = req.query.search
+        }
+
+        let page = parseInt(req.query.page)
+        let sort = req.query.sort
+        let limit = 5
+        let skip;
+
+        if (page <= 1) {
+            skip = 0
+        } else {
+            skip = (page - 1) * limit
+        }
+
+        const coupons = await couponModel.find({
+            $or: [
+                { name: { $regex: `.*${search}.*`, $options: 'i' } },
+                { description: { $regex: `.*${search}.*`, $options: 'i' } }
+            ]
+        })
+            .skip(skip)
+            .limit(limit)
+            .exec()
+        console.log(coupons);
+
+        // { products: { $regex: `.*${search}.*`, $options: 'i' } },
+        // { products: { $regex: `.*${search}.*`, $options: 'i' } }, 
+
+        const count = await couponModel.find({
+            $or: [
+                { name: { $regex: `.*${search}.*`, $options: 'i' } },
+                { description: { $regex: `.*${search}.*`, $options: 'i' } }
+            ]
+        })
+            .countDocuments()
+        console.log(count);
+        res.render('adminCouponManagement', { data: coupons, totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1, search: search })
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+
+// add coupon
+
+
+const loadAddCoupon = async (req, res) => {
+    try {
+
+        res.render('addCoupon', { message: '' })
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+const addCoupon = async (req, res) => {
+    try {
+        const { name } = req.body
+        let coupons = await couponModel.find({})
+        let isCoupon = false
+        coupons.forEach((item) => {
+            let couponName = item.name.toLowerCase()
+            let givenName = name.toLowerCase()
+            if (couponName === givenName) {
+                isCoupon = true
+            }
+        })
+
+        if (isCoupon === false) {
+
+            let couponCode = randomString.generate({
+                length: 6,
+                charset: 'alphanumeric',
+                capitalization: 'uppercase'
+            })
+            console.log(couponCode);
+            console.log(req.body);
+            let status = ''
+            if (req.body.status === 'active') {
+                status = true
+            } else {
+                status = false
+            }
+
+            const coupon = new couponModel({
+                name: req.body.name,
+                code: couponCode,
+                discountType: req.body.discountType,
+                discountAmount: req.body.discountAmount,
+                description: req.body.description,
+                minPurchase: req.body.minAmount,
+                valid_from: req.body.startDate,
+                valid_till: req.body.endDate,
+                max_use: req.body.maxUse,
+                is_active: status
+            })
+
+            coupon.save()
+
+            res.redirect('coupon')
+
+        } else {
+            res.render('addCoupon', { message: 'Coupon Name Already Exists' })
+        }
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+
+//edit coupon 
+
+
+const loadEditCoupon = async (req, res) => {
+    try {
+        const { id } = req.query
+        const coupon = await couponModel.findOne({ _id: id })
+
+        res.render('editCoupon', { data: coupon, message: '' })
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+const editCoupon = async (req, res) => {
+    try {
+
+        const { name, discountType, discountAmount, description, minAmount, startDate, endDate, maxUse, status, couponId } = req.body
+
+        let is_active = ''
+        if (status === 'active') {
+            is_active = true
+        } else {
+            is_active = false
+        }
+        let coupon = await couponModel.findOne({ _id: couponId })
+        let couponUpdate = await couponModel.updateOne({ _id: couponId },
+            {
+                $set: {
+                    name,
+                    discountType,
+                    discountAmount,
+                    description,
+                    minPurchase: minAmount,
+                    valid_from: startDate || coupon.valid_from,
+                    valid_till: endDate || coupon.valid_till,
+                    max_use: maxUse,
+                    is_active
+                }
+            })
+
+            if(couponUpdate){
+                res.redirect('coupon')
+            }else{
+            res.render('editCoupon', { data: coupon, message: 'Could not edit coupon' })
+
+            }
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+
+// delete coupon
+
+
+const deleteCoupon = async (req, res) => {
+    try {
+        const { id } = req.query
+        let deleteCoupon=await couponModel.findByIdAndDelete({_id:id})
+        res.redirect('coupon')
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+
+// Category offer management
+
+
+const loadAdminCategoryOfferManagement = async (req, res) => {
+    try {
+
+        let search = ''
+        if (req.query.search) {
+            search = req.query.search
+        }
+
+        let page = parseInt(req.query.page)
+        let sort = req.query.sort
+        let limit = 5
+        let skip;
+
+        if (page <= 1) {
+            skip = 0
+        } else {
+            skip = (page - 1) * limit
+        }
+        
+        const categoryOffer = await categoryOfferModel.find({
+            $or: [
+                { name: { $regex: `.*${search}.*`, $options: 'i' } },
+                { description: { $regex: `.*${search}.*`, $options: 'i' } }
+            ]
+        })
+            .skip(skip)
+            .limit(limit)
+            .exec()
+        // console.log(coupons);
+
+        // { products: { $regex: `.*${search}.*`, $options: 'i' } },
+        // { products: { $regex: `.*${search}.*`, $options: 'i' } }, 
+
+        const count = await categoryOfferModel.find({
+            $or: [
+                { name: { $regex: `.*${search}.*`, $options: 'i' } },
+                { description: { $regex: `.*${search}.*`, $options: 'i' } }
+            ]
+        })
+            .countDocuments()
+
+        res.render('adminCategoryOfferManagement', { categoryOffer: categoryOffer,productOffer:'', totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1, search: search })
+
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+const loadAddCategoryOffer = async (req, res) => {
+    try {
+        res.render('addCategoryOffer', { data: '', message: '' })
+        
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+const addCategoryOffer = async (req, res) => {
+    try {
+       console.log('addCategoryOffer formDate: ',req.body);
+       const{name,description,startDate,endDate,offerPercentage,category,maxUse,status}=req.body
+
+       let categories=category.split(',')
+       console.log('categories: ',categories);
+
+       let is_active=''
+        if(status==='active'){
+            is_active=true
+        }else{
+            is_active=false
+        }
+
+       const categoryOffer=new categoryOfferModel({
+        name,
+        categories,
+        description,
+        offerPercentage,
+        valid_from:startDate,
+        valid_till:endDate,
+        maxUse,
+        is_active
+       })
+
+       categoryOffer.save()
+
+       res.redirect('categoryOffer')
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+const loadEditCategoryOffer = async (req, res) => {
+    try {
+
+        const {id}=req.query
+        console.log('categoryOfferId: ',id);
+        const categoryOffer = await categoryOfferModel.findOne({_id:id})
+        console.log('categoryOffer: ',categoryOffer);
+        
+        res.render('editCategoryOffer', { data: categoryOffer, message: '' })
+        
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+const editCategoryOffer = async (req, res) => {
+    try {
+
+       const{id,name,description,startDate,endDate,offerPercentage,category,maxUse,status}=req.body
+
+        let is_active = ''
+        if (status === 'active') {
+            is_active = true
+        } else {
+            is_active = false
+        }
+
+        let newCategory=category.split(',')
+     
+        const categoryOffer = await categoryOfferModel.findOne({_id:id})
+        let categoryOfferUpdate = await categoryOfferModel.updateOne({ _id: id },
+            {
+                $set: {
+                    name,
+                    description,
+                    categories:newCategory || categoryOffer.categories,
+                    offerPercentage,
+                    valid_from: startDate || categoryOffer.valid_from,
+                    valid_till: endDate || categoryOffer.valid_till,
+                    maxUse,
+                    is_active
+                }
+            })
+
+            if(categoryOfferUpdate){
+                res.redirect('categoryOffer')
+            }else{
+            res.render('editCategoryOffer', { data: categoryOffer, message: 'Could not edit the category offer' })
+
+            }
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+const deleteCategoryOffer = async (req, res) => {
+    try {
+        const { id } = req.query
+        let deleteCategoryOffer=await categoryOfferModel.findByIdAndDelete({_id:id})
+        res.redirect('categoryOffer')
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+// Product offer management
+
+const loadAdminProductOfferManagement = async (req, res) => {
+    try {
+
+        let search = ''
+        if (req.query.search) {
+            search = req.query.search
+        }
+
+        let page = parseInt(req.query.page)
+        let sort = req.query.sort
+        let limit = 5
+        let skip;
+
+        if (page <= 1) {
+            skip = 0
+        } else {
+            skip = (page - 1) * limit
+        }
+        
+        const productOffer = await productOfferModel.find({
+            $or: [
+                { name: { $regex: `.*${search}.*`, $options: 'i' } },
+                { description: { $regex: `.*${search}.*`, $options: 'i' } }
+            ]
+        })
+            .skip(skip)
+            .limit(limit)
+            .exec()
+        // console.log(coupons);
+
+        // { products: { $regex: `.*${search}.*`, $options: 'i' } },
+        // { products: { $regex: `.*${search}.*`, $options: 'i' } }, 
+
+        const count = await categoryOfferModel.find({
+            $or: [
+                { name: { $regex: `.*${search}.*`, $options: 'i' } },
+                { description: { $regex: `.*${search}.*`, $options: 'i' } }
+            ]
+        })
+            .countDocuments()
+
+        res.render('adminProductOfferManagement', { data: productOffer, totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1, search: search })
+
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+const loadAddProductOffer = async (req, res) => {
+    try {
+        res.render('addProductOffer', { data: '', message: '' })
+        
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+const addProductOffer = async (req, res) => {
+    try {
+       
+       const{name,description,startDate,endDate,offerPercentage,product,maxUse,status}=req.body
+
+       let products=product.split(',')
+       console.log('products: ',products);
+
+       let is_active=''
+        if(status==='active'){
+            is_active=true
+        }else{
+            is_active=false
+        }
+
+       const productOffer=new productOfferModel({
+        name,
+        products,
+        description,
+        offerPercentage,
+        valid_from:startDate,
+        valid_till:endDate,
+        maxUse,
+        is_active
+       })
+
+       productOffer.save()
+
+       res.redirect('productOffer')
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+const loadEditProductOffer = async (req, res) => {
+    try {
+
+        const {id}=req.query
+        console.log('productOfferId: ',id);
+        const productOffer = await productOfferModel.findOne({_id:id})
+        console.log('productOffer: ',productOffer);
+        
+        res.render('editProductOffer', { data: productOffer, message: '' })
+        
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+const editProductOffer = async (req, res) => {
+    try {
+
+       const{id,name,description,startDate,endDate,offerPercentage,product,maxUse,status}=req.body
+
+        let is_active = ''
+        if (status === 'active') {
+            is_active = true
+        } else {
+            is_active = false
+        }
+
+        let newproducts=product.split(',')
+     
+        const productOffer = await productOfferModel.findOne({_id:id})
+        let productOfferUpdate = await productOfferModel.updateOne({ _id: id },
+            {
+                $set: {
+                    name,
+                    description,
+                    categories:newproducts || productOffer.categories,
+                    offerPercentage,
+                    valid_from: startDate || productOffer.valid_from,
+                    valid_till: endDate || productOffer.valid_till,
+                    maxUse,
+                    is_active
+                }
+            })
+
+            if(productOfferUpdate){
+                res.redirect('productOffer')
+            }else{
+            res.render('editProductOffer', { data: productOffer, message: 'Could not edit the product offer' })
+
+            }
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+const deleteProductOffer = async (req, res) => {
+    try {
+        const { id } = req.query
+        let deleteProductOffer=await productOfferModel.findByIdAndDelete({_id:id})
+        res.redirect('productOffer')
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+
 
 module.exports = {
     loadAdminHome,
@@ -1097,7 +1618,8 @@ module.exports = {
     loadAdminOrderManagement,
     loadAdminCategoryManagement,
     loadAdminCouponManagement,
-    loadAdminOfferManagement,
+    loadAdminCategoryOfferManagement,
+    loadAdminProductOfferManagement,
     loadAdminBannerManagement,
     loadAdminSalesManagement,
     loadAddUser,
@@ -1121,5 +1643,21 @@ module.exports = {
     unlistProduct,
     adminCancelOrder,
     loadEditOrder,
-    editOrder
+    editOrder,
+    loadAddCoupon,
+    addCoupon,
+    loadEditCoupon,
+    editCoupon,
+    deleteCoupon,
+    loadAddCategoryOffer,
+    addCategoryOffer,
+    loadEditCategoryOffer,
+    editCategoryOffer,
+    deleteCategoryOffer,
+    loadAddProductOffer,
+    addProductOffer,
+    loadEditProductOffer,
+    editProductOffer,
+    deleteProductOffer
+
 }

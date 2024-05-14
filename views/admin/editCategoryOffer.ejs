@@ -1,0 +1,116 @@
+<%-include("../layout/adminHeader.ejs")%>
+
+
+    <main id="main" class="main">
+      
+
+        <h3><strong>Edit Category Offer</strong></h3>
+
+        <form action="" method="post" class="mt-5">
+         
+                <div class="form-group">
+                    <label class="col-form-label">Name</label>
+                    <input type="text" class="form-control" value="<%=data.name%>" name="name">
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label">Description</label>
+                    <input type="text" class="form-control" value="<%=data.description%>" name="description">
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label">Start Date</label><br>
+                    <p><%=data.valid_from.toLocaleDateString()%></p>
+                    <input type="date" class="form-control" name="startDate">
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label">End Date</label><br>
+                    <p><%=data.valid_till.toLocaleDateString()%></p>
+                    <input type="date" class="form-control" name="endDate">
+                </div>
+               
+                <div class="form-group">
+                    <label class="col-form-label">Discount Percentage</label>
+                    <input type="number" class="form-control" value="<%=data.offerPercentage%>" name="offerPercentage">
+                </div>
+               
+                <div class="form-group">
+                    <label class="col-form-label">Categories</label><br>
+
+                    <select name="category" class="form-control">
+                       <%
+                       data.categories.forEach((c)=>{
+                                    %>
+                                    <%
+                                    if(c=='660d1e31cbed784ef9ecbb12'){
+                                        %>
+                                        <option value="660d1e31cbed784ef9ecbb12">Girls</option>
+                                        <%
+                                    }else if(c=='660d1e44cbed784ef9ecbb16'){
+                                        %>
+                                        <option value="660d1e44cbed784ef9ecbb16">Boys</option>
+                                        <%
+                                    }else{
+                                        %>
+                                          <option value="660d1e31cbed784ef9ecbb12,660d1e44cbed784ef9ecbb16">All</option>
+
+                                        <%
+                                    }
+                                      
+                                    %>
+
+                                    <%
+                                })
+                         %> 
+                            
+                        
+                        <option value="660d1e31cbed784ef9ecbb12">Girls</option>
+                        <option value="660d1e44cbed784ef9ecbb16">Boys</option>
+                        <option value="660d1e31cbed784ef9ecbb12,660d1e44cbed784ef9ecbb16">All</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label">Maximun Usage</label>
+                    <input type="number" class="form-control" value="<%=data.maxUse%>" name="maxUse">
+                </div>
+                <div>
+                    <input type="hidden" class="form-control" value="<%=data._id%>" name="id">
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label">Status</label>
+                    <select name="status" class="form-control">
+
+                        <%
+                if(data.is_active){
+                    %>
+                    <option value="active">Active</option>
+                    <%
+                }else{
+                    %>
+                    <option value="expired">Expired</option>
+                    <%
+                }
+                %>
+                        <option value="active">Active</option>
+                        <option value="expired">Expired</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn btn-success mt-4" value="Add Category Offer">
+                    <a href="categoryOffer" class="btn btn-primary mt-4" style="width:100px">Cancel</a>
+                </div>
+                
+            
+            
+        </form>
+
+        <div>
+            <p>
+                <span style="color: red;"><%= message %></span>
+            </p>
+        </div>
+    
+        
+    </main>
+
+    
+
+    <%-include("../layout/adminFooter.ejs")%>

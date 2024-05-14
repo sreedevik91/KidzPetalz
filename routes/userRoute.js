@@ -10,6 +10,7 @@ const orderController = require('../controllers/orderController')
 const productController = require('../controllers/productController')
 const walletController = require('../controllers/walletController')
 const wishlistController = require('../controllers/wishlistController')
+const couponController = require('../controllers/couponController')
 const session = require('express-session')
 const nocache = require('nocache');
 const dotenv = require('dotenv')
@@ -130,6 +131,8 @@ router.route('/updateAddress')
   .get(auth.isLogin, userController.loadUpdateAddress)
   .post(userController.updateAddress)
 
+router.get('/deleteAddress', userController.deleteAddress)
+
 router.route('/updateProfile')
   .get(auth.isLogin, userController.loadUpdateProfile)
   .post(userController.updateProfile)
@@ -142,8 +145,8 @@ router.get('/wishlist', auth.isLogin, wishlistController.loadWishlist)
 router.get('/updateWishlist', auth.isLogin, wishlistController.updateWishlist)
 router.get('/removeWishlist', auth.isLogin, wishlistController.removeWishlist)
 
-
-router.get('/deleteAddress', userController.deleteAddress)
+router.get('/coupons', auth.isLogin, couponController.loadCoupon)
+router.get('/applyCoupon', couponController.applyCoupon)
 
 router.post('/placeOrder', checkoutController.placeOrder)
 

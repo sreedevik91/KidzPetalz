@@ -1,0 +1,76 @@
+<%-include("../layout/adminHeader.ejs")%>
+
+
+    <main id="main" class="main">
+      
+
+        <h3><strong>Add Product Offer</strong></h3>
+
+        <form action="" method="post" class="mt-5">
+            <div class="form-group">
+                <label class="col-form-label">Name</label>
+                <input type="text" class="form-control" placeholder="Enter Name " name="name" required="">
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Description</label>
+                <input type="text" class="form-control" placeholder="Enter Description" name="description" required="">
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Start Date</label>
+                <input type="date" class="form-control" placeholder="Enter Start Date" name="startDate" required="">
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">End Date</label>
+                <input type="date" class="form-control" placeholder="Enter End Date" name="endDate" required="">
+            </div>
+            <!-- <div class="form-group">
+                <label class="col-form-label">Discount Type</label>
+                <select name="discountType" class="form-control">
+                    <option value=""></option>
+                    <option value="percentage">Percentage</option>
+                    <option value="amount">Amount</option>
+                </select>
+            </div> -->
+            <div class="form-group">
+                <label class="col-form-label">Discount Percentage</label>
+                <input type="number" class="form-control" placeholder="Enter Discount Amount/Percentage" name="offerPercentage" required="">
+            </div>
+           
+            <div class="form-group">
+                <label class="col-form-label">Products</label><br>
+                <input type="text" class="form-control" placeholder="Enter product Id's seperated by comma" name="product" required="">
+                <!-- <span style="margin-right: 25px;"><input type="checkbox" value="660d1e31cbed784ef9ecbb12" name="categoryG" ><label  style="margin-left: 5px;">Girls</label></span>
+                <span style="margin-right: 25px;"><input type="checkbox" value="660d1e44cbed784ef9ecbb16" name="categoryB" ><label style="margin-left: 5px;">Boys</label></span>
+                <span style="margin-right: 25px;"><input type="checkbox" value="660d1e31cbed784ef9ecbb12,660d1e44cbed784ef9ecbb16" name="categoryA"><label style="margin-left: 5px;">All</label></span> -->
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Maximun Usage</label>
+                <input type="number" class="form-control" placeholder="Enter Maximun Usage" name="maxUse" required="">
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Status</label>
+                <select name="status" class="form-control">
+                    <option value=""></option>
+                    <option value="active">Active</option>
+                    <option value="expired">Expired</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="submit" class="btn btn-success mt-4" value="Add Product Offer">
+                <a href="productOffer" class="btn btn-primary mt-4" style="width:100px">Cancel</a>
+            </div>
+            
+        </form>
+
+        <div>
+            <p>
+                <span style="color: red;"><%= message %></span>
+            </p>
+        </div>
+    
+        
+    </main>
+
+    
+
+    <%-include("../layout/adminFooter.ejs")%>

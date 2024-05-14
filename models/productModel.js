@@ -22,15 +22,7 @@ const productSchema = mongoose.Schema({
       type: String
     }
   },
-  actual_price: {
-    type: Number,
-    required: true
-  },
-  discount: {
-    type: String,
-    required: true
-  },
-  discounted_price:{
+  price: {
     type: Number,
     required: true
   },
@@ -40,15 +32,15 @@ const productSchema = mongoose.Schema({
   },
   ordered_quantity: {
     type: Number,
-    required: true
+    default:0
   },
   rating: {
     type: Number,
-    required: true
+    default:0
   },
   featured: {
     type: Boolean,
-    required: true
+    default:false
   },
   category_id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -56,7 +48,7 @@ const productSchema = mongoose.Schema({
   },
   image: {
     type: Array,
-    required: true,
+    required: true
     // validate: [maxNumber, 'You can enter upto 5 images']
   },
   is_listed: {

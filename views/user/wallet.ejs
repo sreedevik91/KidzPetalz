@@ -50,6 +50,8 @@
                                             <li><a href="orders"><span class="fa fa-cog"></span> Orders</a></li>
                                             <li class="active"><a href="wallet"><span class="fa fa-credit-card"></span>
                                                     Wallet</a></li>
+                                            <li><a href="coupons"><span class="fa fa-credit-card"></span>
+                                                        Coupons</a></li>
                                             <li><a href="changePassword"><span class="fa fa-envelope"></span> Change
                                                     Password</a></li>
                                             <li><a href="logout"><span class="fa fa-th"></span> Logout</a></li>
@@ -203,23 +205,6 @@
                 </div>
     </section>
 
-    <script>
-
-        function deleteAddress(shippingAddressId) {
-            console.log(shippingAddressId);
-            $.ajax({
-                url: `/deleteAddress?id=${shippingAddressId}`,
-                type: 'get',
-                success: (response) => {
-                    location.reload()
-                    alert(response)
-                }
-            })
-        }
-
-
-    </script>
-
-
+   
 
     <%- include('../layout/homefooter.ejs') %>

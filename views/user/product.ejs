@@ -99,8 +99,8 @@
                                 </li>
                             </ul>
                             <div class="clearfix"></div>
-                            <h6>₹ <%=item.discounted_price%></h6>
-                            <h5 > <span style="text-decoration: line-through;color:grey"> ₹ <%=item.actual_price%></span>   <span style="text-decoration: none;color:red;margin-left: 15px;"><%=item.discount%> off</span></h5> 
+                            <h6>₹ <%=item.price%></h6>
+                            <!-- <h5 > <span style="text-decoration: line-through;color:grey"> ₹ <%=item.price%></span>   <span style="text-decoration: none;color:red;margin-left: 15px;">'discount' off</span></h5>  -->
                            
                         </div>
                         <div class="desc_single">
@@ -346,7 +346,6 @@ function updateWishlist(productId) {
                     // wishlistSpan.innerHTML=''
                     // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;" onclick="updateWishlist(${productId})"><i class="far fa-heart m-2"></i></button>`
                     wishlistButton.innerHTML=`<i class="far fa-heart m-2"></i>`
-                   
                     alert('Product removed from wishlist')
 
                    }else if(response.productExists===false){ 

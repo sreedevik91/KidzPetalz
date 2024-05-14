@@ -53,10 +53,10 @@ const loadFilteredProducts = async (req, res) => {
                     sortQ.createdAt = -1
                 }
                 if (keyword === 'low') {
-                    sortQ.discounted_price = 1
+                    sortQ.price = 1
                 }
                 if (keyword === 'high') {
-                    sortQ.discounted_price = -1
+                    sortQ.price = -1
                 }
                 if (keyword === 'asce') {
                     sortQ.title = 1

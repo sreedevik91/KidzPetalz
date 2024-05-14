@@ -25,7 +25,7 @@ const loadOrders = async (req, res) => {
         let orders = await orderModel.aggregate([
             { $match: { userId: { $eq: userId } } },
             { $unwind: '$products' }
-        ])
+        ]).sort({updatedAt:-1})
 
         // console.log(orders);
 

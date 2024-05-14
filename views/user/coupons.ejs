@@ -1,0 +1,106 @@
+<%- include('../layout/homeheader.ejs') %>
+
+
+    <!-- inner banner -->
+    <div class="ibanner_w3 pt-sm-5 pt-3">
+        <h4 class="head_agileinfo text-center text-capitalize text-center pt-5">
+            <span>K</span>iddos
+        </h4>
+    </div>
+    <!-- //inner banner -->
+    <!-- breadcrumbs -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="home">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <%= page%>
+            </li>
+        </ol>
+    </nav>
+    <!-- //breadcrumbs -->
+    <section class="checkout_wthree py-sm-5 py-3">
+       
+                <div class="container">
+                    <div class="view-account">
+                        <section class="module">
+                            <div class="module-inner">
+                                <div class="side-bar">
+                                    <div class="user-info">
+                                        <!-- <img class="img-profile img-circle img-responsive center-block"
+                                            src="" alt=""> -->
+                                        <ul class="meta list list-unstyled">
+                                            <li class="name">
+                                                <h4>Welcome <%= name%>
+                                                </h4>
+                                                <!-- <label class="label label-info">UX Designer</label> -->
+                                            </li>
+                                            <!-- <li class="email"><a href="#">Rebecca.S@website.com</a></li>
+                            <li class="activity">Last logged in: Today at 2:18pm</li> -->
+                                        </ul>
+                                    </div>
+                                    <nav class="side-menu">
+                                        <ul class="nav">
+                                            <li><a href="userProfile"><span class="fa fa-user"></span> Profile</a></li>
+                                            <li><a href="orders"><span class="fa fa-cog"></span> Orders</a></li>
+                                            <li><a href="wallet"><span class="fa fa-credit-card"></span> Wallet</a></li>
+                                            <li class="active"><a href="coupons"><span class="fa fa-credit-card"></span>Coupons</a></li>
+                                            <li><a href="changePassword"><span class="fa fa-envelope"></span> Change Password</a></li>
+                                            <li><a href="logout"><span class="fa fa-th"></span> Logout</a></li>
+                                            <!-- <li><a href="#"><span class="fa fa-clock-o"></span> Reminders</a></li> -->
+                                        </ul>
+                                    </nav>
+                                </div>
+                                <div class="content-panel">
+                                    <div>
+                                        <h1 class="">Coupons</h1>
+                                    </div>
+
+                                    <hr>
+
+                                    <div style="display: flex;">
+                                        <!-- <fieldset> -->
+                                        
+                                            <table class="table">
+                                                <thead>
+                                                    <!-- <tr>
+                                                        <th>Date</th>
+                                                        <th>Amount</th>
+                                                        <th>Type</th>
+                                                    </tr> -->
+                                                </thead>
+                                                <% data.forEach((elem)=>{
+                                                    %>
+                                                    <tbody>
+                                                        <tr style="border-bottom: 1px solid black;">
+                                                            <td>
+                                                               <p style="margin: 5px;"><%=elem.name%></p> 
+                                                               <p style="margin: 5px;"><%=elem.code%></p> 
+                                                                
+                                                            </td>
+                                                            <td>
+                                                               <p style="margin-left: 250px;">Coupon valid till <%=elem.valid_till.toLocaleDateString()%> on <%=elem.description%></p>
+                                                            </td>
+                                                            <td>
+                                                                <%=elem.type%>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <% }) %>
+                                            </table>
+                                        <!-- </fieldset> -->
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+    </section>
+
+    
+
+
+    <%- include('../layout/homefooter.ejs') %>

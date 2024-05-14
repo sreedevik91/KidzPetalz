@@ -20,7 +20,7 @@
             </div>
             <div class="form-group">
               <label class="col-form-label">Order Date</label> 
-              <input type="text" class="form-control" name="date" value="<%=data.orderDate%>" disabled>
+              <input type="text" class="form-control" name="date" value="<%=data.orderDate.toLocaleDateString()%>" disabled>
           </div>
           <div class="form-group">
             <label class="col-form-label">Amount</label> 
@@ -32,10 +32,19 @@
         </div>
         <div class="form-group">
             <label class="col-form-label">Status</label> 
-            <input type="text" class="form-control" name="status" value="<%=data.products.status%>">
+            <select name="status" class="form-control">
+                <option value="<%=data.products.status%>"><%=data.products.status%></option>
+                <option value="pending">pending</option>
+                <option value="cancelled">cancelled</option>
+                <option value="placed">placed</option>
+                <option value="delivered">delivered</option>
+              </select>
+            <!-- <input type="text" class="form-control" value="<%=data.products.status%>"> -->
+
         </div>
         <div class="form-group">
             <input type="hidden" class="form-control" value="<%=data._id%>" name="id"  required>
+            <input type="hidden" class="form-control" value="<%=data.products.productId%>" name="productId" required>
         </div>
           <div style="display: flex;">
             <div class="form-group">

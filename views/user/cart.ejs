@@ -74,7 +74,7 @@
                                                     <div class="quantity">
                                                         <div class="quantity-select">
                                                             <button type="button"
-                                                                onclick="changeQuantity('<%=item._id%>','<%=item.cartProduct._id%>',-1,'<%=item.totalAmount%>','<%=item.cartProduct.discounted_price%>')">-</button>
+                                                                onclick="changeQuantity('<%=item._id%>','<%=item.cartProduct._id%>',-1,'<%=item.totalAmount%>','<%=item.offerAmount%>')">-</button>
                                                             <div class="entry value">
 
                                                                 <span id="<%=item.cartProduct._id%>">
@@ -84,7 +84,7 @@
 
                                                             </div>
                                                             <button type="button"
-                                                                onclick="changeQuantity('<%=item._id%>','<%=item.cartProduct._id%>',1,'<%=item.totalAmount%>','<%=item.cartProduct.discounted_price%>')">+</button>
+                                                                onclick="changeQuantity('<%=item._id%>','<%=item.cartProduct._id%>',1,'<%=item.totalAmount%>','<%=item.offerAmount%>')">+</button>
                                                         </div>
                                                     </div>
                                                 </td>

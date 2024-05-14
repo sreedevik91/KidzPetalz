@@ -66,10 +66,11 @@
                                             <%=item.shippingAddress.country%>, <%=item.shippingAddress.pbNumber%>, <%=item.shippingAddress.contactNumber%>
                                         </td>
                                         <td class="invert">
-                                            <%=item.orderDate%>
+                                            <%=item.orderDate.toLocaleDateString()%>
                                         </td>
                                         <td class="invert">
-                                             ₹<%=item.products.price%>
+                                             ₹<%=item.products.price%> 
+                                             <!-- checkoutAmount -->
                                         </td>
 
                                         <td class="invert"><%=item.paymentMethod%>

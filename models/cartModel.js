@@ -42,6 +42,10 @@ const cartSchema = mongoose.Schema({
             quantity: {
                 type: Number,
                 default: 1
+            },
+            offerAmount:{
+                type: Number
+                
             }
 
         }
@@ -50,9 +54,10 @@ const cartSchema = mongoose.Schema({
         type: Number,
         default: 1
     },
-    couponId: {
-        type: String
-    }
+    offersApplied: [{
+        name: String,
+        offerId:String
+    }]
 
 },
     {

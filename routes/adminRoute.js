@@ -77,8 +77,6 @@ router.route('/resetPassword')
 .get(adminController.loadAdminResetPassword)
 .post(adminController.resetAdminPassword)
 
-router.get('/coupon',adminController.loadAdminCouponManagement)
-router.get('/offer',adminController.loadAdminOfferManagement)
 router.get('/banner',adminController.loadAdminBannerManagement)
 router.get('/sales',adminController.loadAdminSalesManagement)
 
@@ -139,6 +137,47 @@ router.route('/editOrder')
 
 router.get('/cancelOrder',adminController.adminCancelOrder)
 
+//coupon management
+
+router.get('/coupon',adminController.loadAdminCouponManagement)
+
+router.route('/addCoupon')
+.get(adminController.loadAddCoupon)
+.post(adminController.addCoupon)
+
+router.route('/editCoupon')
+.get(adminController.loadEditCoupon)
+.post(adminController.editCoupon)
+
+router.get('/deleteCoupon',adminController.deleteCoupon)
+
+// Category Offer management
+
+router.get('/categoryOffer',adminController.loadAdminCategoryOfferManagement)
+
+router.route('/addCategoryOffer')
+.get(adminController.loadAddCategoryOffer)
+.post(adminController.addCategoryOffer)
+
+router.route('/editCategoryOffer')
+.get(adminController.loadEditCategoryOffer)
+.post(adminController.editCategoryOffer)
+
+router.get('/deleteCategoryOffer',adminController.deleteCategoryOffer)
+
+// Category Offer management
+
+router.get('/productOffer',adminController.loadAdminProductOfferManagement)
+
+router.route('/addProductOffer')
+.get(adminController.loadAddProductOffer)
+.post(adminController.addProductOffer)
+
+router.route('/editProductOffer')
+.get(adminController.loadEditProductOffer)
+.post(adminController.editProductOffer)
+
+router.get('/deleteProductOffer',adminController.deleteProductOffer)
 
 
 router.get('*',adminController.loadAdminDefault) // keep this default route at the end of all the routes

@@ -166,7 +166,7 @@
                                             <th style="padding:5px 20px;">Sl No</th>
                                             <th style="padding:5px 130px;">Product</th>
                                             <th style="padding:5px 20px;">Quantity</th>
-                                            <th style="padding:5px 20px;">Price</th>
+                                            <th style="padding:5px 20px;">Unit Price</th>
                                             <!-- <th>Remove</th> -->
                                         </tr>
                                     </thead>
@@ -199,9 +199,17 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div
-                                style="margin-top: 50px; border: thick double #32a1ce;padding: 10px; margin-left: 50px;">
-                                <h4 style="color: #0076BE;">Order Summary</h4>
+                            <div style="margin: 50px;">
+                               
+                                <label for="">Enter Coupon Code</label>
+                                <input type="text" id="couponCode" name="couponCode">
+                                <a class="btn" onclick="applyCoupon('<%=cartId%>','<%=cartCount%>','<%= cartTotalAmount%>')">Apply</a>
+                                
+                            </div>
+                            <div style="margin-top: 50px; border: thick double #32a1ce;padding: 10px; margin-left: 50px;" id="orderSummary">
+                               
+                                <h4 style="color: #0076BE;">
+                                    Order Summary</h4>
                                 <ul>
                                     <!-- <li>Solid Men's Black Shirt
                                 <i>-</i>                                            
@@ -323,6 +331,58 @@
             })
         }
 
+        function applyCoupon(cartId,cartCount,cartTotalAmount){
+            console.log('cartId: ',cartId);
+            let couponCode=document.getElementById('couponCode').value
+            console.log('couponCode: ',couponCode);
+            let summeryDiv=document.getElementById('orderSummary')
+            $.ajax({
+                url:`/applyCoupon?cartId=${cartId}&couponCode=${couponCode}&cartTotalAmount=${cartTotalAmount}`,
+                method:'get',
+                success:(response)=>{
+                   
+                    if(response.valid){
+                        let discount=response.discount
+                        let payableAmount=response.amount
+                        summeryDiv.innerHTML=''
+                    let resultTemplate=`<h4 style="color: #0076BE;">Order Summary</h4>
+                                <ul>
+                                <li>Items
+                                        <i>-</i>
+                                        <span>
+                                            ${cartCount}
+                                        </span>
+                                    </li>
+                                    <li>Order Total
+                                        <i>-</i>
+                                        <span> ₹<span>
+                                                ${cartTotalAmount}
+                                            </span></span>
+                                    </li>
+                                    <li>Discount
+                                        <i>-</i>
+                                        <span> -₹<span>
+                                                ${discount}
+                                            </span></span>
+                                    </li>
+                                    <li>Amount Payable
+                                        <i>-</i>
+                                        <span> ₹<span>
+                                                ${payableAmount}
+                                            </span></span>
+                                    </li>
+                                    <li><button href="/placeOrder" type="submit" class="btn btn-info float-right mt-4"
+                                            style="border-radius: 10px;">Place Order</button></li>
+                                </ul>
+                                `
+                                summeryDiv.innerHTML=resultTemplate
+                            }else{
+
+                                alert('Enter valid coupon code')
+                            }
+                }
+            })
+        }
     </script>
     <!--//checkout-->
 

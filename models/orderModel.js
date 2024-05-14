@@ -55,6 +55,19 @@ const orderSchema = mongoose.Schema({
     orderDate:{
         type:Date,
         default:Date.now()
+    },
+    offersApplied: [{
+        name: String,
+        offerId:String
+    }],
+    couponCode:{
+        type:String
+    },
+    checkoutAmount:{
+        type:Number
+    },
+    discountAmount:{
+        type:Number
     }
 },
     {
