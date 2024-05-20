@@ -52,50 +52,61 @@
                                     %>
                                     <tr class="rem1">
                                         <td class="invert">
-                                        
+
                                             <a href="">
-                                                <img src="productImages/<%=item.products.image%>" alt="" width="20px" height="20px" class="img-responsive">
+                                                <img src="productImages/<%=item.products.image%>" alt="" width="20px"
+                                                    height="20px" class="img-responsive">
                                             </a><br>
                                             <%=item.products.title%><br>
-                                            
-                                            <%=item.products.quantity%><br>
 
-                                    </td>
+                                                <%=item.products.quantity%><br>
+
+                                        </td>
                                         <td class="invert-image">
-                                            <%=item.shippingAddress.name%>,<%=item.shippingAddress.building%>, <%=item.shippingAddress.city%>, <%=item.shippingAddress.state%>, 
-                                            <%=item.shippingAddress.country%>, <%=item.shippingAddress.pbNumber%>, <%=item.shippingAddress.contactNumber%>
+                                            <%=item.shippingAddress.name%>,<%=item.shippingAddress.building%>,
+                                                    <%=item.shippingAddress.city%>, <%=item.shippingAddress.state%>,
+                                                            <%=item.shippingAddress.country%>,
+                                                                <%=item.shippingAddress.pbNumber%>,
+                                                                    <%=item.shippingAddress.contactNumber%>
                                         </td>
                                         <td class="invert">
                                             <%=item.orderDate.toLocaleDateString()%>
                                         </td>
                                         <td class="invert">
-                                             ₹<%=item.products.price%> 
-                                             <!-- checkoutAmount -->
+                                            ₹<%=item.products.price%>
+                                                <!-- checkoutAmount -->
                                         </td>
 
-                                        <td class="invert"><%=item.paymentMethod%>
+                                        <td class="invert">
+                                            <%=item.paymentMethod%>
                                         </td>
                                         <td class="invert">
                                             <%=item.products.status%>
                                         </td>
-                                   <%
-                                   if(item.products.is_listed==false){
-                                    %>
-                                    <td>
-                                    <button class="btn btn-info" id="cancelButton" disabled>Cancelled</button>
-                                    </td>
-                                    <%
-                                   }else{
-                                    %>
-                                    <td>
-                                        <!-- <button class="btn btn-info" id="cancelButton" href="cancelOrder?id=<%=item._id%>">Cancel</button> -->
-                                        <a class="btn btn-info" id="cancelButton" href="cancelOrder?orderId=<%=item._id%>&productId=<%=item.products.productId%>&amount=<%=item.products.price%>">Cancel</a>
+                                        <% if(item.products.is_listed==false){ %>
+                                            <td>
+                                                <button class="btn btn-info" id="cancelButton"
+                                                    disabled>Cancelled</button>
+                                                <!-- <a class="btn btn-small"
+                                                    onclick="generateInvoice('<%=item._id%>','<%=item.products.productId%>')">Invoice</a> -->
+                                            </td>
+                                            <% }else{ %>
+                                                <td>
+                                                    <!-- <button class="btn btn-info" id="cancelButton" href="cancelOrder?id=<%=item._id%>">Cancel</button> -->
+                                                    <a class="btn btn-info" id="cancelButton"
+                                                        href="cancelOrder?orderId=<%=item._id%>&productId=<%=item.products.productId%>&amount=<%=item.products.price%>">Cancel</a>
+                                                   <%
+                                                   if(item.products.status!='pending'){
+                                                    %>
+                                                    <a class="btn btn-small" onclick="generateInvoice('<%=item._id%>','<%=item.products.productId%>')">Invoice</a>
+                                                    <%
+                                                   }
+                                                   
+                                                   %>
+                                                   
+                                                </td>
+                                                <% } %>
 
-                                    </td>
-                                    <%
-                                   }
-                                   %>
-                                       
                                     </tr>
 
                                     <% }) %>
@@ -110,9 +121,32 @@
             </div>
         </section>
 
-
         <!--//checkout-->
 
-        
+        <script>
+
+            function generateInvoice(orderId, productId) {
+                $.ajax({
+                    url: `/generateInvoice?orderId=${orderId}&productId=${productId}`,
+                    method: 'get',
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    success: (response) => {
+
+                        console.log('response: ', response);
+                        let link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(response);
+                        link.download = `${productId}.pdf`;
+                        document.body.appendChild(link);
+                        link.click();
+                        // Cleanup
+                        document.body.removeChild(link);
+                    }
+                })
+            }
+
+        </script>
+
 
         <%- include('../layout/homefooter.ejs') %>

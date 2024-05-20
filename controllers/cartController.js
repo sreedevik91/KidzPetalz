@@ -6,6 +6,9 @@ const categoryOfferModel = require('../models/categoryOfferModel');
 const productOfferModel = require('../models/productOfferModel');
 const referralOfferModel = require('../models/referralOfferModel');
 
+// const { ObjectId } = require('mongodb');
+// or
+// const ObjectId = require('mongodb').ObjectId;
 
 
 const loadCart = async (req, res) => {
@@ -139,6 +142,8 @@ const addToCart = async (req, res) => {
         let stock = products.quantity
         const cart = await cartModel.findOne({ user })
 
+        // console.log('productOffers: ', cart.products.offersApplied);
+
         if (stock <= 0) {
             // let productUpdated = await productModel.updateOne({ _id: product }, { $set:{quantity:0} })
             products.quantity = 0
@@ -185,7 +190,7 @@ const addToCart = async (req, res) => {
 
                     let categoryId = products.category_id
                     let catId = categoryId.toString()
-                    console.log('categoryId: ', catId);
+                    // console.log('categoryId: ', catId);
                     let isCatOffer = await categoryOfferModel.aggregate([
                         {
                             $project: {
@@ -201,10 +206,11 @@ const addToCart = async (req, res) => {
 
                     if (isCatOffer[0].index != -1) {
                         let categoryOffer = await categoryOfferModel.findOne({ categories: { $in: [catId] } })
-                        console.log('categoryOffer: ', categoryOffer);
+                        // console.log('categoryOffer: ', categoryOffer);
                         if (categoryOffer.valid_till >= Date.now()) {
-                            finalAmount -= (finalAmount * (categoryOffer.offerPercentage)) / 100
-                            appliedOffers.push({ name: categoryOffer.name, offerId: categoryOffer._id })
+                            let discountAmount=(finalAmount * (categoryOffer.offerPercentage)) / 100
+                            finalAmount -= discountAmount
+                            appliedOffers.push({ name: categoryOffer.name,type:'categoryOffer',productId:product,discountAmount:discountAmount, offerId: categoryOffer._id })
                         } else {
                             return
                         }
@@ -224,10 +230,11 @@ const addToCart = async (req, res) => {
 
                     if (isProdOffer[0].index != -1) {
                         let productOffer = await productOfferModel.findOne({ products: { $in: [product] } })
-                        console.log('productOffer: ', productOffer);
+                        // console.log('productOffer: ', productOffer);
                         if (productOffer.valid_till >= Date.now()) {
-                            finalAmount -= (finalAmount * (productOffer.offerPercentage)) / 100
-                            appliedOffers.push({ name: productOffer.name, offerId: productOffer._id })
+                            let discountAmount=(finalAmount * (productOffer.offerPercentage)) / 100
+                            finalAmount -= discountAmount
+                            appliedOffers.push({ name: productOffer.name,type:'productOffer',productId:product, discountAmount:discountAmount, offerId: productOffer._id })
                         } else {
                             return
                         }
@@ -236,15 +243,23 @@ const addToCart = async (req, res) => {
 
                     console.log('finalAmount: ', finalAmount);
 
-                    let concatedOfferfArrays = [...cart.offersApplied, ...appliedOffers]
+                    // let concatedOfferArrays = [...cart.products.offersApplied, ...appliedOffers]
+                    // let concatedOfferArrays=[]
+                    // cart.products.forEach((product)=>{
 
-                    // console.log('concatedOfferfArrays: ', concatedOfferfArrays);
+                    //     concatedOfferArrays=[...product.offersApplied, ...appliedOffers]
+                    //     // cart.offersApplied=concatedOfferArrays
+                    //     // cart.save()
+                    // })
+                    // console.log('concatedOfferArrays: ', concatedOfferArrays);
+
+
 
                     cartUpdated = await cartModel.updateOne({ user },
                         {
-                            $push: { products: { productId: product, offerAmount: finalAmount } },
+                            $push: { products: { productId: product, offerAmount: finalAmount,offersApplied: appliedOffers } },
                             $inc: { quantity: 1 },
-                            $set: { offersApplied: concatedOfferfArrays }
+                            // $set: { offersApplied: concatedOfferArrays }
                         })
                     productUpdated = await productModel.updateOne({ _id: product }, { $inc: { quantity: -1 } })
 
@@ -279,13 +294,13 @@ const addToCart = async (req, res) => {
                 console.log('isCatOffer:', isCatOffer[0].index);
 
 
-
                 if (isCatOffer[0].index != -1) {
                     let categoryOffer = await categoryOfferModel.findOne({ categories: { $in: [catId] } })
-                    console.log('categoryOffer: ', categoryOffer);
+                    // console.log('categoryOffer: ', categoryOffer);
                     if (categoryOffer.valid_till >= Date.now()) {
-                        finalAmount -= (finalAmount * (categoryOffer.offerPercentage)) / 100
-                        appliedOffers.push({ name: categoryOffer.name, offerId: categoryOffer._id })
+                        let discountAmount=(finalAmount * (categoryOffer.offerPercentage)) / 100
+                        finalAmount -= discountAmount
+                        appliedOffers.push({ name: categoryOffer.name,type:'categoryOffer',productId:product,discountAmount:discountAmount, offerId: categoryOffer._id })
                     } else {
                         return
                     }
@@ -307,10 +322,11 @@ const addToCart = async (req, res) => {
 
                 if (isProdOffer[0].index != -1) {
                     let productOffer = await productOfferModel.findOne({ products: { $in: [product] } })
-                    console.log('productOffer: ', productOffer);
+                    // console.log('productOffer: ', productOffer);
                     if (productOffer.valid_till >= Date.now()) {
-                        finalAmount -= (finalAmount * (productOffer.offerPercentage)) / 100
-                        appliedOffers.push({ name: productOffer.name, offerId: productOffer._id })
+                        let discountAmount=(finalAmount * (productOffer.offerPercentage)) / 100
+                        finalAmount -= discountAmount
+                        appliedOffers.push({ name: productOffer.name,type:'productOffer',productId:product,discountAmount:discountAmount, offerId: productOffer._id })
                     } else {
                         return
                     }
@@ -323,8 +339,8 @@ const addToCart = async (req, res) => {
 
                 const cartData = new cartModel({
                     user,
-                    products: [{ productId: product, offerAmount: finalAmount }],
-                    offersApplied: appliedOffers
+                    products: [{ productId: product, offerAmount: finalAmount,offersApplied: appliedOffers }],
+                    
                 })
 
                 const cart = await cartData.save()
@@ -393,7 +409,7 @@ const changeProductQuantity = async (req, res) => {
                     res.json({ itemRemoved: true })
                 } else {
                     req.session.cartCount = cart.quantity
-                    res.json('Product Removed')
+                    res.json({ itemRemoved: true })
                 }
 
             }
@@ -409,23 +425,25 @@ const changeProductQuantity = async (req, res) => {
             //         $inc: { quantity: count }
             //     })
 
-            cartUpdated = await cartModel.updateOne({ _id: cartId, 'products.productId': productId },
+          let cartUpdated = await cartModel.updateOne({ _id: cartId, 'products.productId': productId },
                 {
 
                     $inc: { 'products.$.quantity': count, quantity: count }
                 })
+
+                if (cartUpdated) {
+                    if (count == 1) {
+                        let productUpdated = await productModel.updateOne({ _id: productId }, { $inc: { quantity: -1 } })
+                    } else {
+                        let productUpdated = await productModel.updateOne({ _id: productId }, { $inc: { quantity: 1 } })
+                    }
+                    let cart = await cartModel.findOne({ _id: cartId })
+                    req.session.cartCount = cart.quantity
+                    res.json('quantity updated')
+                }
         }
 
-        if (cartUpdated) {
-            if (count == 1) {
-                let productUpdated = await productModel.updateOne({ _id: productId }, { $inc: { quantity: -1 } })
-            } else {
-                let productUpdated = await productModel.updateOne({ _id: productId }, { $inc: { quantity: 1 } })
-            }
-            let cart = await cartModel.findOne({ _id: cartId })
-            req.session.cartCount = cart.quantity
-            res.json('quantity updated')
-        }
+        
     } catch (error) {
         console.log(error.message);
 
@@ -439,6 +457,17 @@ const removeCartProduct = async (req, res) => {
         const { cartId, productId } = req.body
         console.log(cartId, productId);
 
+        let cartCount=await cartModel.aggregate([
+            {$match:{_id:new mongoose.Types.ObjectId(cartId)}},
+            {$unwind:'$products'},
+            {$match:{'products.productId': new mongoose.Types.ObjectId(productId)}},
+            {$project:{
+                quantity:'$products.quantity',_id:0
+            }}
+        ])
+        console.log('cartCount: ',cartCount[0].quantity);
+        let count=cartCount[0].quantity
+
         let pullItem = await cartModel.updateOne({ _id: cartId },
             {
                 $pull: {
@@ -446,13 +475,13 @@ const removeCartProduct = async (req, res) => {
                         productId: productId
                     }
                 },
-                $inc: { quantity: -1 }
+                $inc: { quantity: -count }
             })
         console.log(pullItem);
 
         if (pullItem) {
-            let cart = await cartModel.findOne({ _id: cartId })
             let productUpdated = await productModel.updateOne({ _id: productId }, { $inc: { quantity: 1 } })
+            let cart = await cartModel.findOne({ _id: cartId})
             if (cart.quantity <= 0) {
                 await cartModel.deleteOne({ _id: cartId })
                 req.session.cartCount = 0

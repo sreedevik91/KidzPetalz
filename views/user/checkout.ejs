@@ -137,10 +137,24 @@
                                     </div>
                                     <div>
                                         <h4 style="color: #0076BE;margin-top: 50px;">Payment Method</h4>
-                                        <div><label for="">
+                                        <%
+                                        if(cartTotalAmount<=1000){
+                                            %>
+                                            <div><label for="">
                                                 <input type="radio" value="cod" name="paymentMethod" checked> COD
                                             </label>
                                         </div>
+                                            <%
+                                        }else{
+                                            %>
+                                            <div><label for="">
+                                                <input type="radio" value="cod" name="paymentMethod" disabled> COD
+                                            </label>
+                                        </div>
+                                            <%
+                                        }
+                                        %>
+                                        
                                         <div>
                                             <label for="">
                                                 <input type="radio" value="onlinePayment" name="paymentMethod"> Online

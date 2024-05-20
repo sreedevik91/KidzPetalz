@@ -14,6 +14,17 @@ const couponModel = require('../models/couponModel')
 const categoryOfferModel = require('../models/categoryOfferModel')
 const productOfferModel = require('../models/productOfferModel')
 
+const excelJs=require('exceljs')
+// const puppeteer=require('puppeteer');
+// const open=import('open');
+
+const pdf = require('pdf-creator-node');
+var fs = require("fs");
+var ejs = require("ejs");
+
+
+// const ObjectId=  require('mongodb').ObjectId
+
 
 dotenv.config()
 
@@ -206,17 +217,6 @@ const loadAdminBannerManagement = async (req, res) => {
 }
 
 
-const loadAdminSalesManagement = async (req, res) => {
-    try {
-
-        const users = await userModel.find({ is_admin: false })
-        res.render('adminSalesManagement', { data: users })
-
-    } catch (error) {
-        console.log(error.message);
-
-    }
-}
 
 // user management
 
@@ -829,9 +829,13 @@ const loadEditProduct = async (req, res) => {
 
 const editProduct = async (req, res) => {
     try {
+        const id = req.body.id
+        const product = await productModel.findOne({ _id: id })
+        console.log('product images:',product.image);
 
         console.log(req.files);
-        var arrImages = []
+        var arrImages = product.image
+
         for (let i = 0; i < req.files.length; i++) {
             const outputFile = `${req.files[i].destination}/${Date.now() + '-' + req.files[i].originalname}`
             const cropImage = await sharp(req.files[i].path).resize(200, 150).toFile(outputFile)
@@ -875,9 +879,15 @@ const editProduct = async (req, res) => {
         const rating = req.body.rating
         const featured = req.body.featured
         const category_id = req.body.categoryid
-        const image = arrImages
 
-        const id = req.body.id
+        let image
+        if(arrImages!=[]){
+            image = arrImages
+        }else{
+            image = product.image
+        }
+         
+        
         const is_listed = req.body.verify
 
 
@@ -1560,8 +1570,9 @@ const editProductOffer = async (req, res) => {
         } else {
             is_active = false
         }
-
+        
         let newproducts=product.split(',')
+        console.log('newproducts: ',newproducts);
      
         const productOffer = await productOfferModel.findOne({_id:id})
         let productOfferUpdate = await productOfferModel.updateOne({ _id: id },
@@ -1569,7 +1580,7 @@ const editProductOffer = async (req, res) => {
                 $set: {
                     name,
                     description,
-                    categories:newproducts || productOffer.categories,
+                    products:newproducts || productOffer.products,
                     offerPercentage,
                     valid_from: startDate || productOffer.valid_from,
                     valid_till: endDate || productOffer.valid_till,
@@ -1601,7 +1612,337 @@ const deleteProductOffer = async (req, res) => {
     }
 }
 
+//  sales management
 
+
+const getSalesdata=async(search,startDate,endDate)=>{
+    try {
+        
+        
+    
+        let orders=await orderModel.aggregate([
+            {$match:{}},
+            {$unwind:'$products'},
+            {$project:{
+                productName:'$products.title',
+                productId:'$products.productId',
+                price:'$products.price',
+                quantity:'$products.quantity',
+                offersApplied:'$products.offersApplied',
+                orderDate:'$orderDate',
+            }},
+            {$unwind:'$offersApplied'},           
+            {$addFields:{
+                discountAmount:{$multiply:['$quantity','$offersApplied.discountAmount']},
+                totalPrice:{$multiply:['$quantity','$price']}
+            }},
+            // {$group:{
+            //     _id:'$productId', totalAmount:{$sum:'$price'}, totalDiscountAmount:{$sum:'$discountAmount'}
+            // }}
+
+            // {$group:{_id:'$productId',productname:{$addToSet:'$productName'},productId:{$addToSet:'$productId'},price:{$addToSet:'$totalPrice'},quantity:{$addToSet:'$quantity'},totalDiscountAmount:{$sum:'$discountAmount'}}} // $addToSet will add the values to an array
+
+            {$group:{_id:'$productId',productName:{$first:'$productName'},productId:{$first:'$productId'},price:{$first:'$totalPrice'},quantity:{$first:'$quantity'},orderDate:{$first:'$orderDate'},totalDiscountAmount:{$sum:'$discountAmount'}}}  // $first will add value as key value pair
+
+        ])
+
+        let orderedProducts=orders
+
+        if(search==='all' && !endDate && !startDate){
+            orderedProducts=orders
+        } else if(search && endDate && startDate){
+            startDate = new Date(startDate);
+            endDate = new Date(endDate);
+            if(search==='1_day'){
+                startDate = new Date(now.setDate(now.getDate() - 1));
+                endDate = new Date();
+            }else if(search==='1_week'){
+                startDate = new Date(now.setDate(now.getDate() - 7));
+                endDate = new Date();
+            }else if(search==='1_month'){
+                startDate = new Date(now.setMonth(now.getMonth() - 1));
+                endDate = new Date();
+            }else{
+                startDate = new Date(startDate);
+                endDate = new Date(endDate);
+            }
+
+            orderedProducts = orders.filter(item => {
+                const saleDate = new Date(item.orderDate);
+                return saleDate >= startDate && saleDate <= endDate;
+              });
+
+        }
+
+        return orderedProducts
+
+    } catch (error) {
+        console.log(error.message);
+        
+    }
+}
+
+const loadAdminSalesManagement = async (req, res) => {
+    try {
+        let search = ''
+        if (req.query.search) {
+            search = req.query.search
+        }
+
+        let page = parseInt(req.query.page)
+        let sort = req.query.sort
+        let limit = 5
+        let skip;
+
+        if (page <= 1) {
+            skip = 0
+        } else {
+            skip = (page - 1) * limit
+        }
+        
+       let count=0
+
+       let orderedProducts=await getSalesdata()
+        console.log('orderedProducts: ',orderedProducts);
+        res.render('adminSalesManagement', { data: orderedProducts, totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1, search: search })
+
+       } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
+const genarateSalesReport=async (req,res)=>{
+    try {
+
+        // ObjectId.createFromHexString() // creates objectId from an hexadecimal string
+        const {search,startDate,endDate}=req.query
+        console.log(search,startDate,endDate);
+       let orderedProducts=await getSalesdata(search,startDate,endDate)
+    
+       console.log('orderedProduct: ',orderedProducts);
+
+        const workbook= new excelJs.Workbook()
+        const worksheet=workbook.addWorksheet('Sales_Report')
+
+        worksheet.columns=[
+            {header:'S.No', key:'s_no'},
+            {header:'Product', key:'productName'},
+            {header:'Units Sold', key:'quantity'},
+            {header:'Revenue', key:'price'},
+            {header:'Discount', key:'totalDiscountAmount'},
+
+        ]
+
+        let counter=1
+
+        orderedProducts.forEach((product)=>{
+            product.s_no=counter
+            worksheet.addRow(product)
+            counter++
+        })
+
+        worksheet.getRow(1).eachCell((cell)=>{
+            cell.font={bold:true}
+        })
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename="Sales_Report.xlsx"');
+
+        workbook.xlsx.write(res).then(()=>{
+            res.status(200)
+            console.log('res sent');
+            // res.end()
+        }).catch((error)=>{
+            res.send(error.message)
+        })
+        // res.json('req received')
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const genarateSalesReportPdf=async(req,res)=>{
+    try {
+//====================================================================================================
+// const browser = await puppeteer.launch({ headless: false });
+// console.log('Browser launched.');
+
+// // Open a new page
+// const page = await browser.newPage();
+
+// // Set the content of the page
+// await page.setContent(`
+//   <html>
+//     <head>
+//       <title>Sample PDF</title>
+//     </head>
+//     <body>
+//       <h1>Hello World</h1>
+//       <p>This is a sample PDF generated using Puppeteer.</p>
+//     </body>
+//   </html>
+// `,{waitUntil:'networkidle2'});
+// console.log('Page content set.');
+
+// // Emulate screen media type
+// await page.emulateMediaType('screen');
+// console.log('Screen media type emulated.');
+
+// // Generate PDF from the page content
+// let pdf= await page.pdf({ path: 'sample.pdf', format: 'A4' });
+// console.log('PDF generated and saved as sample.pdf.');
+// res.contentType('application/pdf');
+// res.send(pdf)
+
+//====================================================================================================
+
+
+//====================================================================================================
+
+        // let orderedProducts=await getSalesdata()
+        // console.log('Received data...');
+    
+        // // console.log('orderedProduct: ',orderedProducts);
+        // console.log('Launching browser...');
+        // // let browser=await puppeteer.launch({ headless: false, timeout: 60000 })
+        // let browser=await puppeteer.launch()
+        // console.log('Browser launched.');
+        // let page=await browser.newPage()
+        // console.log('Created page.');
+
+        // page.on('request', request => {
+        //     console.log(request.url());
+        //   });
+          
+        //   page.on('response', response => {
+        //     console.log(response.url());
+        //   });
+       
+        // let html=`<table class="table table-striped" style="padding: 10px;text-align: center;">
+        // <thead>
+        //     <tr>
+        //         <th style="border: 1px solid black;" scope="col">Product</th>
+        //         <th style="border: 1px solid black;" scope="col">Units Sold</th>
+        //         <th style="border: 1px solid black;" scope="col">Revenue</th>
+        //         <th style="border: 1px solid black;" scope="col">Discount</th>
+
+        //     </tr>
+        // </thead>
+        // <tbody>`
+
+        // orderedProducts.map((item)=>{
+        //     html+=` <tr>
+        //     <td style="border: 1px solid black;">${item.productName}</td>
+        //     <td style="border: 1px solid black;">${item.quantity}</td>
+        //     <td style="border: 1px solid black;">${item.price}</td>
+        //     <td style="border: 1px solid black;">${item.totalDiscountAmount}</td>
+           
+        // </tr>
+        //     `
+        // })
+
+        // html+=`</tbody>
+
+        // </table>`
+        // console.log('Setting page content...');
+
+        // // await page.setContent(html,{waitUntil:'networkidle0'})
+        // await page.setContent(html)
+        // console.log('Page content set.');
+
+        // console.log('Emulating screen media type...');
+        // await page.emulateMediaType('screen');
+        // console.log('Emulated screen media type...');
+        
+        // console.log('Generating PDF...');
+
+        // let salesReport =await page.pdf({
+        //         // path:'sales_report.pdf',
+        //         format:'A4',
+        //         orientaion:'portrait'
+        //         // margin: { top: '100px', right: '50px', bottom: '100px', left: '50px' },
+        //         // printBackground: true,
+        //         // timeout: 60000 
+        //     })
+        // console.log('PDF generated.');
+
+        // page.on('console', (msg) => console.log('PAGE LOG:', msg.text()));
+        // page.on('error', (err) => console.error('PAGE ERROR:', err));
+        // page.on('pageerror', (pageErr) => console.error('PAGE ERROR:', pageErr));
+
+        // // console.log('salesReport: ', salesReport);
+        // // await open.default(salesReport)
+
+
+        // await browser.close()
+        // console.log('Browser closed.');
+
+        // // res.set({
+        // //     'Content-Type':'application/pdf',
+        // //     'Content-Disposition':'attachment; filename="sales_report.pdf"'
+        // // })
+
+        // res.setHeader('Content-Type', 'application/pdf');
+        // res.setHeader('Content-Disposition', 'attachment; filename="sales_report.pdf"');
+        
+        // res.send(salesReport)
+
+        // // res.downlod(salesReport)
+
+        // console.log('PDF sent.');
+
+//====================================================================================================
+
+        const template=fs.readFileSync('./views/templates/salesReport.ejs','utf-8')
+        // console.log(template);
+        console.log('template read');
+        const options={
+            format:'A4',
+            orientation:'portrait',
+            border:'2 mm',
+            // header: {
+            //     height: '10mm',
+            // },
+            // footer: {
+            //     height: '10mm',
+            // },
+            type: 'pdf'
+        }
+
+        let orderedProducts=await getSalesdata()
+
+        console.log('orderedProducts: ',orderedProducts);
+
+        let date=Date.now()
+
+        let data={orderedProducts:orderedProducts}
+
+        const renderedHtml = ejs.render(template,data)
+
+        const document={
+            html:renderedHtml,
+            data:data,
+            // path:'public/invoice/sampleInvoice.pdf'
+            path:`public/salesReport/${date}.pdf`
+        }
+
+       const salesReport= await pdf.create(document,options)
+
+       console.log('pdf created');
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename='${date}.pdf'`);
+      
+        console.log(salesReport.filename);
+
+        res.download(salesReport.filename)
+        // res.json({data:invoice.filename})
+
+    } catch (error) {
+        console.log(error.message)
+    }
+}
 
 module.exports = {
     loadAdminHome,
@@ -1658,6 +1999,8 @@ module.exports = {
     addProductOffer,
     loadEditProductOffer,
     editProductOffer,
-    deleteProductOffer
+    deleteProductOffer,
+    genarateSalesReport,
+    genarateSalesReportPdf
 
 }

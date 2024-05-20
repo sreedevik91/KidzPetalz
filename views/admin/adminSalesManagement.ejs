@@ -1,0 +1,182 @@
+<%-include("../layout/adminHeader.ejs")%>
+
+
+    <main id="main" class="main">
+        <div style="display: flex;">
+            <div style="width: 50%;">
+                <a class="btn btn-success" onclick="salesReport()">Generate Sales Report</a>
+            </div>
+            <div class="float-end text-end" style="width: 50%;">
+                <!-- <form action="">
+                    <input type="text" placeholder="Search category by name,description" name="search" style="width:250px;height:35px;border-radius:10px;padding-left: 20px;">
+                    <input type="submit" class="btn btn-primary" value="Search">
+                  </form> -->
+
+                <a class="btn btn-success float-end" onclick="salesReportPDF()">Download Sales Report in PDF</a>
+
+            </div>
+        </div>
+        <div style="display: flex;" class=" mt-3">
+
+            <div style="width: 50%;display: flex;">
+                <div>
+                    <label for="startDate">Start Date: </label>
+                    <input type="date" id="startDate" >
+                </div>
+                <div>
+                    <label for="endDate">End Date: </label>
+                    <input type="date" id="endDate">
+                </div>
+                
+            </div>
+
+            <div style="width: 50%;">
+                <select name="filter" id="dropdown" class="float-end mt-4">
+                    <option value="all">Select range</option>
+                    <option value="1_day">1 Day</option>
+                    <option value="1_week">1 Week</option>
+                    <option value="1_month">1 Month</option>
+                </select>
+            </div>
+          
+        </div>
+        
+        <div class="row mt-5">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Product</th>
+                        <th scope="col">Units Sold</th>
+                        <th scope="col">Revenue</th>
+                        <th scope="col">Discount</th>
+        
+                    </tr>
+                </thead>
+                <tbody>
+                  
+                    <%
+                    if(data.length>0){
+                        %>
+                        
+                        <%
+                        data.forEach((item)=>{
+                            %>
+                            <tr>
+                                <td><%=item.productName%>
+                                <br>
+                                <%=item._id%>
+                            </td>
+                                <td><%=item.quantity%></td>
+                                <td><%=item.price.toFixed(2)%></td>
+                                <td><%=item.totalDiscountAmount.toFixed(2)%></td>
+                               
+                            </tr>
+                            <%
+                        })
+                        %>
+
+
+                        <%
+                    }else{
+                        %>
+                        <p>No data available</p>
+                        <%
+
+                    }
+                    %>                                             
+                         
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="mt-3 text-center">
+           <a href="?search=<%=search%>&page=<%= previous%>">Previous</a>
+           
+            <%
+            for(let i=1;i<=totalPages;i++){
+                %>
+                <a href="?search=<%=search%>&page=<%= i %>"><%= i %></a> 
+                <%
+            }
+            %>
+            
+            <a href="?search=<%=search%>&page=<%= next%>">Next</a>
+        </div>
+    </main>
+
+
+<!------------------------------------------------------------------------------------>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+function salesReport(){
+    let search=document.getElementById('dropdown').value
+    // dropdown.addEventListener('change',()=>{
+    //     let search=dropdown.value
+    let startDate=document.getElementById('startDate').value
+    let endDate=document.getElementById('endDate').value
+
+    console.log('search: ',search);
+    console.log('startDate: ',startDate);
+    console.log('endDate: ',endDate);
+        $.ajax({
+        url:`salesReport?search=${search}&startDate=${startDate}&endDate=${endDate}`,
+        method:'get',
+        xhrFields:{
+            responseType:'blob'
+        },
+        success:(response)=>{
+            // console.log(response);
+          const link = document.createElement('a');
+          link.href = window.URL.createObjectURL(response);
+          link.download = 'Sales_report.xlsx';
+          document.body.appendChild(link);
+          link.click();
+          // Cleanup
+          document.body.removeChild(link);
+        }
+    })
+
+    // })
+    
+}
+
+
+function salesReportPDF(){
+
+    $.ajax({
+        url:'salesReportPdf',
+        method:'get',
+        contentType: "application/json; charset=UTF-8",
+        xhrFields:{
+            responseType:'blob'
+        },
+        success:(response)=>{
+           
+            console.log('response: ', response);
+            let link = document.createElement('a');
+            link.href =window.URL.createObjectURL(response);
+            let date=Date.now()
+            link.download = `${date}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+             // Cleanup
+            document.body.removeChild(link);
+
+
+        //     console.log('hi');
+        //    let href=window.URL.createObjectURL(response.filename)
+        //     window.open(href)
+
+        }
+    })
+
+}
+
+</script>
+
+
+
+
+    <%-include("../layout/adminFooter.ejs")%>

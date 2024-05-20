@@ -46,19 +46,22 @@ const cartSchema = mongoose.Schema({
             offerAmount:{
                 type: Number
                 
-            }
+            },
+            offersApplied: [{
+                name: {type:String},
+                offerId:{type:mongoose.Schema.Types.ObjectId},
+                discountAmount:{type:String},
+                type:{type:String},
+                productId:{type:String}
+            }]
+        
 
         }
     ],
     quantity: {
         type: Number,
         default: 1
-    },
-    offersApplied: [{
-        name: String,
-        offerId:String
-    }]
-
+    }
 },
     {
         timestamps: true

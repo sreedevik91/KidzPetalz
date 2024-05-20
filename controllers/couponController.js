@@ -30,7 +30,7 @@ const applyCoupon=async(req,res)=>{
         // console.log('cart:',cart);
         console.log('validTill:',coupon.valid_till);
 
-        if(coupon && cartTotalAmount>=coupon.minPurchase && coupon.valid_till>= Date.now()){
+        if(coupon && cartTotalAmount>=coupon.minPurchase && coupon.valid_till>= Date.now() && coupon.is_active===true){
 
             let checkoutAmount=cartTotalAmount-coupon.discountAmount
             req.session.couponCode=couponCode
@@ -38,6 +38,8 @@ const applyCoupon=async(req,res)=>{
             req.session.checkoutAmount=checkoutAmount
 
             res.json({valid:true,amount:checkoutAmount,discount:coupon.discountAmount})
+            coupon.is_active=false
+            coupon.save()
 
         }else{
             res.json({valid:false})

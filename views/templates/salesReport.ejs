@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Report</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="text-center">Sales Report</h1>
+    <table class="table table-bordered mt-3">
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Product Name</th>
+          <th>Units Sold</th>
+          <th>Revenue</th>
+          <th>Discount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%
+        orderedProducts.forEach((item)=>{
+            %>
+            <tr>
+                <td></td>
+                <td><%=item.productName%></td>
+                <td><%=item.quantity%></td>
+                <td><%=item.price.toFixed(2)%></td>
+                <td><%=item.totalDiscountAmount.toFixed(2)%></td>
+              </tr>
+            <%
+        })
+        %>
+          
+      
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

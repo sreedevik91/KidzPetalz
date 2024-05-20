@@ -34,6 +34,7 @@ userRoute.use(passport.session());
 
 userRoute.set('view engine', 'ejs')
 userRoute.set('views', './views/user')
+// userRoute.set('views', './views/templates')
 
 // Initiates the Google Login flow
 userRoute.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
@@ -120,6 +121,8 @@ router.get('/orders', auth.isLogin, orderController.loadOrders)
 router.get('/orderSuccess', auth.isLogin, orderController.loadOrderSuccess)
 
 router.get('/cancelOrder', auth.isLogin, orderController.cancelOrder)
+
+router.get('/generateInvoice', auth.isLogin, orderController.generateInvoice)
 
 router.get('/userProfile', auth.isLogin, userController.loadProfile)
 

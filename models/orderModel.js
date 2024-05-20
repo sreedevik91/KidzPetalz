@@ -37,6 +37,13 @@ const orderSchema = mongoose.Schema({
                 type: Number,
                 required: true
             },
+            offersApplied: [{
+                name: {type:String},
+                offerId:{type:mongoose.Schema.Types.ObjectId},
+                discountAmount:{type:Number},
+                type:{type:String},
+                productId:{type:String}
+            }],
             is_listed:{
                 type:Boolean,
                 default:true
@@ -56,10 +63,6 @@ const orderSchema = mongoose.Schema({
         type:Date,
         default:Date.now()
     },
-    offersApplied: [{
-        name: String,
-        offerId:String
-    }],
     couponCode:{
         type:String
     },

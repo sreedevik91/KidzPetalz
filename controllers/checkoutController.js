@@ -5,7 +5,6 @@ const orderModel = require('../models/orderModel')
 const productModel = require('../models/productModel')
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
-const { hasUncaughtExceptionCaptureCallback } = require('process');
 
 var instance = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_KEY_SECRET })
 
@@ -98,9 +97,9 @@ const loadCheckout = async (req, res) => {
         //    console.log(shippingAddress[0]);
         // console.log('cartProducts: ', cartProducts);
 
-        let cart=await cartModel.find({user: userId })
+        let cart = await cartModel.find({ user: userId })
 
-        res.render('checkout', { page: 'Checkout', data: shippingAddress,cartId:cart[0]._id, cartTotalAmount: cartTotalAmount[0].total, products: cartProducts, id: req.session.userId, message: '', cartCount: req.session.cartCount })
+        res.render('checkout', { page: 'Checkout', data: shippingAddress, cartId: cart[0]._id, cartTotalAmount: cartTotalAmount[0].total, products: cartProducts, id: req.session.userId, message: '', cartCount: req.session.cartCount })
 
     } catch (error) {
 
@@ -157,19 +156,19 @@ const placeOrder = async (req, res) => {
                     offerAmount: '$products.offerAmount'
                 }
             },
-            {
-                $lookup: {
-                    from: 'products',
-                    localField: 'product',
-                    foreignField: '_id',
-                    as: 'cartProduct'
-                }
-            },
-            {
-                $project: {
-                    product: 1, quantity: 1, offerAmount: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
-                }
-            },
+            // {
+            //     $lookup: {
+            //         from: 'products',
+            //         localField: 'product',
+            //         foreignField: '_id',
+            //         as: 'cartProduct'
+            //     }
+            // },
+            // {
+            //     $project: {
+            //         product: 1, quantity: 1, offerAmount: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+            //     }
+            // },
             {
                 $group: {
                     _id: null,
@@ -193,7 +192,7 @@ const placeOrder = async (req, res) => {
                     product: '$products.productId',
                     quantity: '$products.quantity',
                     offerAmount: '$products.offerAmount',
-                    offersApplied:'$offersApplied'
+                    offersApplied: '$products.offersApplied'
                 }
             },
             {
@@ -206,12 +205,13 @@ const placeOrder = async (req, res) => {
             },
             {
                 $project: {
-                    _id: 0, quantity: 1, offerAmount: 1,offersApplied:1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+                    _id: 0, quantity: 1, offerAmount: 1, offersApplied: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
                 }
             }
         ])
 
-        console.log(cartItems)
+        // console.log('cartItems: ',cartItems)
+
         let products = []
 
         let stockAvailable = true
@@ -232,6 +232,7 @@ const placeOrder = async (req, res) => {
                 image: item.cartProduct.image[0],
                 price: item.offerAmount,
                 quantity: item.quantity,
+                offersApplied: item.offersApplied,
                 is_listed: true,
                 status: status
             })
@@ -251,21 +252,20 @@ const placeOrder = async (req, res) => {
         // console.log(products)
         //-----------------------------------------------------------------------------------------------------------------
 
-        let offersApplied=cartItems[0].offersApplied
-        console.log('offersApplied: ',offersApplied);
-        console.log('couponCode',req.session.couponCode);
-        console.log('checkoutAmount',req.session.checkoutAmount);
+
+
+        console.log('couponCode', req.session.couponCode);
+        console.log('checkoutAmount', req.session.checkoutAmount);
         const newOrder = new orderModel({
             userId,
             shippingAddress,
             paymentMethod,
             products,
             orderAmount,
-            offersApplied,
             couponCode: req.session.couponCode,
-            discountAmount:req.session.discountAmount,
-            checkoutAmount:req.session.checkoutAmount || orderAmount
-            
+            discountAmount: req.session.discountAmount,
+            checkoutAmount: req.session.checkoutAmount || orderAmount
+
         })
 
         const orderNew = await newOrder.save()
@@ -282,7 +282,7 @@ const placeOrder = async (req, res) => {
             if (paymentMethod === 'cod') {
                 res.json({ cod: true })
             } else {
-                let amount= req.session.checkoutAmount || orderAmount
+                let amount = req.session.checkoutAmount || orderAmount
                 let checkoutAmount = amount * 100
                 var options = {
                     amount: checkoutAmount,  // amount in the smallest currency unit
@@ -318,27 +318,29 @@ const verifyPayment = async (req, res) => {
         console.log('payment and order details: ', req.body);
         let secret = process.env.RAZORPAY_KEY_SECRET
         let hash = crypto.createHmac('sha256', secret)
-            .update(req.body.order.id +'|'+ req.body.payment.razorpay_payment_id)
+            .update(req.body.order.id + '|' + req.body.payment.razorpay_payment_id)
             .digest('hex')
-        console.log('hash: ',hash);
-        console.log('signature: ',req.body.payment.razorpay_signature);
-            let orderId=req.body.order.receipt
+        console.log('hash: ', hash);
+        console.log('signature: ', req.body.payment.razorpay_signature);
+        let orderId = req.body.order.receipt
         if (hash === req.body.payment.razorpay_signature) {
 
-            try {
-                let orders=  await orderModel.findOne({_id:orderId})
+            let orders = await orderModel.findOne({ _id: orderId })
 
-          for (let product of orders.products){
-            product.status='placed'
-          }
-
-         await orders.save()
-
-          res.json({paymentSuccess:true})
-            } catch (error) {
-                console.log(error.message);
+            for (let product of orders.products) {
+                product.status = 'placed'
             }
-          
+
+            await orders.save()
+
+            res.json({ paymentSuccess: true })
+
+        } else {
+            for (let product of orders.products) {
+                product.status = 'pending'
+            }
+            await orders.save()
+            res.json({ paymentSuccess: false })
         }
 
     } catch (error) {

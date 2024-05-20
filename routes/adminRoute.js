@@ -78,7 +78,6 @@ router.route('/resetPassword')
 .post(adminController.resetAdminPassword)
 
 router.get('/banner',adminController.loadAdminBannerManagement)
-router.get('/sales',adminController.loadAdminSalesManagement)
 
 // user routes
 
@@ -178,6 +177,13 @@ router.route('/editProductOffer')
 .post(adminController.editProductOffer)
 
 router.get('/deleteProductOffer',adminController.deleteProductOffer)
+
+// sales report
+
+router.get('/sales',adminController.loadAdminSalesManagement)
+
+router.get('/salesReport',adminController.genarateSalesReport)
+router.get('/salesReportPdf',adminController.genarateSalesReportPdf)
 
 
 router.get('*',adminController.loadAdminDefault) // keep this default route at the end of all the routes
