@@ -21,18 +21,18 @@
             <div style="width: 50%;display: flex;">
                 <div>
                     <label for="startDate">Start Date: </label>
-                    <input type="date" id="startDate" >
+                    <input type="date" id="startDate" onchange="getValues()">
                 </div>
                 <div>
                     <label for="endDate">End Date: </label>
-                    <input type="date" id="endDate">
+                    <input type="date" id="endDate" onchange="getValues()">
                 </div>
                 
             </div>
 
             <div style="width: 50%;">
-                <select name="filter" id="dropdown" class="float-end mt-4">
-                    <option value="all">Select range</option>
+                <select name="filter" id="dropdown" class="float-end mt-4" onchange="getValues()">
+                    <option value="all">Filter by</option>
                     <option value="1_day">1 Day</option>
                     <option value="1_week">1 Week</option>
                     <option value="1_month">1 Month</option>
@@ -41,7 +41,7 @@
           
         </div>
         
-        <div class="row mt-5">
+        <div class="row mt-5" id="salesTable">
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -64,7 +64,7 @@
                             <tr>
                                 <td><%=item.productName%>
                                 <br>
-                                <%=item._id%>
+                                <!-- <%=item.productId%> -->
                             </td>
                                 <td><%=item.quantity%></td>
                                 <td><%=item.price.toFixed(2)%></td>
@@ -110,6 +110,86 @@
 <!------------------------------------------------------------------------------------>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+
+function getValues(){
+
+let startDate=document.getElementById('startDate').value
+let endDate=document.getElementById('endDate').value
+let search=document.getElementById('dropdown').value
+
+console.log(startDate,endDate,search);
+
+$.ajax({
+        url:`salesReportFiltered?search=${search}&startDate=${startDate}&endDate=${endDate}`,
+        method:'get',
+        success:(response)=>{
+            console.log('salesData:', response);
+            let salesTable=document.getElementById('salesTable')
+            salesTable.innerHTML=''
+            let html=``
+
+            if(response.length>0){
+                html+=`
+                <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Product</th>
+                        <th scope="col">Order Date</th>
+                        <th scope="col">Units Sold</th>
+                        <th scope="col">Revenue</th>
+                        <th scope="col">Discount</th>
+        
+                    </tr>
+                </thead>
+                <tbody>
+                `
+                response.forEach((data)=>{
+                    html+=`
+                            <tr>
+                                <td>${data.productName}</td>
+                                <td>${new Date(data.orderDate).toLocaleDateString()}</td>
+                                <td>${data.quantity}</td>
+                                <td>${data.price.toFixed(2)}</td>
+                                <td>${data.totalDiscountAmount.toFixed(2)}</td>
+                               
+                            </tr>
+                    `
+                })
+
+                html+=` </tbody>
+
+                     </table> `
+
+                     salesTable.innerHTML=html
+            }else{
+                html+=`No data available`
+                salesTable.innerHTML=html
+            }
+                      
+
+        }
+})
+
+// let startInput=document.getElementById('startDate')
+// let endInput=document.getElementById('endDate')
+// let filter=document.getElementById('dropdown')
+
+// let values={}
+// startInput.addEventListener('change',()=>{
+//     values.startDate=startInput.value
+// })
+// endInput.addEventListener('change',()=>{
+//     values.endDate=endInput.value
+// })
+// filter.addEventListener('change',()=>{
+//     values.search=filter.value
+// })
+
+// console.log('values:', values);
+}
+
+
+
 function salesReport(){
     let search=document.getElementById('dropdown').value
     // dropdown.addEventListener('change',()=>{
@@ -145,8 +225,12 @@ function salesReport(){
 
 function salesReportPDF(){
 
+    let search=document.getElementById('dropdown').value
+    let startDate=document.getElementById('startDate').value
+    let endDate=document.getElementById('endDate').value
+
     $.ajax({
-        url:'salesReportPdf',
+        url:`salesReportPdf?search=${search}&startDate=${startDate}&endDate=${endDate}`,
         method:'get',
         contentType: "application/json; charset=UTF-8",
         xhrFields:{

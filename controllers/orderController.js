@@ -29,15 +29,44 @@ const loadOrders = async (req, res) => {
         // since one user has many orders we use find instead of findOne
         // let orders=await orderModel.find({userId:{$eq:userId}}) 
         // console.log(orders);
+//---------------------------------try pagination/ or bootstrap pagination---------------------------------------------
+        // let page = parseInt(req.query.page)
+        // // let sort = req.query.sort
+        // let limit = 5
+        // let skip=0;
+
+        // if (page <= 1) {
+        //     skip = 0
+        // } else {
+        //     skip = parseInt(page - 1) * limit
+        // }
+        // console.log('skip: ',Number(skip));
+        // let orders = await orderModel.aggregate([
+        //     { $match: { userId: { $eq: userId } } },
+        //     { $unwind: '$products' }
+        // ])
+        // .sort({updatedAt:-1})
+        // .skip(Number(skip))
+        // .limit(limit)
+        // .exec()
+
+        // let count = await orderModel.aggregate([
+        //     { $match: { userId: { $eq: userId } } },
+        //     { $unwind: '$products' }
+        // ]).countDocuments()
+
+        // console.log('orders: ', orders);
+
+        // res.render('orderSummery', { page: 'Orders', data: orders, id: req.session.userId, message: '', cartCount: req.session.cartCount,totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1  })
+//------------------------------------------------------------------------------
 
         let orders = await orderModel.aggregate([
             { $match: { userId: { $eq: userId } } },
             { $unwind: '$products' }
-        ]).sort({updatedAt:-1})
+        ])
+        console.log('orders: ', orders);
+        res.render('orderSummery', { page: 'Orders', data: orders, id: req.session.userId, message: '', cartCount: req.session.cartCount})
 
-        // console.log(orders);
-
-        res.render('orderSummery', { page: 'Orders', data: orders, id: req.session.userId, message: '', cartCount: req.session.cartCount })
 
     } catch (error) {
         console.log(error);
@@ -69,6 +98,7 @@ const cancelOrder = async (req, res) => {
 
         let orderToBeCancelled=await orderModel.findOne({ _id: orderId, 'products.productId': productId })
         orderToBeCancelled.orderAmount-=parseInt(amount)
+        orderToBeCancelled.checkoutAmount-=parseInt(amount)
         orderToBeCancelled.save()   
 
         let cancelOrder = await orderModel.updateOne({ _id: orderId, 'products.productId': productId }, {
@@ -235,9 +265,46 @@ const generateInvoice=async(req,res)=>{
     }
 }
 
+const loadOrderDetails= async(req,res)=>{
+    try {
+        const {orderId,productId}=req.query
+        // console.log(orderId,productId);
+
+        // const orderedProduct=await orderModel.findOne({_id:orderId})
+
+        // const product = orderedProduct.products.filter((product)=>{
+        //     return product.productId===productId
+        // })
+
+        const product=await productModel.findOne({_id:productId})
+        const unitPrice=product.price
+
+        let orderedProduct=await orderModel.aggregate([
+            {$match:{_id:new mongoose.Types.ObjectId(orderId)}},
+            {$unwind:'$products'},
+            {$match:{'products.productId':productId}},
+        ])
+
+        let ordProduct= orderedProduct[0]
+
+        ordProduct.unitPrice=unitPrice
+        // ordProduct.save()
+
+        console.log('orderedProduct: ', ordProduct);
+
+        res.render('orderDetails', { page: 'Order Details', data: ordProduct, id: req.session.userId, message: '', cartCount: req.session.cartCount })
+
+
+    } catch (error) {
+     console.log(error.message)   
+        
+    }
+}
+
 module.exports = {
     loadOrders,
     loadOrderSuccess,
     cancelOrder,
-    generateInvoice
+    generateInvoice,
+    loadOrderDetails
 }

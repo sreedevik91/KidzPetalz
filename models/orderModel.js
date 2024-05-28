@@ -12,24 +12,24 @@ const orderSchema = mongoose.Schema({
     paymentMethod: {
         type: String,
         required: true
-    },  
+    },
     products: [
         {
             productId: {
                 type: String,
                 // here type has to be objectId inorder toget aggregaion results while matching up with products collection to show in the cart page
-                ref:'products',
+                ref: 'products',
                 required: true
             },
-            title:{
+            title: {
                 type: String,
                 required: true
             },
-            image:{
+            image: {
                 type: String,
                 required: true
             },
-            price:{
+            price: {
                 type: Number,
                 required: true
             },
@@ -37,16 +37,19 @@ const orderSchema = mongoose.Schema({
                 type: Number,
                 required: true
             },
+            offerDiscount: {
+                type: Number
+            },
             offersApplied: [{
-                name: {type:String},
-                offerId:{type:mongoose.Schema.Types.ObjectId},
-                discountAmount:{type:Number},
-                type:{type:String},
-                productId:{type:String}
+                name: { type: String },
+                offerId: { type: mongoose.Schema.Types.ObjectId },
+                discountAmount: { type: Number },
+                type: { type: String },
+                productId: { type: String }
             }],
-            is_listed:{
-                type:Boolean,
-                default:true
+            is_listed: {
+                type: Boolean,
+                default: true
             },
             status: {
                 type: String,
@@ -59,18 +62,18 @@ const orderSchema = mongoose.Schema({
         type: Number,
         required: true
     },
-    orderDate:{
-        type:Date,
-        default:Date.now()
+    orderDate: {
+        type: Date,
+        default: Date.now()
     },
-    couponCode:{
-        type:String
+    couponCode: {
+        type: String
     },
-    checkoutAmount:{
-        type:Number
+    checkoutAmount: {
+        type: Number
     },
-    discountAmount:{
-        type:Number
+    couponDiscount: {
+        type: Number
     }
 },
     {

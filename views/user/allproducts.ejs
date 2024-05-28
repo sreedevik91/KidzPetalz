@@ -281,7 +281,22 @@
 
                     </div>
                     <!-- //card group -->
+
+                    <div class="mt-3 text-center">
+                        <a href="?page=<%= previous%>" style="margin: 5px;">Previous</a>
+                        
+                         <%
+                         for(let i=1;i<=totalPages;i++){
+                             %>
+                             <a href="?page=<%= i %>" style="margin: 5px;"> <%= i %></a> 
+                             <%
+                         }
+                         %>
+                         
+                         <a href="?page=<%= next%>" style="margin: 5px;">Next</a>
+                     </div>
                 </div>
+                
             </div>
         </div>
     </div>
@@ -290,6 +305,60 @@
 
     <script src="https://cdn.jsdelivr.net/npm/ejs/ejs.min.js"></script>
     <script>
+
+ //----------------------Add to wishlist----------------------------------
+
+ let wishlistSpan = document.getElementById('wishlist')
+        function updateWishlist(productId) {
+        let wishlistButton = document.getElementById(productId)
+
+            console.log(productId);
+            $.ajax({
+                url: `/updateWishlist?productId=${productId}`,
+                type: 'get',
+                // contentType:'application/json',
+                // data:JSON.stringify({productId:productId}),
+                success: (response) => {
+                    console.log(response);
+                    // or we can check if (response.update), because {update:true} is the json response sent from the backend after cart is updated
+                    if (response.outOfStock) {
+                        alert('Product out of stock')
+                    } else if (response.productExists) {
+                        // wishlistSpan.innerHTML=''
+                        // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;" onclick="updateWishlist(${productId})"><i class="far fa-heart m-2"></i></button>`
+                        console.log('wishlistButton: ',wishlistButton);
+                        wishlistButton.innerHTML = `<i class="far fa-heart m-2"></i>`
+                        alert('Product removed from wishlist')
+
+                    } else if (response.productExists === false) {
+                        // wishlistSpan.innerHTML=''
+                        // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;color: red" onclick="updateWishlist(${productId})"><i class="fas fa-heart m-2"></i></button>`
+                        console.log('wishlistButton: ',wishlistButton);
+                        wishlistButton.innerHTML = `<i style="color:red" class="fas fa-heart m-2"></i>`
+                        alert('Product added to wishlist')
+
+                    } else if (response.wishlistCreated) {
+                        // wishlistSpan.innerHTML=''
+                        // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;color: red;" onclick="updateWishlist(${productId})"><i class="fas fa-heart m-2"></i></button>`
+                        console.log('wishlistButton: ',wishlistButton);
+                        wishlistButton.innerHTML = `<i style="color:red" class="fas fa-heart m-2"></i>`
+                        alert('Product added to wishlist')
+
+                    } else {
+                        alert('Could not add to wishlist')
+                    }
+                },
+                error: (jqXHR, textStatus, errorThrown) => {
+                    console.log(textStatus, errorThrown);
+                }
+            })
+
+        }
+
+
+        //-----------------------------------------------------------------------------------  
+
+
         //------------------------Search-------------------------------------------------------------
 
 
@@ -380,58 +449,7 @@
 
         //---------------------------------------------------------------------------------------
 
-        //----------------------Add to wishlist----------------------------------
-
-        let wishlistSpan = document.getElementById('wishlist')
-        function updateWishlist(productId) {
-        let wishlistButton = document.getElementById(productId)
-
-            console.log(productId);
-            $.ajax({
-                url: `/updateWishlist?productId=${productId}`,
-                type: 'get',
-                // contentType:'application/json',
-                // data:JSON.stringify({productId:productId}),
-                success: (response) => {
-                    console.log(response);
-                    // or we can check if (response.update), because {update:true} is the json response sent from the backend after cart is updated
-                    if (response.outOfStock) {
-                        alert('Product out of stock')
-                    } else if (response.productExists) {
-                        // wishlistSpan.innerHTML=''
-                        // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;" onclick="updateWishlist(${productId})"><i class="far fa-heart m-2"></i></button>`
-                        console.log('wishlistButton: ',wishlistButton);
-                        wishlistButton.innerHTML = `<i class="far fa-heart m-2"></i>`
-                        alert('Product removed from wishlist')
-
-                    } else if (response.productExists === false) {
-                        // wishlistSpan.innerHTML=''
-                        // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;color: red" onclick="updateWishlist(${productId})"><i class="fas fa-heart m-2"></i></button>`
-                        console.log('wishlistButton: ',wishlistButton);
-                        wishlistButton.innerHTML = `<i style="color:red" class="fas fa-heart m-2"></i>`
-                        alert('Product added to wishlist')
-
-                    } else if (response.wishlistCreated) {
-                        // wishlistSpan.innerHTML=''
-                        // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;color: red;" onclick="updateWishlist(${productId})"><i class="fas fa-heart m-2"></i></button>`
-                        console.log('wishlistButton: ',wishlistButton);
-                        wishlistButton.innerHTML = `<i style="color:red" class="fas fa-heart m-2"></i>`
-                        alert('Product added to wishlist')
-
-                    } else {
-                        alert('Could not add to wishlist')
-                    }
-                },
-                error: (jqXHR, textStatus, errorThrown) => {
-                    console.log(textStatus, errorThrown);
-                }
-            })
-
-        }
-
-
-        //-----------------------------------------------------------------------------------  
-
+       
         //--------------------------------Filters and search---------------------------------------------------   
         function getValues() {
 

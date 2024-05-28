@@ -95,27 +95,23 @@
                                                     <!-- <button class="btn btn-info" id="cancelButton" href="cancelOrder?id=<%=item._id%>">Cancel</button> -->
                                                     <a class="btn btn-info" id="cancelButton"
                                                         href="cancelOrder?orderId=<%=item._id%>&productId=<%=item.products.productId%>&amount=<%=item.products.price%>">Cancel</a>
-                                                   <%
-                                                   if(item.products.status!='pending'){
-                                                    %>
-                                                    <a class="btn btn-small" onclick="generateInvoice('<%=item._id%>','<%=item.products.productId%>')">Invoice</a>
-                                                    <%
-                                                   }
-                                                   
-                                                   %>
-                                                   
+                                                    <% if(item.products.status!='pending' ){ %>
+                                                        <a class="btn btn-small"
+                                                            onclick="generateInvoice('<%=item._id%>','<%=item.products.productId%>')">Invoice</a>
+                                                        <% } %>
+
                                                 </td>
                                                 <% } %>
 
                                     </tr>
+                                    <th colspan="7" style="background: white;text-align: right;border: 1px solid grey;">
+                                        <a href="orderDetails?orderId=<%=item._id%>&productId=<%=item.products.productId%>" style="padding-right: 25px;color: skyblue;">Order Details</a>
+                                    </th>
 
                                     <% }) %>
-
-
-
                             </tbody>
                         </table>
-                    </div>
+
 
                 </div>
             </div>

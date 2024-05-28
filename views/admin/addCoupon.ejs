@@ -6,7 +6,13 @@
 
         <h3><strong>Add Category</strong></h3>
 
-        <form action="" method="post" class="mt-5">
+        <div class="mt-4">
+            <p>
+                <span style="color: red;"><%= message %></span>
+            </p>
+        </div>
+
+        <form action="" method="post" class="mt-3">
             <div class="form-group">
                 <label class="col-form-label">Name</label>
                 <input type="text" class="form-control" placeholder="Enter Coupon Name " name="name" required="">
@@ -60,11 +66,7 @@
             
         </form>
 
-        <div>
-            <p>
-                <span style="color: red;"><%= message %></span>
-            </p>
-        </div>
+       
     
         
     </main>

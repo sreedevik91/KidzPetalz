@@ -45,7 +45,8 @@
                     </div>
                     <div class="ps-3">
                       <h6>145</h6>
-                      <span class="text-success small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                      <span class="text-success small pt-1 fw-bold">12%</span> <span
+                        class="text-muted small pt-2 ps-1">increase</span>
 
                     </div>
                   </div>
@@ -80,7 +81,8 @@
                     </div>
                     <div class="ps-3">
                       <h6>$3,264</h6>
-                      <span class="text-success small pt-1 fw-bold">8%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                      <span class="text-success small pt-1 fw-bold">8%</span> <span
+                        class="text-muted small pt-2 ps-1">increase</span>
 
                     </div>
                   </div>
@@ -116,7 +118,8 @@
                     </div>
                     <div class="ps-3">
                       <h6>1244</h6>
-                      <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span>
+                      <span class="text-danger small pt-1 fw-bold">12%</span> <span
+                        class="text-muted small pt-2 ps-1">decrease</span>
 
                     </div>
                   </div>
@@ -137,69 +140,104 @@
                       <h6>Filter</h6>
                     </li>
 
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
+                    <li><a class="dropdown-item" href="" onclick="chartFiltered('Weekly')">Weekly</a></li>
+                    <li><a class="dropdown-item" href="" onclick="chartFiltered('Monthly')">Monthly</a></li>
+                    <li><a class="dropdown-item" href="" onclick="chartFiltered('Yearly')">Yearly</a></li>
                   </ul>
                 </div>
 
                 <div class="card-body">
-                  <h5 class="card-title">Reports <span>/Today</span></h5>
+                  <h5 class="card-title">Reports <span><a href="" onclick="chart()">/Products</a></span></h5>
 
                   <!-- Line Chart -->
-                  <div id="reportsChart"></div>
+                  <div id="reportsChart" style="min-height: 400px;min-width: none;" class="echart">
+                    <canvas id="myChart"></canvas>
+                  </div>
 
+                  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                   <script>
-                    document.addEventListener("DOMContentLoaded", () => {
-                      new ApexCharts(document.querySelector("#reportsChart"), {
-                        series: [{
-                          name: 'Sales',
-                          data: [31, 40, 28, 51, 42, 82, 56],
-                        }, {
-                          name: 'Revenue',
-                          data: [11, 32, 45, 32, 34, 52, 41]
-                        }, {
-                          name: 'Customers',
-                          data: [15, 11, 32, 18, 9, 24, 11]
-                        }],
-                        chart: {
-                          height: 350,
-                          type: 'area',
-                          toolbar: {
-                            show: false
-                          },
+                    let dashboardChart=null
+                    function createChart(data) {
+                      console.log(data);
+                      const ctx = document.getElementById('myChart');
+                      if(dashboardChart!=null){
+                        dashboardChart.destroy()
+                      }
+                      dashboardChart=new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                          labels: data.map((row)=>row.productName),
+                          datasets: [{
+                            label: 'Products',
+                            data: data.map((row)=>row.price),
+                            borderWidth: 1
+                          }]
                         },
-                        markers: {
-                          size: 4
-                        },
-                        colors: ['#4154f1', '#2eca6a', '#ff771d'],
-                        fill: {
-                          type: "gradient",
-                          gradient: {
-                            shadeIntensity: 1,
-                            opacityFrom: 0.3,
-                            opacityTo: 0.4,
-                            stops: [0, 90, 100]
+                        options: {
+                          scales: {
+                            y: {
+                              beginAtZero: true
+                            }
                           }
-                        },
-                        dataLabels: {
-                          enabled: false
-                        },
-                        stroke: {
-                          curve: 'smooth',
-                          width: 2
-                        },
-                        xaxis: {
-                          type: 'datetime',
-                          categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
-                        },
-                        tooltip: {
-                          x: {
-                            format: 'dd/MM/yy HH:mm'
-                          },
                         }
-                      }).render();
-                    });
+                      });
+
+                    }
+
+                    function chart() {
+                      $.ajax({
+                        url: `/admin/chartData`,
+                        method: 'get',
+                        success: (response) => {
+                          createChart(response)
+                        }
+                      })
+                    }
+                    chart()
+//-------------------------------------------------------------------------------------
+
+                      
+                      function createChartFiltered(data,filter) {
+                      console.log(data);
+                      console.log(filter);
+                      const ctx = document.getElementById('myChart');
+                      if(dashboardChart!=null){
+                        dashboardChart.destroy()
+                      }
+                      dashboardChart=new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                          labels: data.map((row)=>row._id.value),
+                          datasets: [{
+                            label: filter,
+                            data: data.map((row)=>row.price),
+                            borderWidth: 1
+                          }]
+                        },
+                        options: {
+                          scales: {
+                            y: {
+                              beginAtZero: true
+                            }
+                          }
+                        }
+                      });
+
+                    }
+
+
+                    function chartFiltered(filter) {
+                      console.log('filter: ', filter);
+                      $.ajax({
+                        url: `/admin/chartDataFiltered?filter=${filter}`,
+                        method: 'get',
+                        success: (response) => {
+                          createChartFiltered(response,filter)
+                        }
+                      })
+                    }
+                   
                   </script>
                   <!-- End Line Chart -->
 
@@ -209,7 +247,7 @@
             </div><!-- End Reports -->
 
             <!-- Recent Sales -->
-            <div class="col-12">
+            <!-- <div class="col-12">
               <div class="card recent-sales overflow-auto">
 
                 <div class="filter">
@@ -280,7 +318,9 @@
                 </div>
 
               </div>
-            </div><!-- End Recent Sales -->
+            </div> -->
+            
+            <!-- End Recent Sales -->
 
             <!-- Top Selling -->
             <div class="col-12">
@@ -305,7 +345,7 @@
                   <table class="table table-borderless">
                     <thead>
                       <tr>
-                        <th scope="col">Preview</th>
+                        
                         <th scope="col">Product</th>
                         <th scope="col">Price</th>
                         <th scope="col">Sold</th>
@@ -313,41 +353,20 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <th scope="row"><a href="#"><img src="assets/img/product-1.jpg" alt=""></a></th>
-                        <td><a href="#" class="text-primary fw-bold">Ut inventore ipsa voluptas nulla</a></td>
-                        <td>$64</td>
-                        <td class="fw-bold">124</td>
-                        <td>$5,828</td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#"><img src="assets/img/product-2.jpg" alt=""></a></th>
-                        <td><a href="#" class="text-primary fw-bold">Exercitationem similique doloremque</a></td>
-                        <td>$46</td>
-                        <td class="fw-bold">98</td>
-                        <td>$4,508</td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#"><img src="assets/img/product-3.jpg" alt=""></a></th>
-                        <td><a href="#" class="text-primary fw-bold">Doloribus nisi exercitationem</a></td>
-                        <td>$59</td>
-                        <td class="fw-bold">74</td>
-                        <td>$4,366</td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#"><img src="assets/img/product-4.jpg" alt=""></a></th>
-                        <td><a href="#" class="text-primary fw-bold">Officiis quaerat sint rerum error</a></td>
-                        <td>$32</td>
-                        <td class="fw-bold">63</td>
-                        <td>$2,016</td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#"><img src="assets/img/product-5.jpg" alt=""></a></th>
-                        <td><a href="#" class="text-primary fw-bold">Sit unde debitis delectus repellendus</a></td>
-                        <td>$79</td>
-                        <td class="fw-bold">41</td>
-                        <td>$3,239</td>
-                      </tr>
+
+                      <%
+                      data.forEach((item)=>{
+                        %>
+                        <tr>
+                          
+                          <td><a href="#" class="text-primary fw-bold"><%=item.productName%></a></td>
+                          <td>₹<%=item.price.toFixed(2)%></td>
+                          <td class="fw-bold"><%=item.quantity%></td>
+                          <td>₹<%=item.totalPrice.toFixed(2)%></td>
+                        </tr>
+                        <%
+                      })
+                      %>
                     </tbody>
                   </table>
 
@@ -433,7 +452,9 @@
               </div>
 
             </div>
-          </div><!-- End Recent Activity -->
+          </div>
+          
+          <!-- End Recent Activity -->
 
           <!-- Budget Report -->
           <div class="card">
@@ -451,59 +472,51 @@
             </div>
 
             <div class="card-body pb-0">
-              <h5 class="card-title">Budget Report <span>| This Month</span></h5>
+              <h5 class="card-title">Category Report <span>| This Month</span></h5>
 
-              <div id="budgetChart" style="min-height: 400px;" class="echart"></div>
+              <div id="budgetChart" style="min-height: 400px;" class="echart">
+              <canvas id="catChart"></canvas>
+              </div>
 
               <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                  var budgetChart = echarts.init(document.querySelector("#budgetChart")).setOption({
-                    legend: {
-                      data: ['Allocated Budget', 'Actual Spending']
-                    },
-                    radar: {
-                      // shape: 'circle',
-                      indicator: [{
-                          name: 'Sales',
-                          max: 6500
+                 let categoryChart=null
+                    function createCatChart(data) {
+                      console.log(data);
+                      const cat = document.getElementById('catChart');
+                      if(categoryChart!=null){
+                        categoryChart.destroy()
+                      }
+                      categoryChart=new Chart(cat, {
+                        type: 'doughnut',
+                        data: {
+                          labels: data.map((row)=>row._id.category),
+                          datasets: [{
+                            label: 'Category',
+                            data: data.map((row)=>row.price),
+                            borderWidth: 1
+                          }]
                         },
-                        {
-                          name: 'Administration',
-                          max: 16000
-                        },
-                        {
-                          name: 'Information Technology',
-                          max: 30000
-                        },
-                        {
-                          name: 'Customer Support',
-                          max: 38000
-                        },
-                        {
-                          name: 'Development',
-                          max: 52000
-                        },
-                        {
-                          name: 'Marketing',
-                          max: 25000
+                        options: {
+                          scales: {
+                            y: {
+                              beginAtZero: true
+                            }
+                          }
                         }
-                      ]
-                    },
-                    series: [{
-                      name: 'Budget vs spending',
-                      type: 'radar',
-                      data: [{
-                          value: [4200, 3000, 20000, 35000, 50000, 18000],
-                          name: 'Allocated Budget'
-                        },
-                        {
-                          value: [5000, 14000, 28000, 26000, 42000, 21000],
-                          name: 'Actual Spending'
+                      });
+
+                    }
+
+                    function catChart() {
+                      $.ajax({
+                        url: `/admin/catChartData`,
+                        method: 'get',
+                        success: (response) => {
+                          createCatChart(response)
                         }
-                      ]
-                    }]
-                  });
-                });
+                      })
+                    }
+                    catChart()
               </script>
 
             </div>
@@ -525,63 +538,51 @@
             </div>
 
             <div class="card-body pb-0">
-              <h5 class="card-title">Website Traffic <span>| Today</span></h5>
+              <h5 class="card-title">Payment Methods <span>| Today</span></h5>
 
-              <div id="trafficChart" style="min-height: 400px;" class="echart"></div>
+              <div id="trafficChart" style="min-height: 400px;" class="echart">
+              <canvas id="payChart"></canvas>
+              </div>
 
               <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                  echarts.init(document.querySelector("#trafficChart")).setOption({
-                    tooltip: {
-                      trigger: 'item'
-                    },
-                    legend: {
-                      top: '5%',
-                      left: 'center'
-                    },
-                    series: [{
-                      name: 'Access From',
-                      type: 'pie',
-                      radius: ['40%', '70%'],
-                      avoidLabelOverlap: false,
-                      label: {
-                        show: false,
-                        position: 'center'
-                      },
-                      emphasis: {
-                        label: {
-                          show: true,
-                          fontSize: '18',
-                          fontWeight: 'bold'
+                let paymentChart=null
+                    function createPayChart(data) {
+                      console.log(data);
+                      const pay = document.getElementById('payChart');
+                      if(paymentChart!=null){
+                        paymentChart.destroy()
+                      }
+                      paymentChart=new Chart(pay, {
+                        type: 'polarArea',
+                        data: {
+                          labels: data.map((row)=>row._id.paymentMethod),
+                          datasets: [{
+                            label: 'Payment Methods',
+                            data: data.map((row)=>row.price),
+                            borderWidth: 1
+                          }]
+                        },
+                        options: {
+                          scales: {
+                            y: {
+                              beginAtZero: true
+                            }
+                          }
                         }
-                      },
-                      labelLine: {
-                        show: false
-                      },
-                      data: [{
-                          value: 1048,
-                          name: 'Search Engine'
-                        },
-                        {
-                          value: 735,
-                          name: 'Direct'
-                        },
-                        {
-                          value: 580,
-                          name: 'Email'
-                        },
-                        {
-                          value: 484,
-                          name: 'Union Ads'
-                        },
-                        {
-                          value: 300,
-                          name: 'Video Ads'
+                      });
+
+                    }
+
+                    function payChart() {
+                      $.ajax({
+                        url: `/admin/payChartData`,
+                        method: 'get',
+                        success: (response) => {
+                          createPayChart(response)
                         }
-                      ]
-                    }]
-                  });
-                });
+                      })
+                    }
+                    payChart()
               </script>
 
             </div>
@@ -636,7 +637,9 @@
                   <p>Odit ut eveniet modi reiciendis. Atque cupiditate libero beatae dignissimos eius...</p>
                 </div>
 
-              </div><!-- End sidebar recent posts-->
+              </div>
+              
+              <!-- End sidebar recent posts-->
 
             </div>
           </div><!-- End News & Updates -->

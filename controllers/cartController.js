@@ -115,8 +115,8 @@ const loadCart = async (req, res) => {
             console.log('cartItems', cartItems);
             console.log(cartItems, cartTotalAmount);
             // console.log('cartItems products: '+ cartItems[0].cartProducts[0].title);
-
-            res.render('cart', { page: 'Cart', data: cartItems, cartTotalAmount: cartTotalAmount[0].total, id: req.session.userId, message: '', cartCount: req.session.cartCount })
+            let cartTotal=(cartTotalAmount[0].total).toFixed(2)
+            res.render('cart', { page: 'Cart', data: cartItems, cartTotalAmount: cartTotal, id: req.session.userId, message: '', cartCount: req.session.cartCount })
         } else {
             req.session.cartCount = parseInt(0)
             res.render('cart', { page: 'Cart', data: [], id: req.session.userId, message: 'Your cart is empty', cartCount: req.session.cartCount })

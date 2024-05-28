@@ -73,9 +73,8 @@
 
                                                 <td>
                                                     <a class="btn btn-info" href="editOrder?id=<%=item._id%>&productId=<%=product.productId%>">Edit</a>
-                                                    <a class="btn btn-danger"
-                                                        href="cancelOrder?id=<%=item._id%>&productId=<%=product.productId%>">Cancel</a>
-
+                                                    <a class="btn btn-danger" href="cancelOrder?id=<%=item._id%>&productId=<%=product.productId%>">Cancel</a>
+                                                    <a href="orderDetails?orderId=<%=item._id%>&productId=<%=product.productId%>" style="padding-right: 25px;color: skyblue; padding-top: 35px;">Order Details</a>
                                                 </td>
                                             </tr>
 

@@ -14,6 +14,7 @@
         <tr>
           <th>S.No</th>
           <th>Product Name</th>
+          <th>Order Date</th>
           <th>Units Sold</th>
           <th>Revenue</th>
           <th>Discount</th>
@@ -26,6 +27,7 @@
             <tr>
                 <td></td>
                 <td><%=item.productName%></td>
+                <td><%=item.orderDate.toLocaleDateString()%></td>
                 <td><%=item.quantity%></td>
                 <td><%=item.price.toFixed(2)%></td>
                 <td><%=item.totalDiscountAmount.toFixed(2)%></td>

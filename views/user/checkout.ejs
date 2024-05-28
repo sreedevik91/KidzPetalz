@@ -202,7 +202,7 @@
                                                     <%=p.quantity%>
                                                 </td>
                                                 <td class="invert">
-                                                    ₹ <%=p.amount%>
+                                                    ₹ <%=p.amount.toFixed(2)%>
                                                 </td>
                                                 <!-- <td class="invert">
                                                 <button type="button" class="btn-danger">Remove</button>
@@ -242,7 +242,7 @@
                                     <li>Order Total
                                         <i>-</i>
                                         <span> ₹<span>
-                                                <%= cartTotalAmount%>
+                                                <%= cartTotalAmount.toFixed(2)%>
                                             </span></span>
                                     </li>
                                     <li><button href="/placeOrder" type="submit" class="btn btn-info float-right mt-4"
@@ -272,6 +272,8 @@
                         // }else if(response.quantity==='lessQuantity'){
                         //     alert('The required quantity of product is currently not available. Please change the product quantity and try')
                         // }
+                    }else if(response.failed){
+                        alert(response.message);
                     } else {
 
                         razorpayPayment(response)

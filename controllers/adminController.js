@@ -14,13 +14,14 @@ const couponModel = require('../models/couponModel')
 const categoryOfferModel = require('../models/categoryOfferModel')
 const productOfferModel = require('../models/productOfferModel')
 
-const excelJs=require('exceljs')
+const excelJs = require('exceljs')
 // const puppeteer=require('puppeteer');
 // const open=import('open');
 
 const pdf = require('pdf-creator-node');
 var fs = require("fs");
 var ejs = require("ejs");
+const { pipeline } = require('stream')
 
 
 // const ObjectId=  require('mongodb').ObjectId
@@ -43,7 +44,40 @@ const loadAdminLogin = async (req, res) => {
 const loadAdminHome = async (req, res) => {
     try {
         if (req.session.adminLogin) {
-            res.render('adminHome')
+
+            let products = await orderModel.aggregate([
+                // { $match: {} },
+                { $unwind: '$products' },
+                { $match: { 'products.status': { $nin: ['pending', 'cancelled'] } } },
+                {
+                    $project: {
+                        productName: '$products.title',
+                        productId: '$products.productId',
+                        price: '$products.price',
+                        quantity: '$products.quantity',
+                        discountAmount: '$products.offerDiscount',
+                        orderDate: '$orderDate',
+                    }
+                },
+
+                {
+                    $addFields: {
+                        discountAmount: { $multiply: ['$quantity', '$discountAmount'] },
+                        totalPrice: { $multiply: ['$quantity', '$price'] }
+                    }
+                },
+
+                { $group: { _id: '$productId', productName: { $first: '$productName' }, productId: { $first: '$productId' }, totalPrice: { $sum: '$totalPrice' }, quantity: { $sum: '$quantity' }, price: { $first: '$price' } } }, // $first will add value as key value pair
+
+            ])
+
+            let topProducts = products.filter((p) => {
+                return p.quantity >= 2
+            })
+
+            console.log('topProducts: ', topProducts);
+
+            res.render('adminHome', { data: topProducts })
         } else {
             res.redirect('/admin')
         }
@@ -549,7 +583,7 @@ const loadEditCategory = async (req, res) => {
         if (category) {
             res.render('editCategory', { data: category, message: '' })
         } else {
-            res.render('editCategory', { message: 'Something went wrong' })
+            res.render('editCategory', { data: category, message: 'Something went wrong' })
         }
 
     } catch (error) {
@@ -602,11 +636,11 @@ const editCategory = async (req, res) => {
             if (updateCategory) {
                 res.redirect('/admin/category')
             } else {
-                res.render('editCategory', { message: 'Updation Failed' })
+                res.render('editCategory', { data: category, message: 'Updation Failed' })
             }
 
         } else {
-            res.render('editCategory', { message: 'Category Already Exists' })
+            res.render('editCategory', { data: category, message: 'Category Already Exists' })
         }
     } catch (error) {
         console.log(error.message);
@@ -831,7 +865,7 @@ const editProduct = async (req, res) => {
     try {
         const id = req.body.id
         const product = await productModel.findOne({ _id: id })
-        console.log('product images:',product.image);
+        console.log('product images:', product.image);
 
         console.log(req.files);
         var arrImages = product.image
@@ -881,13 +915,13 @@ const editProduct = async (req, res) => {
         const category_id = req.body.categoryid
 
         let image
-        if(arrImages!=[]){
+        if (arrImages != []) {
             image = arrImages
-        }else{
+        } else {
             image = product.image
         }
-         
-        
+
+
         const is_listed = req.body.verify
 
 
@@ -1152,54 +1186,60 @@ const loadAddCoupon = async (req, res) => {
 
 const addCoupon = async (req, res) => {
     try {
-        const { name } = req.body
-        let coupons = await couponModel.find({})
-        let isCoupon = false
-        coupons.forEach((item) => {
-            let couponName = item.name.toLowerCase()
-            let givenName = name.toLowerCase()
-            if (couponName === givenName) {
-                isCoupon = true
-            }
-        })
+        const { name, startDate, endDate } = req.body
 
-        if (isCoupon === false) {
-
-            let couponCode = randomString.generate({
-                length: 6,
-                charset: 'alphanumeric',
-                capitalization: 'uppercase'
-            })
-            console.log(couponCode);
-            console.log(req.body);
-            let status = ''
-            if (req.body.status === 'active') {
-                status = true
-            } else {
-                status = false
-            }
-
-            const coupon = new couponModel({
-                name: req.body.name,
-                code: couponCode,
-                discountType: req.body.discountType,
-                discountAmount: req.body.discountAmount,
-                description: req.body.description,
-                minPurchase: req.body.minAmount,
-                valid_from: req.body.startDate,
-                valid_till: req.body.endDate,
-                max_use: req.body.maxUse,
-                is_active: status
-            })
-
-            coupon.save()
-
-            res.redirect('coupon')
+        if (startDate >= endDate) {
+            res.render('addCoupon', { message: 'Start date must be less than end date' })
 
         } else {
-            res.render('addCoupon', { message: 'Coupon Name Already Exists' })
-        }
 
+            let coupons = await couponModel.find({})
+            let isCoupon = false
+            coupons.forEach((item) => {
+                let couponName = item.name.toLowerCase()
+                let givenName = name.toLowerCase()
+                if (couponName === givenName) {
+                    isCoupon = true
+                }
+            })
+
+            if (isCoupon === false) {
+
+                let couponCode = randomString.generate({
+                    length: 6,
+                    charset: 'alphanumeric',
+                    capitalization: 'uppercase'
+                })
+                console.log(couponCode);
+                console.log(req.body);
+                let status = ''
+                if (req.body.status === 'active') {
+                    status = true
+                } else {
+                    status = false
+                }
+
+                const coupon = new couponModel({
+                    name: req.body.name,
+                    code: couponCode,
+                    discountType: req.body.discountType,
+                    discountAmount: req.body.discountAmount,
+                    description: req.body.description,
+                    minPurchase: req.body.minAmount,
+                    valid_from: req.body.startDate,
+                    valid_till: req.body.endDate,
+                    max_use: req.body.maxUse,
+                    is_active: status
+                })
+
+                coupon.save()
+
+                res.redirect('coupon')
+
+            } else {
+                res.render('addCoupon', { message: 'Coupon Name Already Exists' })
+            }
+        }
     } catch (error) {
         console.log(error.message);
 
@@ -1226,36 +1266,40 @@ const editCoupon = async (req, res) => {
     try {
 
         const { name, discountType, discountAmount, description, minAmount, startDate, endDate, maxUse, status, couponId } = req.body
+        if (startDate >= endDate) {
+            res.render('addCoupon', { message: 'Start date must be less than end date' })
 
-        let is_active = ''
-        if (status === 'active') {
-            is_active = true
         } else {
-            is_active = false
-        }
-        let coupon = await couponModel.findOne({ _id: couponId })
-        let couponUpdate = await couponModel.updateOne({ _id: couponId },
-            {
-                $set: {
-                    name,
-                    discountType,
-                    discountAmount,
-                    description,
-                    minPurchase: minAmount,
-                    valid_from: startDate || coupon.valid_from,
-                    valid_till: endDate || coupon.valid_till,
-                    max_use: maxUse,
-                    is_active
-                }
-            })
 
-            if(couponUpdate){
+            let is_active = ''
+            if (status === 'active') {
+                is_active = true
+            } else {
+                is_active = false
+            }
+            let coupon = await couponModel.findOne({ _id: couponId })
+            let couponUpdate = await couponModel.updateOne({ _id: couponId },
+                {
+                    $set: {
+                        name,
+                        discountType,
+                        discountAmount,
+                        description,
+                        minPurchase: minAmount,
+                        valid_from: startDate || coupon.valid_from,
+                        valid_till: endDate || coupon.valid_till,
+                        max_use: maxUse,
+                        is_active
+                    }
+                })
+
+            if (couponUpdate) {
                 res.redirect('coupon')
-            }else{
-            res.render('editCoupon', { data: coupon, message: 'Could not edit coupon' })
+            } else {
+                res.render('editCoupon', { data: coupon, message: 'Could not edit coupon' })
 
             }
-
+        }
     } catch (error) {
         console.log(error.message);
 
@@ -1269,7 +1313,7 @@ const editCoupon = async (req, res) => {
 const deleteCoupon = async (req, res) => {
     try {
         const { id } = req.query
-        let deleteCoupon=await couponModel.findByIdAndDelete({_id:id})
+        let deleteCoupon = await couponModel.findByIdAndDelete({ _id: id })
         res.redirect('coupon')
     } catch (error) {
         console.log(error.message);
@@ -1299,7 +1343,7 @@ const loadAdminCategoryOfferManagement = async (req, res) => {
         } else {
             skip = (page - 1) * limit
         }
-        
+
         const categoryOffer = await categoryOfferModel.find({
             $or: [
                 { name: { $regex: `.*${search}.*`, $options: 'i' } },
@@ -1322,7 +1366,7 @@ const loadAdminCategoryOfferManagement = async (req, res) => {
         })
             .countDocuments()
 
-        res.render('adminCategoryOfferManagement', { categoryOffer: categoryOffer,productOffer:'', totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1, search: search })
+        res.render('adminCategoryOfferManagement', { categoryOffer: categoryOffer, productOffer: '', totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1, search: search })
 
 
     } catch (error) {
@@ -1334,7 +1378,7 @@ const loadAdminCategoryOfferManagement = async (req, res) => {
 const loadAddCategoryOffer = async (req, res) => {
     try {
         res.render('addCategoryOffer', { data: '', message: '' })
-        
+
     } catch (error) {
         console.log(error.message);
 
@@ -1343,33 +1387,33 @@ const loadAddCategoryOffer = async (req, res) => {
 
 const addCategoryOffer = async (req, res) => {
     try {
-       console.log('addCategoryOffer formDate: ',req.body);
-       const{name,description,startDate,endDate,offerPercentage,category,maxUse,status}=req.body
+        console.log('addCategoryOffer formDate: ', req.body);
+        const { name, description, startDate, endDate, offerPercentage, category, maxUse, status } = req.body
 
-       let categories=category.split(',')
-       console.log('categories: ',categories);
+        let categories = category.split(',')
+        console.log('categories: ', categories);
 
-       let is_active=''
-        if(status==='active'){
-            is_active=true
-        }else{
-            is_active=false
+        let is_active = ''
+        if (status === 'active') {
+            is_active = true
+        } else {
+            is_active = false
         }
 
-       const categoryOffer=new categoryOfferModel({
-        name,
-        categories,
-        description,
-        offerPercentage,
-        valid_from:startDate,
-        valid_till:endDate,
-        maxUse,
-        is_active
-       })
+        const categoryOffer = new categoryOfferModel({
+            name,
+            categories,
+            description,
+            offerPercentage,
+            valid_from: startDate,
+            valid_till: endDate,
+            maxUse,
+            is_active
+        })
 
-       categoryOffer.save()
+        categoryOffer.save()
 
-       res.redirect('categoryOffer')
+        res.redirect('categoryOffer')
 
     } catch (error) {
         console.log(error.message);
@@ -1380,13 +1424,13 @@ const addCategoryOffer = async (req, res) => {
 const loadEditCategoryOffer = async (req, res) => {
     try {
 
-        const {id}=req.query
-        console.log('categoryOfferId: ',id);
-        const categoryOffer = await categoryOfferModel.findOne({_id:id})
-        console.log('categoryOffer: ',categoryOffer);
-        
+        const { id } = req.query
+        console.log('categoryOfferId: ', id);
+        const categoryOffer = await categoryOfferModel.findOne({ _id: id })
+        console.log('categoryOffer: ', categoryOffer);
+
         res.render('editCategoryOffer', { data: categoryOffer, message: '' })
-        
+
     } catch (error) {
         console.log(error.message);
 
@@ -1396,7 +1440,7 @@ const loadEditCategoryOffer = async (req, res) => {
 const editCategoryOffer = async (req, res) => {
     try {
 
-       const{id,name,description,startDate,endDate,offerPercentage,category,maxUse,status}=req.body
+        const { id, name, description, startDate, endDate, offerPercentage, category, maxUse, status } = req.body
 
         let is_active = ''
         if (status === 'active') {
@@ -1405,15 +1449,15 @@ const editCategoryOffer = async (req, res) => {
             is_active = false
         }
 
-        let newCategory=category.split(',')
-     
-        const categoryOffer = await categoryOfferModel.findOne({_id:id})
+        let newCategory = category.split(',')
+
+        const categoryOffer = await categoryOfferModel.findOne({ _id: id })
         let categoryOfferUpdate = await categoryOfferModel.updateOne({ _id: id },
             {
                 $set: {
                     name,
                     description,
-                    categories:newCategory || categoryOffer.categories,
+                    categories: newCategory || categoryOffer.categories,
                     offerPercentage,
                     valid_from: startDate || categoryOffer.valid_from,
                     valid_till: endDate || categoryOffer.valid_till,
@@ -1422,12 +1466,12 @@ const editCategoryOffer = async (req, res) => {
                 }
             })
 
-            if(categoryOfferUpdate){
-                res.redirect('categoryOffer')
-            }else{
+        if (categoryOfferUpdate) {
+            res.redirect('categoryOffer')
+        } else {
             res.render('editCategoryOffer', { data: categoryOffer, message: 'Could not edit the category offer' })
 
-            }
+        }
     } catch (error) {
         console.log(error.message);
 
@@ -1437,7 +1481,7 @@ const editCategoryOffer = async (req, res) => {
 const deleteCategoryOffer = async (req, res) => {
     try {
         const { id } = req.query
-        let deleteCategoryOffer=await categoryOfferModel.findByIdAndDelete({_id:id})
+        let deleteCategoryOffer = await categoryOfferModel.findByIdAndDelete({ _id: id })
         res.redirect('categoryOffer')
     } catch (error) {
         console.log(error.message);
@@ -1456,7 +1500,7 @@ const loadAdminProductOfferManagement = async (req, res) => {
         }
 
         let page = parseInt(req.query.page)
-        let sort = req.query.sort
+        // let sort = req.query.sort
         let limit = 5
         let skip;
 
@@ -1465,7 +1509,7 @@ const loadAdminProductOfferManagement = async (req, res) => {
         } else {
             skip = (page - 1) * limit
         }
-        
+
         const productOffer = await productOfferModel.find({
             $or: [
                 { name: { $regex: `.*${search}.*`, $options: 'i' } },
@@ -1500,7 +1544,7 @@ const loadAdminProductOfferManagement = async (req, res) => {
 const loadAddProductOffer = async (req, res) => {
     try {
         res.render('addProductOffer', { data: '', message: '' })
-        
+
     } catch (error) {
         console.log(error.message);
 
@@ -1509,33 +1553,33 @@ const loadAddProductOffer = async (req, res) => {
 
 const addProductOffer = async (req, res) => {
     try {
-       
-       const{name,description,startDate,endDate,offerPercentage,product,maxUse,status}=req.body
 
-       let products=product.split(',')
-       console.log('products: ',products);
+        const { name, description, startDate, endDate, offerPercentage, product, maxUse, status } = req.body
 
-       let is_active=''
-        if(status==='active'){
-            is_active=true
-        }else{
-            is_active=false
+        let products = product.split(',')
+        console.log('products: ', products);
+
+        let is_active = ''
+        if (status === 'active') {
+            is_active = true
+        } else {
+            is_active = false
         }
 
-       const productOffer=new productOfferModel({
-        name,
-        products,
-        description,
-        offerPercentage,
-        valid_from:startDate,
-        valid_till:endDate,
-        maxUse,
-        is_active
-       })
+        const productOffer = new productOfferModel({
+            name,
+            products,
+            description,
+            offerPercentage,
+            valid_from: startDate,
+            valid_till: endDate,
+            maxUse,
+            is_active
+        })
 
-       productOffer.save()
+        productOffer.save()
 
-       res.redirect('productOffer')
+        res.redirect('productOffer')
 
     } catch (error) {
         console.log(error.message);
@@ -1546,13 +1590,13 @@ const addProductOffer = async (req, res) => {
 const loadEditProductOffer = async (req, res) => {
     try {
 
-        const {id}=req.query
-        console.log('productOfferId: ',id);
-        const productOffer = await productOfferModel.findOne({_id:id})
-        console.log('productOffer: ',productOffer);
-        
+        const { id } = req.query
+        console.log('productOfferId: ', id);
+        const productOffer = await productOfferModel.findOne({ _id: id })
+        console.log('productOffer: ', productOffer);
+
         res.render('editProductOffer', { data: productOffer, message: '' })
-        
+
     } catch (error) {
         console.log(error.message);
 
@@ -1562,7 +1606,7 @@ const loadEditProductOffer = async (req, res) => {
 const editProductOffer = async (req, res) => {
     try {
 
-       const{id,name,description,startDate,endDate,offerPercentage,product,maxUse,status}=req.body
+        const { id, name, description, startDate, endDate, offerPercentage, product, maxUse, status } = req.body
 
         let is_active = ''
         if (status === 'active') {
@@ -1570,17 +1614,17 @@ const editProductOffer = async (req, res) => {
         } else {
             is_active = false
         }
-        
-        let newproducts=product.split(',')
-        console.log('newproducts: ',newproducts);
-     
-        const productOffer = await productOfferModel.findOne({_id:id})
+
+        let newproducts = product.split(',')
+        console.log('newproducts: ', newproducts);
+
+        const productOffer = await productOfferModel.findOne({ _id: id })
         let productOfferUpdate = await productOfferModel.updateOne({ _id: id },
             {
                 $set: {
                     name,
                     description,
-                    products:newproducts || productOffer.products,
+                    products: newproducts || productOffer.products,
                     offerPercentage,
                     valid_from: startDate || productOffer.valid_from,
                     valid_till: endDate || productOffer.valid_till,
@@ -1589,12 +1633,12 @@ const editProductOffer = async (req, res) => {
                 }
             })
 
-            if(productOfferUpdate){
-                res.redirect('productOffer')
-            }else{
+        if (productOfferUpdate) {
+            res.redirect('productOffer')
+        } else {
             res.render('editProductOffer', { data: productOffer, message: 'Could not edit the product offer' })
 
-            }
+        }
     } catch (error) {
         console.log(error.message);
 
@@ -1604,7 +1648,7 @@ const editProductOffer = async (req, res) => {
 const deleteProductOffer = async (req, res) => {
     try {
         const { id } = req.query
-        let deleteProductOffer=await productOfferModel.findByIdAndDelete({_id:id})
+        let deleteProductOffer = await productOfferModel.findByIdAndDelete({ _id: id })
         res.redirect('productOffer')
     } catch (error) {
         console.log(error.message);
@@ -1615,72 +1659,174 @@ const deleteProductOffer = async (req, res) => {
 //  sales management
 
 
-const getSalesdata=async(search,startDate,endDate)=>{
+const getSalesdata = async () => {
     try {
-        
-        
-    
-        let orders=await orderModel.aggregate([
-            {$match:{}},
-            {$unwind:'$products'},
-            {$project:{
-                productName:'$products.title',
-                productId:'$products.productId',
-                price:'$products.price',
-                quantity:'$products.quantity',
-                offersApplied:'$products.offersApplied',
-                orderDate:'$orderDate',
-            }},
-            {$unwind:'$offersApplied'},           
-            {$addFields:{
-                discountAmount:{$multiply:['$quantity','$offersApplied.discountAmount']},
-                totalPrice:{$multiply:['$quantity','$price']}
-            }},
-            // {$group:{
-            //     _id:'$productId', totalAmount:{$sum:'$price'}, totalDiscountAmount:{$sum:'$discountAmount'}
-            // }}
 
-            // {$group:{_id:'$productId',productname:{$addToSet:'$productName'},productId:{$addToSet:'$productId'},price:{$addToSet:'$totalPrice'},quantity:{$addToSet:'$quantity'},totalDiscountAmount:{$sum:'$discountAmount'}}} // $addToSet will add the values to an array
+        let orderedProducts = await orderModel.aggregate([
+            // { $match: {} },
+            { $unwind: '$products' },
+            { $match: { 'products.status': { $nin: ['pending', 'cancelled'] } } },
+            {
+                $project: {
+                    productName: '$products.title',
+                    productId: '$products.productId',
+                    price: '$products.price',
+                    quantity: '$products.quantity',
+                    // offersApplied: '$products.offersApplied',
+                    discountAmount: '$products.offerDiscount',
+                    orderDate: '$orderDate',
+                }
+            },
+            // { $unwind: '$offersApplied' },
+            {
+                $addFields: {
+                    discountAmount: { $multiply: ['$quantity', '$discountAmount'] },
+                    totalPrice: { $multiply: ['$quantity', '$price'] }
+                }
+            },
 
-            {$group:{_id:'$productId',productName:{$first:'$productName'},productId:{$first:'$productId'},price:{$first:'$totalPrice'},quantity:{$first:'$quantity'},orderDate:{$first:'$orderDate'},totalDiscountAmount:{$sum:'$discountAmount'}}}  // $first will add value as key value pair
+            // -----------sales based on product-------
+            { $group: { _id: '$productId', productName: { $first: '$productName' }, productId: { $first: '$productId' }, price: { $sum: '$totalPrice' }, quantity: { $sum: '$quantity' }, orderDate: { $first: '$orderDate' }, totalDiscountAmount: { $sum: '$discountAmount' } } }, // $first will add value as key value pair
+
+            // // -----------sales based on order date-------
+            // { $group: { _id: '$orderDate', productName: { $first: '$productName' }, productId: { $first: '$productId' }, price: { $first: '$totalPrice' }, quantity: {$sum: '$quantity'}, totalDiscountAmount: { $sum: '$discountAmount' } } }  // $first will add value as key value pair
 
         ])
 
-        let orderedProducts=orders
-
-        if(search==='all' && !endDate && !startDate){
-            orderedProducts=orders
-        } else if(search && endDate && startDate){
-            startDate = new Date(startDate);
-            endDate = new Date(endDate);
-            if(search==='1_day'){
-                startDate = new Date(now.setDate(now.getDate() - 1));
-                endDate = new Date();
-            }else if(search==='1_week'){
-                startDate = new Date(now.setDate(now.getDate() - 7));
-                endDate = new Date();
-            }else if(search==='1_month'){
-                startDate = new Date(now.setMonth(now.getMonth() - 1));
-                endDate = new Date();
-            }else{
-                startDate = new Date(startDate);
-                endDate = new Date(endDate);
-            }
-
-            orderedProducts = orders.filter(item => {
-                const saleDate = new Date(item.orderDate);
-                return saleDate >= startDate && saleDate <= endDate;
-              });
-
-        }
+        // console.log('orderedProducts: ', orders);
 
         return orderedProducts
 
+        //====================================================================================================
+
+        // if(search && !endDate && !startDate){
+        //     if(search==='all'){
+        //         orderedProducts=orders
+        //     }else if(search==='1_day'){
+        //        let start = new Date(now.setDate(now.getDate() - 1));
+        //        let end = new Date();
+        //         orderedProducts = orders.filter(item => {
+        //             const saleDate = new Date(item.orderDate);
+        //             return saleDate >= start && saleDate <= end;
+        //           });
+        //     }else if(search==='1_week'){
+        //         let start = new Date(now.setDate(now.getDate() - 7));
+        //         let end = new Date();
+        //         orderedProducts = orders.filter(item => {
+        //             const saleDate = new Date(item.orderDate);
+        //             return saleDate >= start && saleDate <= end;
+        //           });
+        //     }else if(search==='1_month'){
+        //         let start = new Date(now.setMonth(now.getMonth() - 1));
+        //         let end = new Date();
+        //         orderedProducts = orders.filter(item => {
+        //             const saleDate = new Date(item.orderDate);
+        //             return saleDate >= start && saleDate <= end;
+        //           });
+        //     }
+
+        // if (search === 'all' && !endDate && !startDate) {
+        //     orderedProducts = orders
+        // } else if (search && endDate && startDate) {
+        //     startDate = new Date(startDate);
+        //     endDate = new Date(endDate);
+        //     if (search === '1_day') {
+        //         startDate = new Date(now.setDate(now.getDate() - 1));
+        //         endDate = new Date();
+        //     } else if (search === '1_week') {
+        //         startDate = new Date(now.setDate(now.getDate() - 7));
+        //         endDate = new Date();
+        //     } else if (search === '1_month') {
+        //         startDate = new Date(now.setMonth(now.getMonth() - 1));
+        //         endDate = new Date();
+        //     } else {
+        //         startDate = new Date(startDate);
+        //         endDate = new Date(endDate);
+        //     }
+        // }
+
+        //====================================================================================================
+
+
     } catch (error) {
         console.log(error.message);
-        
+
     }
 }
+
+const filteredSalesData = async (search, startDate, endDate) => {
+    try {
+
+        startDate = new Date(startDate)
+        endDate = new Date(endDate)
+        const now = new Date();
+
+        if (search === '1_day') {
+            startDate = new Date(now.setDate(now.getDate() - 1))
+            endDate = new Date()
+        } else if (search === '1_week') {
+            startDate = new Date(now.setDate(now.getDate() - 7))
+            endDate = new Date()
+        } else if (search === '1_month') {
+            startDate = new Date(now.setMonth(now.getMonth() - 1))
+            endDate = new Date()
+        }
+
+        let filteredOrders = await orderModel.aggregate([
+            { $match: { createdAt: { $gte: (startDate), $lte: (endDate) } } },
+            { $unwind: '$products' },
+            { $match: { 'products.status': { $nin: ['pending', 'cancelled'] } } },
+            {
+                $project: {
+                    productName: '$products.title',
+                    productId: '$products.productId',
+                    price: '$products.price',
+                    quantity: '$products.quantity',
+                    // offersApplied: '$products.offersApplied',
+                    discountAmount: '$products.offerDiscount',
+                    orderDate: '$orderDate',
+                    createdAt: '$createdAt'
+                }
+            },
+            // // { $unwind: '$offersApplied' },
+            {
+                $addFields: {
+                    totalDiscountAmount: { $multiply: ['$quantity', '$discountAmount'] },
+                    price: { $multiply: ['$quantity', '$price'] }
+                }
+            },
+            // // { $group: { _id: '$orderDate', productName: { $first: '$productName' }, productId: { $first: '$productId' }, price: { $sum: '$price' }, quantity: {$sum: '$quantity'}, totalDiscountAmount: { $sum: '$discountAmount' } } }  // $first will add value as key value pair
+
+            // {
+            //     $group: {
+            //         _id: '$orderDate', 
+            //          product: {
+            //             $push: {
+            //                 productName: '$productName',
+            //                 productId:'$productId',
+            //                 price:'$price',
+            //                 quantity:'$quantity'
+            //             }
+            //         }, 
+            //         totalDiscountAmount: { $sum: '$totalDiscountAmount' },
+            //         price: { $sum: '$price' }
+
+            //     }
+            // }
+
+        ])
+
+        console.log('filteredOrders: ', filteredOrders);
+
+
+
+        return filteredOrders
+
+    } catch (error) {
+
+    }
+}
+
 
 const loadAdminSalesManagement = async (req, res) => {
     try {
@@ -1691,7 +1837,7 @@ const loadAdminSalesManagement = async (req, res) => {
 
         let page = parseInt(req.query.page)
         let sort = req.query.sort
-        let limit = 5
+        let limit = 10
         let skip;
 
         if (page <= 1) {
@@ -1699,61 +1845,89 @@ const loadAdminSalesManagement = async (req, res) => {
         } else {
             skip = (page - 1) * limit
         }
-        
-       let count=0
 
-       let orderedProducts=await getSalesdata()
-        console.log('orderedProducts: ',orderedProducts);
+        let count = 0
+
+        let orderedProducts = await getSalesdata()
+        console.log('orderedProducts: ', orderedProducts);
         res.render('adminSalesManagement', { data: orderedProducts, totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1, search: search })
 
-       } catch (error) {
+    } catch (error) {
         console.log(error.message);
 
     }
 }
 
-const genarateSalesReport=async (req,res)=>{
+const salesReportFiltered = async (req, res) => {
+    try {
+        const { search, startDate, endDate } = req.query
+        console.log(search, startDate, endDate);
+
+        let filteredOrders
+        if (search === 'all' && !startDate && !endDate) {
+            filteredOrders = await getSalesdata()
+        } else {
+            filteredOrders = await filteredSalesData(search, startDate, endDate)
+        }
+
+        console.log('filteredOrders: ', filteredOrders);
+
+        res.json(filteredOrders)
+    } catch (error) {
+
+    }
+}
+
+const generateSalesReport = async (req, res) => {
     try {
 
         // ObjectId.createFromHexString() // creates objectId from an hexadecimal string
-        const {search,startDate,endDate}=req.query
-        console.log(search,startDate,endDate);
-       let orderedProducts=await getSalesdata(search,startDate,endDate)
-    
-       console.log('orderedProduct: ',orderedProducts);
+        const { search, startDate, endDate } = req.query
+        console.log(search, startDate, endDate);
 
-        const workbook= new excelJs.Workbook()
-        const worksheet=workbook.addWorksheet('Sales_Report')
+        let orderedProducts = await getSalesdata()
+        if (search === 'all' && !startDate && !endDate) {
+            orderedProducts = await getSalesdata()
+        } else {
+            orderedProducts = await filteredSalesData(search, startDate, endDate)
+        }
 
-        worksheet.columns=[
-            {header:'S.No', key:'s_no'},
-            {header:'Product', key:'productName'},
-            {header:'Units Sold', key:'quantity'},
-            {header:'Revenue', key:'price'},
-            {header:'Discount', key:'totalDiscountAmount'},
+        // let orderedProducts = await filteredSalesData(search, startDate, endDate)
+        // console.log('orderedProduct: ', orderedProducts);
+
+        const workbook = new excelJs.Workbook()
+        const worksheet = workbook.addWorksheet('Sales_Report')
+
+        worksheet.columns = [
+            { header: 'S.No', key: 's_no' },
+            { header: 'Product', key: 'productName' },
+            { header: 'Order Date', key: 'orderDate' },
+            { header: 'Units Sold', key: 'quantity' },
+            { header: 'Revenue', key: 'price' },
+            { header: 'Discount', key: 'totalDiscountAmount' },
 
         ]
 
-        let counter=1
+        let counter = 1
 
-        orderedProducts.forEach((product)=>{
-            product.s_no=counter
+        orderedProducts.forEach((product) => {
+            product.s_no = counter
             worksheet.addRow(product)
             counter++
         })
 
-        worksheet.getRow(1).eachCell((cell)=>{
-            cell.font={bold:true}
+        worksheet.getRow(1).eachCell((cell) => {
+            cell.font = { bold: true }
         })
 
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', 'attachment; filename="Sales_Report.xlsx"');
 
-        workbook.xlsx.write(res).then(()=>{
+        workbook.xlsx.write(res).then(() => {
             res.status(200)
             console.log('res sent');
             // res.end()
-        }).catch((error)=>{
+        }).catch((error) => {
             res.send(error.message)
         })
         // res.json('req received')
@@ -1762,145 +1936,29 @@ const genarateSalesReport=async (req,res)=>{
     }
 }
 
-const genarateSalesReportPdf=async(req,res)=>{
+const generateSalesReportPdf = async (req, res) => {
     try {
-//====================================================================================================
-// const browser = await puppeteer.launch({ headless: false });
-// console.log('Browser launched.');
 
-// // Open a new page
-// const page = await browser.newPage();
+        const { search, startDate, endDate } = req.query
+        console.log(search, startDate, endDate);
 
-// // Set the content of the page
-// await page.setContent(`
-//   <html>
-//     <head>
-//       <title>Sample PDF</title>
-//     </head>
-//     <body>
-//       <h1>Hello World</h1>
-//       <p>This is a sample PDF generated using Puppeteer.</p>
-//     </body>
-//   </html>
-// `,{waitUntil:'networkidle2'});
-// console.log('Page content set.');
+        let orderedProducts = await getSalesdata()
+        if (search === 'all' && !startDate && !endDate) {
+            orderedProducts = await getSalesdata()
+        } else {
+            orderedProducts = await filteredSalesData(search, startDate, endDate)
+        }
 
-// // Emulate screen media type
-// await page.emulateMediaType('screen');
-// console.log('Screen media type emulated.');
+        // let orderedProducts = await filteredSalesData(search, startDate, endDate)
+        // console.log('orderedProducts: ', orderedProducts);
 
-// // Generate PDF from the page content
-// let pdf= await page.pdf({ path: 'sample.pdf', format: 'A4' });
-// console.log('PDF generated and saved as sample.pdf.');
-// res.contentType('application/pdf');
-// res.send(pdf)
-
-//====================================================================================================
-
-
-//====================================================================================================
-
-        // let orderedProducts=await getSalesdata()
-        // console.log('Received data...');
-    
-        // // console.log('orderedProduct: ',orderedProducts);
-        // console.log('Launching browser...');
-        // // let browser=await puppeteer.launch({ headless: false, timeout: 60000 })
-        // let browser=await puppeteer.launch()
-        // console.log('Browser launched.');
-        // let page=await browser.newPage()
-        // console.log('Created page.');
-
-        // page.on('request', request => {
-        //     console.log(request.url());
-        //   });
-          
-        //   page.on('response', response => {
-        //     console.log(response.url());
-        //   });
-       
-        // let html=`<table class="table table-striped" style="padding: 10px;text-align: center;">
-        // <thead>
-        //     <tr>
-        //         <th style="border: 1px solid black;" scope="col">Product</th>
-        //         <th style="border: 1px solid black;" scope="col">Units Sold</th>
-        //         <th style="border: 1px solid black;" scope="col">Revenue</th>
-        //         <th style="border: 1px solid black;" scope="col">Discount</th>
-
-        //     </tr>
-        // </thead>
-        // <tbody>`
-
-        // orderedProducts.map((item)=>{
-        //     html+=` <tr>
-        //     <td style="border: 1px solid black;">${item.productName}</td>
-        //     <td style="border: 1px solid black;">${item.quantity}</td>
-        //     <td style="border: 1px solid black;">${item.price}</td>
-        //     <td style="border: 1px solid black;">${item.totalDiscountAmount}</td>
-           
-        // </tr>
-        //     `
-        // })
-
-        // html+=`</tbody>
-
-        // </table>`
-        // console.log('Setting page content...');
-
-        // // await page.setContent(html,{waitUntil:'networkidle0'})
-        // await page.setContent(html)
-        // console.log('Page content set.');
-
-        // console.log('Emulating screen media type...');
-        // await page.emulateMediaType('screen');
-        // console.log('Emulated screen media type...');
-        
-        // console.log('Generating PDF...');
-
-        // let salesReport =await page.pdf({
-        //         // path:'sales_report.pdf',
-        //         format:'A4',
-        //         orientaion:'portrait'
-        //         // margin: { top: '100px', right: '50px', bottom: '100px', left: '50px' },
-        //         // printBackground: true,
-        //         // timeout: 60000 
-        //     })
-        // console.log('PDF generated.');
-
-        // page.on('console', (msg) => console.log('PAGE LOG:', msg.text()));
-        // page.on('error', (err) => console.error('PAGE ERROR:', err));
-        // page.on('pageerror', (pageErr) => console.error('PAGE ERROR:', pageErr));
-
-        // // console.log('salesReport: ', salesReport);
-        // // await open.default(salesReport)
-
-
-        // await browser.close()
-        // console.log('Browser closed.');
-
-        // // res.set({
-        // //     'Content-Type':'application/pdf',
-        // //     'Content-Disposition':'attachment; filename="sales_report.pdf"'
-        // // })
-
-        // res.setHeader('Content-Type', 'application/pdf');
-        // res.setHeader('Content-Disposition', 'attachment; filename="sales_report.pdf"');
-        
-        // res.send(salesReport)
-
-        // // res.downlod(salesReport)
-
-        // console.log('PDF sent.');
-
-//====================================================================================================
-
-        const template=fs.readFileSync('./views/templates/salesReport.ejs','utf-8')
+        const template = fs.readFileSync('./views/templates/salesReport.ejs', 'utf-8')
         // console.log(template);
         console.log('template read');
-        const options={
-            format:'A4',
-            orientation:'portrait',
-            border:'2 mm',
+        const options = {
+            format: 'A4',
+            orientation: 'portrait',
+            border: '2 mm',
             // header: {
             //     height: '10mm',
             // },
@@ -1910,30 +1968,29 @@ const genarateSalesReportPdf=async(req,res)=>{
             type: 'pdf'
         }
 
-        let orderedProducts=await getSalesdata()
+        // let orderedProducts=await getSalesdata()
 
-        console.log('orderedProducts: ',orderedProducts);
 
-        let date=Date.now()
+        let date = Date.now()
 
-        let data={orderedProducts:orderedProducts}
+        let data = { orderedProducts: orderedProducts }
 
-        const renderedHtml = ejs.render(template,data)
+        const renderedHtml = ejs.render(template, data)
 
-        const document={
-            html:renderedHtml,
-            data:data,
+        const document = {
+            html: renderedHtml,
+            data: data,
             // path:'public/invoice/sampleInvoice.pdf'
-            path:`public/salesReport/${date}.pdf`
+            path: `public/salesReport/${date}.pdf`
         }
 
-       const salesReport= await pdf.create(document,options)
+        const salesReport = await pdf.create(document, options)
 
-       console.log('pdf created');
+        console.log('pdf created');
 
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename='${date}.pdf'`);
-      
+
         console.log(salesReport.filename);
 
         res.download(salesReport.filename)
@@ -1943,6 +2000,354 @@ const genarateSalesReportPdf=async(req,res)=>{
         console.log(error.message)
     }
 }
+
+const loadOrderDetails = async (req, res) => {
+    try {
+        const { orderId, productId } = req.query
+        console.log(orderId, productId);
+        const product = await productModel.findOne({ _id: productId })
+        const unitPrice = product.price
+
+        let orderedProduct = await orderModel.aggregate([
+            { $match: { _id: new mongoose.Types.ObjectId(orderId) } },
+            { $unwind: '$products' },
+            { $match: { 'products.productId': productId } },
+        ])
+
+        let ordProduct = orderedProduct[0]
+
+        ordProduct.unitPrice = unitPrice
+        // ordProduct.save()
+
+        console.log('orderedProduct: ', ordProduct);
+
+        res.render('adminOrderDetails', { data: ordProduct })
+
+    } catch (error) {
+        console.log(error.message)
+
+    }
+}
+
+
+const generateChartData = async (req, res) => {
+    try {
+        let products = await orderModel.aggregate([
+            // { $match: {} },
+            { $unwind: '$products' },
+            { $match: { 'products.status': { $nin: ['pending', 'cancelled'] } } },
+            {
+                $project: {
+                    productName: '$products.title',
+                    productId: '$products.productId',
+                    price: '$products.price',
+                    quantity: '$products.quantity',
+                    discountAmount: '$products.offerDiscount',
+                    orderDate: '$orderDate',
+                }
+            },
+
+            {
+                $addFields: {
+                    discountAmount: { $multiply: ['$quantity', '$discountAmount'] },
+                    totalPrice: { $multiply: ['$quantity', '$price'] }
+                }
+            },
+            // {$group:{
+            //     _id:{
+            //         week:{ $week:'$orderDate'},
+            //         month:{ $month:'$orderDate'},
+            //         year:{$year:'$orderDate'},
+            //         productId:'$productId'
+            //     },
+            //     productName: { $first: '$productName' },
+            //     price: { $sum: '$totalPrice' }, 
+            //     quantity: { $sum: '$quantity' }
+
+            // }},
+            // {$group:{
+            //     _id:'$_id.week',
+            //     price:{$sum:'$price'}
+            // }}
+            // -----------sales based on product-------
+            { $group: { _id: '$productId', productName: { $first: '$productName' }, productId: { $first: '$productId' }, price: { $sum: '$totalPrice' }, quantity: { $sum: '$quantity' } } }, // $first will add value as key value pair
+
+            // // -----------sales based on order date-------
+            // { $group: { _id: '$orderDate', productName: { $first: '$productName' }, productId: { $first: '$productId' }, price: { $first: '$totalPrice' }, quantity: {$sum: '$quantity'}, totalDiscountAmount: { $sum: '$discountAmount' } } }  // $first will add value as key value pair
+
+        ])
+        console.log('products: ', products);
+
+        res.json(products)
+    } catch (error) {
+        console.log(error.message)
+    }
+}
+
+
+const generateChartDataFiltered = async (req, res) => {
+    try {
+
+        const { filter } = req.query
+        console.log('filter: ', filter);
+
+        let orderedProducts
+
+        if (filter === 'Weekly') {
+            orderedProducts = await orderModel.aggregate([
+                // { $match: {} },
+                { $unwind: '$products' },
+                { $match: { 'products.status': { $nin: ['pending', 'cancelled'] } } },
+                {
+                    $project: {
+                        productName: '$products.title',
+                        productId: '$products.productId',
+                        price: '$products.price',
+                        quantity: '$products.quantity',
+                        discountAmount: '$products.offerDiscount',
+                        orderDate: '$orderDate',
+                    }
+                },
+                {
+                    $addFields: {
+                        discountAmount: { $multiply: ['$quantity', '$discountAmount'] },
+                        totalPrice: { $multiply: ['$quantity', '$price'] }
+                    }
+                },
+                // {$group:{
+                //     _id:{
+                //         week:{ $week:'$orderDate'},
+                //         month:{ $month:'$orderDate'},
+                //         year:{$year:'$orderDate'},
+                //         productId:'$productId'
+                //     },
+                //     productName: { $first: '$productName' },
+                //     price: { $sum: '$totalPrice' }, 
+                //     quantity: { $sum: '$quantity' }
+
+                // }},
+                {
+                    $group: {
+                        _id: { value: { $week: '$orderDate' } },
+                        price: { $sum: '$totalPrice' }
+                    }
+                }
+
+            ])
+        } else if (filter === 'Monthly') {
+            orderedProducts = await orderModel.aggregate([
+                // { $match: {} },
+                { $unwind: '$products' },
+                { $match: { 'products.status': { $nin: ['pending', 'cancelled'] } } },
+                {
+                    $project: {
+                        productName: '$products.title',
+                        productId: '$products.productId',
+                        price: '$products.price',
+                        quantity: '$products.quantity',
+                        discountAmount: '$products.offerDiscount',
+                        orderDate: '$orderDate',
+                    }
+                },
+                {
+                    $addFields: {
+                        discountAmount: { $multiply: ['$quantity', '$discountAmount'] },
+                        totalPrice: { $multiply: ['$quantity', '$price'] }
+                    }
+                },
+                {
+                    $group: {
+                        _id: { value: { $month: '$orderDate' } },
+                        price: { $sum: '$totalPrice' }
+                    }
+                }
+
+            ])
+        } else if (filter === 'Yearly') {
+
+            orderedProducts = await orderModel.aggregate([
+                // { $match: {} },
+                { $unwind: '$products' },
+                { $match: { 'products.status': { $nin: ['pending', 'cancelled'] } } },
+                {
+                    $project: {
+                        productName: '$products.title',
+                        productId: '$products.productId',
+                        price: '$products.price',
+                        quantity: '$products.quantity',
+                        discountAmount: '$products.offerDiscount',
+                        orderDate: '$orderDate',
+                    }
+                },
+                {
+                    $addFields: {
+                        discountAmount: { $multiply: ['$quantity', '$discountAmount'] },
+                        totalPrice: { $multiply: ['$quantity', '$price'] }
+                    }
+                },
+                {
+                    $group: {
+                        _id: { value: { $year: '$orderDate' } },
+                        price: { $sum: '$totalPrice' }
+                    }
+                }
+
+            ])
+        }
+
+
+        console.log('orderedProducts: ', orderedProducts);
+
+        res.json(orderedProducts)
+
+    } catch (error) {
+        console.log(error.message)
+
+    }
+}
+
+const generateCategoryChartData = async (req, res) => {
+
+    try {
+        orderedCategories = await orderModel.aggregate([
+            // { $match: {} },
+            { $unwind: '$products' },
+            { $match: { 'products.status': { $nin: ['pending', 'cancelled'] } } },
+            {
+                $project: {
+                    productName: '$products.title',
+                    productId: '$products.productId',
+                    price: '$products.price',
+                    quantity: '$products.quantity',
+                    discountAmount: '$products.offerDiscount',
+                    orderDate: '$orderDate',
+                }
+            },
+            {
+                $addFields: {
+                    convertedProductId: { $toObjectId: "$productId" }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'convertedProductId',
+                    foreignField: '_id',
+                    as: 'products',
+
+                }
+            },
+            {
+                $unwind: '$products'
+            },
+            {
+                $project: {
+                    productName: 1,
+                    productId: 1,
+                    price: 1,
+                    quantity: 1,
+                    discountAmount: 1,
+                    orderDate: 1,
+                    convertedProductId: 1,
+                    categoryId: '$products.category_id'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'categoryId',
+                    foreignField: '_id',
+                    as: 'categories',
+
+                }
+            },
+            {
+                $unwind: '$categories'
+            },
+            {
+                $project: {
+                    productName: 1,
+                    productId: 1,
+                    price: 1,
+                    quantity: 1,
+                    discountAmount: 1,
+                    orderDate: 1,
+                    convertedProductId: 1,
+                    categoryId: 1,
+                    category: '$categories.description'
+                }
+            },
+            {
+                $addFields: {
+                    discountAmount: { $multiply: ['$quantity', '$discountAmount'] },
+                    totalPrice: { $multiply: ['$quantity', '$price'] }
+                }
+            },
+            {
+                $group: {
+                    _id: { category: '$category' },
+                    price: { $sum: '$totalPrice' }
+                }
+            }
+
+        ])
+
+        console.log('orderedCategories: ', orderedCategories);
+
+        res.json(orderedCategories)
+
+    } catch (error) {
+        console.log(error.message)
+
+    }
+}
+
+const generatePaymentChartData = async (req, res) => {
+
+    try {
+
+        paymentMethods = await orderModel.aggregate([
+            // { $match: {} },
+            { $unwind: '$products' },
+            { $match: { 'products.status': { $nin: ['pending', 'cancelled'] } } },
+            {
+                $project: {
+                    productName: '$products.title',
+                    productId: '$products.productId',
+                    price: '$products.price',
+                    quantity: '$products.quantity',
+                    discountAmount: '$products.offerDiscount',
+                    orderDate: '$orderDate',
+                    paymentMethod: '$paymentMethod'
+
+                }
+            },
+
+            {
+                $addFields: {
+                    discountAmount: { $multiply: ['$quantity', '$discountAmount'] },
+                    totalPrice: { $multiply: ['$quantity', '$price'] }
+                }
+            },
+            {
+                $group: {
+                    _id: { paymentMethod: '$paymentMethod' },
+                    price: { $sum: '$totalPrice' }
+                }
+            }
+
+        ])
+
+        console.log('paymentMethods: ', paymentMethods);
+
+        res.json(paymentMethods)
+
+    } catch (error) {
+        console.log(error.message)
+
+    }
+}
+
 
 module.exports = {
     loadAdminHome,
@@ -2000,7 +2405,13 @@ module.exports = {
     loadEditProductOffer,
     editProductOffer,
     deleteProductOffer,
-    genarateSalesReport,
-    genarateSalesReportPdf
+    generateSalesReport,
+    generateSalesReportPdf,
+    salesReportFiltered,
+    loadOrderDetails,
+    generateChartData,
+    generateChartDataFiltered,
+    generateCategoryChartData,
+    generatePaymentChartData
 
 }

@@ -1,0 +1,108 @@
+<%- include('../layout/homeheader.ejs') %>
+ <!-- //header -->
+        <!-- inner banner -->
+        <div class="ibanner_w3 pt-sm-5 pt-3">
+            <h4 class="head_agileinfo text-center text-capitalize text-center pt-5">
+                <span>K</span>iddos
+            </h4>
+        </div>
+        <!-- //inner banner -->
+        <!-- breadcrumbs -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="home">Home</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <%= page%>
+                </li>
+            </ol>
+        </nav>
+        <!-- //breadcrumbs -->
+
+<section>
+<div class="container">
+    <div class="d-sm-flex justify-content-between mb-4">
+        <h4>Your Order Details
+        </h4>
+    </div>
+    <div class="float-right">
+        <a href="orders">Go back</a>
+    </div>  
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <td colspan="4"> 
+                   <span style="font-weight: bold;">Shipping Address: </span><br>
+                  <p><%= data.shippingAddress.building%></p>
+                  <p><%= data.shippingAddress.city%>, <%= data.shippingAddress.state%></p> 
+                  <p><%= data.shippingAddress.country%></p> 
+                  <p>PB Box: <%= data.shippingAddress.pbNumber%></p> 
+                  <p>Contact Number: <%= data.shippingAddress.contactNumber%></p> 
+
+                </td>
+                <td colspan="1"> 
+                    <span style="font-weight: bold;margin-top:0px;">Order Date:</span> <%= data.orderDate.toLocaleDateString() %>
+                
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+           
+            <tr>
+                <td colspan="2">
+                    <h6><strong>Product: </strong></h6><br>
+                    <img src="productImages/<%= data.products.image%>" alt="<%= data.image%>" width="60px"
+                    height="60px" class="img-thumbnail">
+                    <%= data.products.title%>
+                </td>
+                <td>
+                    <h6><strong>Quantity: </strong></h6> <br>
+                    <%= data.products.quantity%>
+                </td>
+                <td>
+                    <h6><strong>Price: </h6> </strong><br>
+                    <%= data.products.price.toFixed(2)%>
+                </td>
+                <td>
+                    <h6><strong>Status: </h6> </strong><br>
+                    <%= data.products.status%>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="text-align: right;">Price:</td>
+                <td><%= data.unitPrice.toFixed(2)%></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="text-align: right;">Discount:</td>
+                <td><%= data.products.offerDiscount.toFixed(2)%></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="text-align: right;">Delivery Charge:</td>
+                <td>Free</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <th style="text-align: right;">Total:</th>
+                <th>₹ <%= data.orderAmount.toFixed(2)%></th>
+            </tr>
+        </tbody>
+    </table>
+   
+</div>
+
+</section>
+
+
+<%- include('../layout/homefooter.ejs') %>

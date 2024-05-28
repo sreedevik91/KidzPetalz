@@ -210,11 +210,10 @@ const placeOrder = async (req, res) => {
             }
         ])
 
-        // console.log('cartItems: ',cartItems)
+        console.log('cartItems: ',cartItems)
 
         let products = []
 
-        let stockAvailable = true
         //-----------------------------------------------------------------------------------------------------------------
         // if the stock is to be checked before checkout use the commented code
 
@@ -224,24 +223,31 @@ const placeOrder = async (req, res) => {
         // }else{
         //-----------------------------------------------------------------------------------------------------------------
 
+        let offerDiscount=0
         cartItems.forEach(async (item) => {
-
+            let offers=item.offersApplied
+            offers.forEach((offer)=>{
+                // offerDiscount+=(item.quantity)*(offer.discountAmount)
+                offerDiscount+=parseFloat(offer.discountAmount)
+            })
             products.push({
                 productId: item.cartProduct._id,
                 title: item.cartProduct.title,
                 image: item.cartProduct.image[0],
                 price: item.offerAmount,
                 quantity: item.quantity,
+                offerDiscount:offerDiscount,
                 offersApplied: item.offersApplied,
                 is_listed: true,
                 status: status
             })
 
-
         })
 
-        //-----------------------------------------------------------------------------------------------------------------
+       
 
+        //-----------------------------------------------------------------------------------------------------------------
+        // 
         // let products=[]
         // cartItems.products.forEach((item)=>{
         //     products.push({
@@ -256,15 +262,17 @@ const placeOrder = async (req, res) => {
 
         console.log('couponCode', req.session.couponCode);
         console.log('checkoutAmount', req.session.checkoutAmount);
+        let checkoutAmount=(req.session.checkoutAmount)
+        let couponDiscount= (req.session.discountAmount)
         const newOrder = new orderModel({
             userId,
             shippingAddress,
             paymentMethod,
             products,
             orderAmount,
-            couponCode: req.session.couponCode,
-            discountAmount: req.session.discountAmount,
-            checkoutAmount: req.session.checkoutAmount || orderAmount
+            couponCode: req.session.couponCode || '',
+            couponDiscount:couponDiscount || 0,
+            checkoutAmount: checkoutAmount || orderAmount
 
         })
 
@@ -283,7 +291,8 @@ const placeOrder = async (req, res) => {
                 res.json({ cod: true })
             } else {
                 let amount = req.session.checkoutAmount || orderAmount
-                let checkoutAmount = amount * 100
+                let checkoutAmount = Math.round(amount * 100)
+                console.log('razorPayAmount: ',checkoutAmount);
                 var options = {
                     amount: checkoutAmount,  // amount in the smallest currency unit
                     currency: "INR",
@@ -292,6 +301,7 @@ const placeOrder = async (req, res) => {
                 instance.orders.create(options, function (err, order) {
                     if (err) {
                         console.log('Razorpay Error: ', err);
+                        res.json({failed:true,message:err.error.description})
                     } else {
                         console.log('Razorpay Order: ', order);
                         res.json(order)
@@ -300,6 +310,23 @@ const placeOrder = async (req, res) => {
 
             }
         }
+
+        //--------------------------------------------- Razorpay Error Object--------------------------------------------------------------------
+
+        // Razorpay Error:  {
+        //     statusCode: 400,
+        //     error: {
+        //       code: 'BAD_REQUEST_ERROR',
+        //       description: 'The amount must be an integer.',
+        //       metadata: {},
+        //       reason: 'input_validation_failed',
+        //       source: 'business',
+        //       step: 'payment_initiation'
+        //     }
+        //   }
+
+        //-----------------------------------------------------------------------------------------------------------------
+
 
         //-----------------------------------------------------------------------------------------------------------------
 

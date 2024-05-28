@@ -22,7 +22,7 @@
                         <th scope="col">Description</th>
                         <th scope="col">Price</th>
                         <th scope="col">Quantity</th>
-                        <th scope="col">Category ID</th>
+                        <th scope="col">Category</th>
                         <th scope="col">Image</th>
                         <th scope="col">Actions</th>
                     </tr>
@@ -55,7 +55,18 @@
                                 <%=item.quantity%>
                             </td>
                             <td>
-                                <%=item.category_id%>
+                                <%
+                                if(item.category_id.toString()==='660d1e44cbed784ef9ecbb16'){
+                                    %>
+                                    Boys Clothing
+                                    <%
+                                }else{
+                                    %>
+                                    Girls Clothing
+                                    <% 
+                                }
+                                %>
+       
                             </td>
                             <td>
 

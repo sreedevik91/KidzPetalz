@@ -122,6 +122,8 @@ router.get('/orderSuccess', auth.isLogin, orderController.loadOrderSuccess)
 
 router.get('/cancelOrder', auth.isLogin, orderController.cancelOrder)
 
+router.get('/orderDetails', auth.isLogin, orderController.loadOrderDetails)
+
 router.get('/generateInvoice', auth.isLogin, orderController.generateInvoice)
 
 router.get('/userProfile', auth.isLogin, userController.loadProfile)

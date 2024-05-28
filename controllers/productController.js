@@ -3,10 +3,24 @@ const userModel = require('../models/userModel')
 
 const loadProducts = async (req, res) => {
     try {
+        let page = parseInt(req.query.page)
+        // let sort = req.query.sort
+        let limit = 5
+        let skip;
 
+        if (page <= 1) {
+            skip = 0
+        } else {
+            skip = (page - 1) * limit
+        }
         const products = await productModel.find({ _id: { $exists: true }, is_listed: true })
+            .skip(skip)
+            .limit(limit)
+            .exec()
+
+        const count= await productModel.find({ _id: { $exists: true }, is_listed: true }).countDocuments()
         if (products) {
-            res.render('allproducts', { page: 'Products', data: products, id: req.session.userId, cartCount: req.session.cartCount })
+            res.render('allproducts', { page: 'Products', data: products, id: req.session.userId, cartCount: req.session.cartCount,totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1 })
         } else {
             res.render('404', { message: 'Page Not Found !' })
         }
@@ -47,7 +61,7 @@ const loadFilteredProducts = async (req, res) => {
             req.body.filterArray.forEach((keyword) => {
 
                 if (keyword === 'all') {
-                    sortQ={}
+                    sortQ = {}
                 }
                 if (keyword === 'newArrival') {
                     sortQ.createdAt = -1
@@ -79,7 +93,7 @@ const loadFilteredProducts = async (req, res) => {
 
         console.log('sort', sortQ);
 
-        console.log('search',searchQ);
+        console.log('search', searchQ);
 
         let products = await productModel.find(searchQ).sort(sortQ)
         res.json(products)
@@ -140,12 +154,12 @@ const loadProduct = async (req, res) => {
     }
 }
 
-const searchProduct=async(req,res)=>{
+const searchProduct = async (req, res) => {
 
     try {
-        let query=req.body.search
+        let query = req.body.search
         console.log(query);
-        
+
         // let products=await productModel.find({is_listed:true,$or: [
         //     { title: { $regex: `.*${search}.*`, $options: 'i' } },
         //     { tags: { $regex: `.*${search}.*`, $options: 'i' } },
@@ -157,28 +171,28 @@ const searchProduct=async(req,res)=>{
         // ]})
 
         // `.*${query}.*`, $options: 'i' 
-        let products=await productModel.find({title:{$regex: new RegExp(`.*${query}.*`,'i')}}).limit(10)
+        let products = await productModel.find({ title: { $regex: new RegExp(`.*${query}.*`, 'i') } }).limit(10)
         // console.log(products);
-        res.json({result:products});
+        res.json({ result: products });
     } catch (error) {
         console.log(error.message);
 
     }
 }
 
-const loadSearchedProductsPage=async(req,res)=>{
+const loadSearchedProductsPage = async (req, res) => {
     try {
-        let query=req.query.search;
-        let products=await productModel.find({title:{$regex: new RegExp(`.*${query}.*`,'i')}}).limit(10)
+        let query = req.query.search;
+        let products = await productModel.find({ title: { $regex: new RegExp(`.*${query}.*`, 'i') } }).limit(10)
         res.json(products)
     } catch (error) {
         console.log(error.message);
-        
+
     }
 }
 
 
-module.exports={
+module.exports = {
     loadProducts,
     loadBoys,
     loadGirls,

@@ -4,7 +4,11 @@
     <main id="main" class="main">
 
         <h3><strong>Add Category</strong></h3>
-
+        <div>
+            <p>
+                <span style="color: red;"><%= message %></span>
+            </p>
+        </div>
         <form action="" method="post" class="mt-5" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="recipient-name1" class="col-form-label">Name</label>
@@ -28,21 +32,17 @@
             </div>
         </div>
         </form>
-
-        <div style="display: flex;">
+<!-- cropper JS -->
+        <!-- <div style="display: flex;">
             <div>
                 <img src="/images/a1.jpg" id="imageInput">
                 <button id="btn">Crop</button>
             </div>
 
             <img src="" id="output">
-        </div>
+        </div> -->
         
-        <div>
-            <p>
-                <span style="color: red;"><%= message %></span>
-            </p>
-        </div>
+       
     
         
     </main>

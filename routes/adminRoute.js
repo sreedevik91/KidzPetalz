@@ -135,6 +135,7 @@ router.route('/editOrder')
 .post(adminController.editOrder)
 
 router.get('/cancelOrder',adminController.adminCancelOrder)
+router.get('/orderDetails',adminController.loadOrderDetails)
 
 //coupon management
 
@@ -182,8 +183,20 @@ router.get('/deleteProductOffer',adminController.deleteProductOffer)
 
 router.get('/sales',adminController.loadAdminSalesManagement)
 
-router.get('/salesReport',adminController.genarateSalesReport)
-router.get('/salesReportPdf',adminController.genarateSalesReportPdf)
+router.get('/salesReport',adminController.generateSalesReport)
+router.get('/salesReportPdf',adminController.generateSalesReportPdf)
+router.get('/salesReportFiltered',adminController.salesReportFiltered)
+
+// charts
+
+router.get('/chartData',adminController.generateChartData)
+router.get('/catChartData',adminController.generateCategoryChartData)
+router.get('/payChartData',adminController.generatePaymentChartData)
+
+router.get('/chartDataFiltered',adminController.generateChartDataFiltered)
+
+
+
 
 
 router.get('*',adminController.loadAdminDefault) // keep this default route at the end of all the routes
