@@ -51,8 +51,9 @@
                                             <th>Product</th>
                                             <th>Quantity</th>
                                             <th>Product Name</th>
-
                                             <th>Price</th>
+                                            <th>Discount</th>
+                                            <th>Amount</th>
                                             <th>Remove</th>
                                         </tr>
                                     </thead>
@@ -91,13 +92,18 @@
                                                 <td class="invert">
                                                     <%=item.cartProduct.title%>
                                                         <br>
-                                                        Price ₹<%=item.cartProduct.price%>
+                                                        Price 
                                                 </td>
-
+                                                <td>₹ <%=item.unitPrice.toFixed(2)%></td>
+                                                <%
+                                                
+                                                %>
+                                                <td>₹ <%=item.discount.toFixed(2)%></td>
                                                 <td class="invert">₹<span id="<%=item.totalAmount%>">
-                                                        <%=item.totalAmount.toFixed(2)%>
+                                                     <%=item.totalAmount.toFixed(2)%>
                                                     </span>
                                                 </td>
+
                                                 <td class="invert">
                                                     <button type="button" class="btn-danger"
                                                         onclick="removeCartProduct('<%=item._id%>','<%=item.cartProduct._id%>')">Remove</button>
@@ -116,24 +122,25 @@
                         <div class="col-md-4 checkout-left-basket float-right">
                             <h4>Continue to basket</h4>
                             <ul>
-                                <!-- <li>Solid Men's Black Shirt
+                            <li>Total Item Price
                                 <i>-</i>
-                                <span>$20.00 </span>
+                                <span>₹ <%=totalPrice.toFixed(2)%></span>
                             </li>
-                            <li>Women's Light Blue Tunic
+                            <li>Item Discount
                                 <i>-</i>
-                                <span>$35.00 </span>
+                                <span>₹ <%=totalDiscount.toFixed(2)%></span>
+                            </li> 
+                            <li>Shipping Charge
+                                <i>-</i>
+                                <span>₹ 0 </span>
                             </li>
-                            <li>Boy's Casual Shirt & Trouser Set
-                                <i>-</i>
-                                <span>$23.00</span>
-                            </li> -->
-                                <li>Total
+                            <li>Total
                                     <i>-</i>
-                                    <span> ₹<span id="totalCartAmount">
+                                    <span> ₹ <span id="totalCartAmount">
                                             <%=cartTotalAmount%>
                                         </span></span>
-                                </li>
+                            </li>
+                            <br>
                                 <li><a href="/checkout" class="btn btn-secondary float-right">Proceed to Checkout</a>
                                 </li>
                             </ul>
@@ -146,9 +153,10 @@
             </div>
         </section>
 
+
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
         <script>
-
-
 
             function changeQuantity(cartId, productId, count, totalAmount, unitPrice) {
                 let quantity = parseInt(document.getElementById(productId).innerHTML)
@@ -169,17 +177,18 @@
                     },
                     success: (response) => {
                         if (response.itemRemoved) {
+                            swal('Item removed').then(()=>{
                             location.reload()
-                            alert('Item removed')
+                            })
 
                         } else if (response.maxLimit) {
-                            alert('Maximun number of product to cart exceeded')
+                            swal('Maximun number of product to cart exceeded')
 
                         }  else if (response.lessStock) {
-                            alert('Requested quantity exceeds available stock')
+                            swal('Requested quantity exceeds available stock')
 
                         }  else if (response.outOfStock) {
-                            alert('Product out of stock')
+                            swal('Product out of stock')
 
                         }else {
                             if (quantity > 0) {
@@ -208,8 +217,11 @@
                         productId
                     },
                     success: (response) => {
-                        location.reload()
-                        alert(response)
+                        swal(response).then(()=>{
+                            location.reload()
+                        })
+                       
+                        
                     }
                 })
             }

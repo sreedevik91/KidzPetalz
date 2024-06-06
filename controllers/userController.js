@@ -9,6 +9,7 @@ const randomString = require('randomstring')
 const passport = require('passport')
 const productModel = require('../models/productModel')
 const cartModel = require('../models/cartModel')
+// const swal = require('sweetalert')
 
 
 
@@ -49,6 +50,15 @@ const loadLogin = async (req, res) => {
 
     } catch (error) {
         console.log(error.message);
+    }
+}
+
+const loadError = async (req, res) => {
+    try {
+        res.render('404', { form: "Login", message: 'Page Not Found',userLogin:true })
+    } catch (error) {
+        console.log(error.message);
+
     }
 }
 
@@ -137,9 +147,9 @@ const insertUser = async (req, res) => {
         const password = await securePassword(req.body.password)
         const email = req.body.email
         const isUserExisting = await userModel.findOne({ email })
-        if (isUserExisting && isUserExisting.name!=='Admin') {
+        if (isUserExisting && isUserExisting.name !== 'Admin') {
             res.render('registration', { form: 'SignUp', message: 'Email already exists. ' })
-
+            
             // res.render('404',{message:'Email already exists.'})
         } else {
             const userData = new userModel({
@@ -403,7 +413,7 @@ const updateNewPassword = async (req, res) => {
         const password = await securePassword(passwordReceived)
         const token = req.body.token
         const updateUser = await userModel.updateOne({ token }, { $set: { password: password } })
-        if (updateUser.modifiedCount>0) {
+        if (updateUser.modifiedCount > 0) {
             res.render('userlogin', { form: "LogIn", message: 'Password Updated. Please login', text: '' })
         } else {
             res.render('resetpassword', { form: 'Reset Password', message: 'Password Update failed. Try again', token: token })
@@ -465,11 +475,19 @@ const changePassword = async (req, res) => {
 const loadProfile = async (req, res) => {
     try {
 
+        // let user={}
+        // let userId = req.session.userId
+
+        // if(req.session.user){
+        //     console.log('user: ', req.session.user);
+        //     user=req.session.user
+        // }else{
+            // user = await userModel.findOne({ _id: userId })
+            // console.log(user);
+        // }
+
         let userId = req.session.userId
-
         let user = await userModel.findOne({ _id: userId })
-        // console.log(user);
-
         let address = await addressModel.findOne({ userId: userId })
         // console.log(address);
         if (address) {
@@ -681,9 +699,7 @@ const updateProfile = async (req, res) => {
         let email = req.body.email
         let mobile = req.body.mobile
 
-
         let updateUser = await userModel.updateOne({ _id: userId }, { $set: { name: name, email: email, mobile: mobile } })
-
 
         // console.log(user);
         if (updateUser) {
@@ -713,14 +729,6 @@ const deleteAddress = async (req, res) => {
     }
 }
 
-// const goBackLogin404=async(req,res)=>{
-//     try {
-//         res.redirect('/login')
-//     } catch (error) {
-//         console.log(error.message);
-
-//     }
-// }
 
 module.exports = {
     insertUser,
@@ -749,8 +757,9 @@ module.exports = {
     updateAddress,
     loadUpdateProfile,
     updateProfile,
-    deleteAddress
-    // goBackLogin404
+    deleteAddress,
+    loadError
+   
 }
 
 

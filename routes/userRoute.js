@@ -11,6 +11,7 @@ const productController = require('../controllers/productController')
 const walletController = require('../controllers/walletController')
 const wishlistController = require('../controllers/wishlistController')
 const couponController = require('../controllers/couponController')
+const adminController = require('../controllers/adminController')
 const session = require('express-session')
 const nocache = require('nocache');
 const dotenv = require('dotenv')
@@ -51,6 +52,7 @@ userRoute.get('/auth/google/callback', passport.authenticate('google', { failure
     console.log(user.name);
     req.session.login = true
     req.session.user = user
+    req.session.userId = user._id
     console.log('user login: ', req.session.login);
     res.redirect('/home');
   } catch (error) {
@@ -120,6 +122,8 @@ router.get('/orders', auth.isLogin, orderController.loadOrders)
 
 router.get('/orderSuccess', auth.isLogin, orderController.loadOrderSuccess)
 
+router.get('/orderFailure', auth.isLogin, orderController.loadOrderFailure)
+
 router.get('/cancelOrder', auth.isLogin, orderController.cancelOrder)
 
 router.get('/orderDetails', auth.isLogin, orderController.loadOrderDetails)
@@ -164,6 +168,10 @@ router.get('/blocked', userController.loadBlock)
 // router.get('/goBackLogin',auth.isLogout,userController.goBackLogin404)
 
 // router.get('*',userController.loadError)
+
+// router.use((req,res)=>{
+//   res.render('404',{message:'Page Not Found'})
+// })
 
 userRoute.use(router)
 

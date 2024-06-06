@@ -1,0 +1,37 @@
+<%- include('../layout/homeheader.ejs') %>
+
+    </header>
+
+    <% var cartTotalAmount %> 
+    <!-- //header -->
+    <!-- inner banner -->
+    <div class="ibanner_w3 pt-sm-5 pt-3">
+        <h4 class="head_agileinfo text-center text-capitalize text-center pt-5">
+            <span>K</span>iddos
+        </h4>
+    </div>
+    <!-- //inner banner -->
+    <!-- breadcrumbs -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="home">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <%= page%>
+            </li>
+        </ol>
+    </nav>
+    <!-- //breadcrumbs -->
+    <!--checkout-->
+    <section class="checkout_wthree py-sm-5 py-3">
+        <div class="container">
+            <h4>Payment Failed. Order Pending.</h4>
+            <a href="/orders">View Orders</a>
+        </div>
+    </section>
+
+   
+    <!--//checkout-->
+
+    <%- include('../layout/homefooter.ejs') %>

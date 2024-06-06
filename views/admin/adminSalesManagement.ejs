@@ -75,6 +75,11 @@
                         })
                         %>
 
+                        <tr>
+                            <td colspan="2" style="text-align: right;font-weight: bold;">Total Revenue: </td>
+                            <td colspan="2" style="text-align: left">₹ <%=revenue.toFixed(2)%></td>
+                        </tr>
+                       
 
                         <%
                     }else{
@@ -91,7 +96,8 @@
 
         </div>
 
-        <div class="mt-3 text-center">
+        <div style="position: relative;">
+        <div class="mt-3 text-center" style="position: absolute; top: 250px;right: 0;left: 0;bottom: 0;">
            <a href="?search=<%=search%>&page=<%= previous%>">Previous</a>
            
             <%
@@ -104,6 +110,7 @@
             
             <a href="?search=<%=search%>&page=<%= next%>">Next</a>
         </div>
+    </div>
     </main>
 
 
@@ -123,12 +130,13 @@ $.ajax({
         url:`salesReportFiltered?search=${search}&startDate=${startDate}&endDate=${endDate}`,
         method:'get',
         success:(response)=>{
-            console.log('salesData:', response);
+            console.log('salesData:', response.filteredOrders);
+            let salesData= response.filteredOrders
             let salesTable=document.getElementById('salesTable')
             salesTable.innerHTML=''
             let html=``
 
-            if(response.length>0){
+            if(salesData.length>0){
                 html+=`
                 <table class="table table-striped">
                 <thead>
@@ -143,7 +151,7 @@ $.ajax({
                 </thead>
                 <tbody>
                 `
-                response.forEach((data)=>{
+                salesData.forEach((data)=>{
                     html+=`
                             <tr>
                                 <td>${data.productName}</td>
@@ -156,7 +164,13 @@ $.ajax({
                     `
                 })
 
-                html+=` </tbody>
+                html+=` <tr>
+                            <td colspan="3" style="text-align: right;font-weight: bold;">Total Revenue: </td>
+                            <td colspan="2" style="text-align: left;"">₹ ${ response.revenue.toFixed(2)}</td>
+                        </tr>
+                
+                
+                </tbody>
 
                      </table> `
 

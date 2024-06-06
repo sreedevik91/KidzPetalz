@@ -3,6 +3,8 @@ const cartModel = require('../models/cartModel')
 const addressModel = require('../models/addressModel')
 const orderModel = require('../models/orderModel')
 const productModel = require('../models/productModel')
+const walletModel=require('../models/walletModel')
+const couponModel=require('../models/couponModel')
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
@@ -96,10 +98,15 @@ const loadCheckout = async (req, res) => {
         //    console.log('cartTotalAmount: ',cartTotalAmount[0]);
         //    console.log(shippingAddress[0]);
         // console.log('cartProducts: ', cartProducts);
-
+        let cartTotal= cartTotalAmount[0].total
+        console.log('cartTotal:',cartTotal);
         let cart = await cartModel.find({ user: userId })
 
-        res.render('checkout', { page: 'Checkout', data: shippingAddress, cartId: cart[0]._id, cartTotalAmount: cartTotalAmount[0].total, products: cartProducts, id: req.session.userId, message: '', cartCount: req.session.cartCount })
+        // let coupons=await couponModel.find({$and:[{valid_till:{$gte:Date.now()}},{minPurchase:{$gte:cartTotal}}]})
+        let coupons=await couponModel.find({valid_till:{$gte:new Date()},minPurchase:{$lte:cartTotal}})
+
+        console.log('coupons: ', coupons);
+        res.render('checkout', { page: 'Checkout', data: shippingAddress,coupons, cartId: cart[0]._id, cartTotalAmount:cartTotal, products: cartProducts, id: req.session.userId, message: '', cartCount: req.session.cartCount })
 
     } catch (error) {
 
@@ -192,7 +199,8 @@ const placeOrder = async (req, res) => {
                     product: '$products.productId',
                     quantity: '$products.quantity',
                     offerAmount: '$products.offerAmount',
-                    offersApplied: '$products.offersApplied'
+                    offersApplied: '$products.offersApplied',
+                    unitPrice:'$products.unitPrice'
                 }
             },
             {
@@ -205,7 +213,7 @@ const placeOrder = async (req, res) => {
             },
             {
                 $project: {
-                    _id: 0, quantity: 1, offerAmount: 1, offersApplied: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+                    _id: 0, quantity: 1, offerAmount: 1, offersApplied: 1,unitPrice:1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
                 }
             }
         ])
@@ -235,6 +243,7 @@ const placeOrder = async (req, res) => {
                 title: item.cartProduct.title,
                 image: item.cartProduct.image[0],
                 price: item.offerAmount,
+                unitPrice:item.unitPrice,
                 quantity: item.quantity,
                 offerDiscount:offerDiscount,
                 offersApplied: item.offersApplied,
@@ -289,7 +298,7 @@ const placeOrder = async (req, res) => {
             req.session.cartCount = 0
             if (paymentMethod === 'cod') {
                 res.json({ cod: true })
-            } else {
+            } else if(paymentMethod==='onlinePayment') {
                 let amount = req.session.checkoutAmount || orderAmount
                 let checkoutAmount = Math.round(amount * 100)
                 console.log('razorPayAmount: ',checkoutAmount);
@@ -307,6 +316,37 @@ const placeOrder = async (req, res) => {
                         res.json(order)
                     }
                 });
+
+            }else if(paymentMethod==='wallet') {
+
+                const userId=req.session.userId
+                let wallet=await walletModel.findOne({userId})
+                let amountPayable = checkoutAmount || orderAmount
+                if(wallet.amount>=amountPayable){
+                    wallet.amount-=parseInt(amountPayable)
+                    wallet.save()
+                    wallet.transactions.unshift({
+                        type:'debit',
+                        amount:parseInt(amountPayable),
+                        date:Date.now()
+                    })
+                    for(let product of orderNew.products){
+                        product.status='placed'
+                    }
+
+                    await orderNew.save()
+                    res.json({wallet:true})
+
+                }else{
+                    for (let product of orderNew.products) {
+                        product.status = 'pending'
+                    }
+        
+                    await orderNew.save()
+                    res.json({wallet:false,message:'Wallet amount is insufficient'})
+                }
+
+                res.json({ wallet: true })
 
             }
         }

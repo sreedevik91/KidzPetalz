@@ -73,7 +73,7 @@
                                             <%=item.orderDate.toLocaleDateString()%>
                                         </td>
                                         <td class="invert">
-                                            ₹<%=item.products.price%>
+                                            ₹<%=item.products.price.toFixed(2)%>
                                                 <!-- checkoutAmount -->
                                         </td>
 
@@ -94,7 +94,7 @@
                                                 <td>
                                                     <!-- <button class="btn btn-info" id="cancelButton" href="cancelOrder?id=<%=item._id%>">Cancel</button> -->
                                                     <a class="btn btn-info" id="cancelButton"
-                                                        href="cancelOrder?orderId=<%=item._id%>&productId=<%=item.products.productId%>&amount=<%=item.products.price%>">Cancel</a>
+                                                        href="cancelOrder?orderId=<%=item._id%>&productId=<%=item.products.productId%>&amount=<%=item.products.price%>&quantity=<%=item.products.quantity%>">Cancel</a>
                                                     <% if(item.products.status!='pending' ){ %>
                                                         <a class="btn btn-small"
                                                             onclick="generateInvoice('<%=item._id%>','<%=item.products.productId%>')">Invoice</a>

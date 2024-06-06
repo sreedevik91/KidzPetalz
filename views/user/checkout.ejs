@@ -161,6 +161,12 @@
                                                 Payment
                                             </label>
                                         </div>
+
+                                        <div>
+                                            <label for="">
+                                                <input type="radio" value="wallet" name="paymentMethod"> Pay Using Wallet
+                                            </label>
+                                        </div>
                                     </div>
 
                                     <!-- </form> -->
@@ -214,10 +220,41 @@
                                 </table>
                             </div>
                             <div style="margin: 50px;">
-                               
-                                <label for="">Enter Coupon Code</label>
-                                <input type="text" id="couponCode" name="couponCode">
-                                <a class="btn" onclick="applyCoupon('<%=cartId%>','<%=cartCount%>','<%= cartTotalAmount%>')">Apply</a>
+                                <span style="color: #0076BE; font-size: 19px;margin-right: 10px;">View Coupons Available:</span>
+                                  <select id="selectCoupon" name="coupon" style="border-radius: 20px;width: 135px;"> 
+                                    <option>Select a Coupon</option>
+                                    <%
+                                    if(coupons.length>0){
+                                        %>
+
+                                        <%
+                                        coupons.forEach((c)=>{
+                                            %>
+                                            <option value="<%=c.code%>"><%=c.name%></option>
+                                            <%
+                                        })
+
+                                        %>
+
+                                        <%
+                                    }else{
+                                        %>
+                                        <option> No coupon available</option>
+                                        <%
+                                    }
+                                    %>
+                                    
+                                </select> 
+                           
+                                <br>
+                                <br>
+
+                                <label style="color: black; font-size: 17px;margin-right: 10px;">Enter Coupon Code: </label>
+                                <div style="display: flex;">
+                                    <input type="text" id="couponCode" name="couponCode" style="border-radius: 50px;">
+                                    <a class="btn btn-info btn-sm float-right mt-1 ms-3" style="color: white;" onclick="applyCoupon('<%=cartId%>','<%=cartCount%>','<%= cartTotalAmount%>')">Apply</a>
+                                    
+                                </div>
                                 
                             </div>
                             <div style="margin-top: 50px; border: thick double #32a1ce;padding: 10px; margin-left: 50px;" id="orderSummary">
@@ -231,7 +268,7 @@
                             </li>
                             <li>Women's Light Blue Tunic
                                 <i>-</i>
-                                <span>$35.00 </span>
+                                <span>$35.00 </span>k'
                             </li> -->
                                     <li>Items
                                         <i>-</i>
@@ -257,6 +294,8 @@
         </div>
     </section>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
     <script>
 
 
@@ -273,8 +312,14 @@
                         //     alert('The required quantity of product is currently not available. Please change the product quantity and try')
                         // }
                     }else if(response.failed){
-                        alert(response.message);
-                    } else {
+                        // alert(response.message);
+                        location.href = '/orderFailure'
+                    } else if(response.wallet){
+                        location.href = '/orderSuccess'
+                    }else if(!response.wallet){
+                        location.href = '/orderFailure'
+                        // alert(response.message)
+                    }else {
 
                         razorpayPayment(response)
 
@@ -295,9 +340,9 @@
                 "image": "https://example.com/your_logo",
                 "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
                 "handler": function (response) {
-                    alert(response.razorpay_payment_id);
-                    alert(response.razorpay_order_id);
-                    alert(response.razorpay_signature)
+                    // alert(response.razorpay_payment_id);
+                    // alert(response.razorpay_order_id);
+                    // alert(response.razorpay_signature)
 
                     varifyPayment(response,order)
                 },
@@ -329,7 +374,7 @@
                     if(response.paymentSuccess===true){
                         location.href = '/orderSuccess'
                     }else{
-                        alert('payment failed')
+                        location.href = '/orderFailure'
                     }
                 }
             })
@@ -346,6 +391,15 @@
                 }
             })
         }
+
+        document.getElementById('selectCoupon').addEventListener('change',()=>{
+            document.getElementById('couponCode').value=document.getElementById('selectCoupon').value
+        })
+
+        // function chooseCoupon(code){
+        //     console.log(code)
+        //     document.getElementById('couponCode').value=code
+        // }
 
         function applyCoupon(cartId,cartCount,cartTotalAmount){
             console.log('cartId: ',cartId);
@@ -372,19 +426,19 @@
                                     <li>Order Total
                                         <i>-</i>
                                         <span> ₹<span>
-                                                ${cartTotalAmount}
+                                                ${parseInt(cartTotalAmount).toFixed(2)}
                                             </span></span>
                                     </li>
                                     <li>Discount
                                         <i>-</i>
                                         <span> -₹<span>
-                                                ${discount}
+                                                ${discount.toFixed(2)}
                                             </span></span>
                                     </li>
                                     <li>Amount Payable
                                         <i>-</i>
                                         <span> ₹<span>
-                                                ${payableAmount}
+                                                ${payableAmount.toFixed(2)}
                                             </span></span>
                                     </li>
                                     <li><button href="/placeOrder" type="submit" class="btn btn-info float-right mt-4"
@@ -394,7 +448,7 @@
                                 summeryDiv.innerHTML=resultTemplate
                             }else{
 
-                                alert('Enter valid coupon code')
+                                swal('Enter valid coupon code')
                             }
                 }
             })

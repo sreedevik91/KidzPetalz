@@ -36,7 +36,9 @@ const loadCart = async (req, res) => {
                     $project: {
                         product: '$products.productId',
                         quantity: '$products.quantity',
-                        offerAmount: '$products.offerAmount'
+                        offerAmount: '$products.offerAmount',
+                        unitPrice:'$products.unitPrice',
+                        offersApplied:'$products.offersApplied'
                     }
                 },
                 {
@@ -49,7 +51,7 @@ const loadCart = async (req, res) => {
                 },
                 {
                     $project: {
-                        product: 1, quantity: 1, offerAmount: 1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
+                        product: 1, quantity: 1, offerAmount: 1,unitPrice:1,offersApplied:1, cartProduct: { $arrayElemAt: ['$cartProduct', 0] }  // this is to get the product object from the cartProduct array,['$cartProduct',0] this will take cartProduct array's 0 index element, cartProduct array will be having only one product according to the mentioned product ID
                     }
                 },
                 {
@@ -107,16 +109,32 @@ const loadCart = async (req, res) => {
                 {
                     $group: {
                         _id: null,
-                        total: { $sum: { $multiply: ['$quantity', '$offerAmount'] } }
+                        total: { $sum: { $multiply: ['$quantity', '$offerAmount'] } },
+
                     }
 
                 }
             ])
+            for (let item of cartItems){
+            let discountAmount=0
+                for(let offer of item.offersApplied){
+                    discountAmount+=parseFloat(offer.discountAmount)
+                }
+                item.discount=Number(discountAmount)
+            }
+
             console.log('cartItems', cartItems);
-            console.log(cartItems, cartTotalAmount);
+
+            let totalDiscount=0
+            let totalPrice=0
+            for(let item of cartItems){
+                totalDiscount+=parseFloat(item.discount)
+                totalPrice+=parseFloat(item.unitPrice)*item.quantity
+            }
+
             // console.log('cartItems products: '+ cartItems[0].cartProducts[0].title);
             let cartTotal=(cartTotalAmount[0].total).toFixed(2)
-            res.render('cart', { page: 'Cart', data: cartItems, cartTotalAmount: cartTotal, id: req.session.userId, message: '', cartCount: req.session.cartCount })
+            res.render('cart', { page: 'Cart', data: cartItems, cartTotalAmount: cartTotal,totalDiscount,totalPrice ,id: req.session.userId, message: '', cartCount: req.session.cartCount })
         } else {
             req.session.cartCount = parseInt(0)
             res.render('cart', { page: 'Cart', data: [], id: req.session.userId, message: 'Your cart is empty', cartCount: req.session.cartCount })
@@ -137,9 +155,13 @@ const addToCart = async (req, res) => {
         const user = req.session.userId
         const product = req.query.productId
 
-        // console.log(product);
+        console.log('product to cart:',product);
+
         const products = await productModel.findOne({ _id: product })
+        console.log('products: ',products);
         let stock = products.quantity
+        console.log('stock: ',stock);
+
         const cart = await cartModel.findOne({ user })
 
         // console.log('productOffers: ', cart.products.offersApplied);
@@ -190,7 +212,7 @@ const addToCart = async (req, res) => {
 
                     let categoryId = products.category_id
                     let catId = categoryId.toString()
-                    // console.log('categoryId: ', catId);
+                    console.log('categoryId: ', catId);
                     let isCatOffer = await categoryOfferModel.aggregate([
                         {
                             $project: {
@@ -206,13 +228,13 @@ const addToCart = async (req, res) => {
 
                     if (isCatOffer[0].index != -1) {
                         let categoryOffer = await categoryOfferModel.findOne({ categories: { $in: [catId] } })
-                        // console.log('categoryOffer: ', categoryOffer);
+                        console.log('categoryOffer: ', categoryOffer);
                         if (categoryOffer.valid_till >= Date.now()) {
                             let discountAmount=(finalAmount * (categoryOffer.offerPercentage)) / 100
                             finalAmount -= discountAmount
                             appliedOffers.push({ name: categoryOffer.name,type:'categoryOffer',productId:product,discountAmount:discountAmount, offerId: categoryOffer._id })
                         } else {
-                            return
+                            
                         }
                     }
 
@@ -230,16 +252,20 @@ const addToCart = async (req, res) => {
 
                     if (isProdOffer[0].index != -1) {
                         let productOffer = await productOfferModel.findOne({ products: { $in: [product] } })
-                        // console.log('productOffer: ', productOffer);
+                        console.log('productOffer: ', productOffer);
                         if (productOffer.valid_till >= Date.now()) {
+                           
                             let discountAmount=(finalAmount * (productOffer.offerPercentage)) / 100
                             finalAmount -= discountAmount
                             appliedOffers.push({ name: productOffer.name,type:'productOffer',productId:product, discountAmount:discountAmount, offerId: productOffer._id })
+                            
                         } else {
-                            return
+                            
                         }
 
                     }
+                   
+
 
                     console.log('finalAmount: ', finalAmount);
 
@@ -257,7 +283,7 @@ const addToCart = async (req, res) => {
 
                     cartUpdated = await cartModel.updateOne({ user },
                         {
-                            $push: { products: { productId: product, offerAmount: finalAmount,offersApplied: appliedOffers } },
+                            $push: { products: { productId: product, offerAmount: finalAmount,offersApplied: appliedOffers, unitPrice:products.price } },
                             $inc: { quantity: 1 },
                             // $set: { offersApplied: concatedOfferArrays }
                         })
@@ -296,15 +322,18 @@ const addToCart = async (req, res) => {
 
                 if (isCatOffer[0].index != -1) {
                     let categoryOffer = await categoryOfferModel.findOne({ categories: { $in: [catId] } })
-                    // console.log('categoryOffer: ', categoryOffer);
+                    console.log('categoryOffer: ', categoryOffer);
                     if (categoryOffer.valid_till >= Date.now()) {
+                        
                         let discountAmount=(finalAmount * (categoryOffer.offerPercentage)) / 100
                         finalAmount -= discountAmount
                         appliedOffers.push({ name: categoryOffer.name,type:'categoryOffer',productId:product,discountAmount:discountAmount, offerId: categoryOffer._id })
+                        
                     } else {
-                        return
+                        
                     }
                 }
+               
 
 
                 let isProdOffer = await productOfferModel.aggregate([
@@ -322,16 +351,19 @@ const addToCart = async (req, res) => {
 
                 if (isProdOffer[0].index != -1) {
                     let productOffer = await productOfferModel.findOne({ products: { $in: [product] } })
-                    // console.log('productOffer: ', productOffer);
+                    console.log('productOffer: ', productOffer);
                     if (productOffer.valid_till >= Date.now()) {
+                        
                         let discountAmount=(finalAmount * (productOffer.offerPercentage)) / 100
                         finalAmount -= discountAmount
                         appliedOffers.push({ name: productOffer.name,type:'productOffer',productId:product,discountAmount:discountAmount, offerId: productOffer._id })
+                         
                     } else {
-                        return
+                        
                     }
 
                 }
+                
 
                 console.log('finalAmount: ', finalAmount);
                 console.log('appliedOffers: ', appliedOffers);
@@ -339,7 +371,7 @@ const addToCart = async (req, res) => {
 
                 const cartData = new cartModel({
                     user,
-                    products: [{ productId: product, offerAmount: finalAmount,offersApplied: appliedOffers }],
+                    products: [{ productId: product, offerAmount: finalAmount,offersApplied: appliedOffers,unitPrice:products.price  }],
                     
                 })
 

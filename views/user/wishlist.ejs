@@ -98,6 +98,8 @@
         </div>
     </section>
 
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
 <script>
 
 
@@ -113,7 +115,7 @@ function removeWishlist(productId){
                   if(response.wishlistRemoved){
                     location.reload()
                   }else{
-                    alert('Could not remove product')
+                    swal('Could not remove product')
                   }
                 },
                 error: (jqXHR, textStatus, errorThrown) => {
@@ -143,9 +145,9 @@ function removeWishlist(productId){
                         console.log(cartValue);
                         document.getElementById('cartCount').innerHTML = cartValue
                         console.log('success', response);
-                        alert('Product added to cart')
+                        swal('Product added to cart')
                     }else{
-                        alert(response)
+                        swal(response)
                     }
                 },
                 error: (jqXHR, textStatus, errorThrown) => {

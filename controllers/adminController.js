@@ -75,9 +75,9 @@ const loadAdminHome = async (req, res) => {
                 return p.quantity >= 2
             })
 
-            console.log('topProducts: ', topProducts);
+            // console.log('topProducts: ', topProducts);
 
-            res.render('adminHome', { data: topProducts })
+            res.render('adminHome', { products: topProducts })
         } else {
             res.redirect('/admin')
         }
@@ -99,7 +99,9 @@ const adminLogout = async (req, res) => {
 const loadAdminDefault = async (req, res) => {
     try {
         if (req.session.adminLogin) {
-            res.redirect('/admin/home')
+            // res.redirect('/admin/home')
+            res.render('admin404', { form: " ", message: 'Page Not Found',adminLogin:true })
+
         } else {
             res.render('adminLogin', { form: "Admin Login", message: '' })
         }
@@ -798,12 +800,14 @@ const addProduct = async (req, res) => {
         // desc.description=req.body.description
 
 
-        let pSize = []
-        pSize.push(req.body.size1, req.body.size2, req.body.size3, req.body.size4, req.body.size5, req.body.size6)
+        // let pSize = []
+        // pSize.push(req.body.size1, req.body.size2, req.body.size3, req.body.size4, req.body.size5, req.body.size6)
+        // let size = pSize.filter((e) => e != '')
+
 
         let desc = new Object()
         desc = {
-            size: pSize,
+            size: req.body.size,
             color: req.body.color,
             material: req.body.material,
             type: req.body.type,
@@ -846,9 +850,9 @@ const loadEditProduct = async (req, res) => {
     try {
 
         const id = req.query.id
-        console.log(id);
+        // console.log(id);
         const product = await productModel.findOne({ _id: id })
-        console.log(product);
+        // console.log(product);
         if (product) {
             res.render('editProduct', { data: product, message: '' })
         } else {
@@ -863,12 +867,17 @@ const loadEditProduct = async (req, res) => {
 
 const editProduct = async (req, res) => {
     try {
-        const id = req.body.id
-        const product = await productModel.findOne({ _id: id })
-        console.log('product images:', product.image);
+        // console.log('req body: ', req.body);
+        // console.log('req files: ', req.files);
 
-        console.log(req.files);
+        const { id, categoryid } = req.body
+        // console.log('categoryid: ', categoryid);
+
+        const product = await productModel.findOne({ _id: id })
+        // console.log('product images:', product.image);
+
         var arrImages = product.image
+        var size = product.description.size
 
         for (let i = 0; i < req.files.length; i++) {
             const outputFile = `${req.files[i].destination}/${Date.now() + '-' + req.files[i].originalname}`
@@ -893,12 +902,19 @@ const editProduct = async (req, res) => {
         // let tag6 = req.body.tag6
         // pTags.push(tag1, tag2, tag3, tag4, tag5, tag6)
 
-        let pSize = []
-        pSize.push(req.body.size1, req.body.size2, req.body.size3, req.body.size4, req.body.size5, req.body.size6)
+        // let pSize = []
+        // pSize.push(req.body.size, req.body.size1, req.body.size2, req.body.size3, req.body.size4, req.body.size5, req.body.size6)
+
+
+        // if (pSize != []) {
+        //     size = pSize.filter((e) => e != '')
+        // } else {
+        //     size
+        // }
 
         let desc = new Object()
         desc = {
-            size: pSize,
+            size: req.body.size || size,
             color: req.body.color,
             material: req.body.material,
             type: req.body.type,
@@ -920,7 +936,6 @@ const editProduct = async (req, res) => {
         } else {
             image = product.image
         }
-
 
         const is_listed = req.body.verify
 
@@ -1687,10 +1702,9 @@ const getSalesdata = async () => {
 
             // -----------sales based on product-------
             { $group: { _id: '$productId', productName: { $first: '$productName' }, productId: { $first: '$productId' }, price: { $sum: '$totalPrice' }, quantity: { $sum: '$quantity' }, orderDate: { $first: '$orderDate' }, totalDiscountAmount: { $sum: '$discountAmount' } } }, // $first will add value as key value pair
-
+            
             // // -----------sales based on order date-------
             // { $group: { _id: '$orderDate', productName: { $first: '$productName' }, productId: { $first: '$productId' }, price: { $first: '$totalPrice' }, quantity: {$sum: '$quantity'}, totalDiscountAmount: { $sum: '$discountAmount' } } }  // $first will add value as key value pair
-
         ])
 
         // console.log('orderedProducts: ', orders);
@@ -1849,8 +1863,15 @@ const loadAdminSalesManagement = async (req, res) => {
         let count = 0
 
         let orderedProducts = await getSalesdata()
+        let revenue =orderedProducts.reduce((sum,product)=>{
+             sum+=product.price
+            //  return Math.round(sum)
+            return sum
+        },0)
+       
         console.log('orderedProducts: ', orderedProducts);
-        res.render('adminSalesManagement', { data: orderedProducts, totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1, search: search })
+        console.log('revenue: ', revenue);
+        res.render('adminSalesManagement', { data: orderedProducts,revenue, totalPages: Math.ceil(count / limit), currentPage: page, next: page + 1, previous: page - 1, search: search })
 
     } catch (error) {
         console.log(error.message);
@@ -1870,9 +1891,14 @@ const salesReportFiltered = async (req, res) => {
             filteredOrders = await filteredSalesData(search, startDate, endDate)
         }
 
+        let revenue =filteredOrders.reduce((sum,product)=>{
+            sum+=product.price
+           //  return Math.round(sum)
+           return sum
+       },0)
         console.log('filteredOrders: ', filteredOrders);
 
-        res.json(filteredOrders)
+        res.json({filteredOrders,revenue})
     } catch (error) {
 
     }

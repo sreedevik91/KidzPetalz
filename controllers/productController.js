@@ -150,6 +150,7 @@ const loadProduct = async (req, res) => {
         console.log('text: ' + text);
         res.render('product', { page: 'Product', data: product, message: text, id: id, cartCount: req.session.cartCount })
     } catch (error) {
+        res.render('404', { form: "Login", message: 'Page Not Found',userLogin:true })
         console.log(error.message);
     }
 }

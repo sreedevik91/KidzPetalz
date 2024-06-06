@@ -140,17 +140,17 @@
                       <h6>Filter</h6>
                     </li>
 
-                    <li><a class="dropdown-item" href="" onclick="chartFiltered('Weekly')">Weekly</a></li>
-                    <li><a class="dropdown-item" href="" onclick="chartFiltered('Monthly')">Monthly</a></li>
-                    <li><a class="dropdown-item" href="" onclick="chartFiltered('Yearly')">Yearly</a></li>
+                    <li><a class="dropdown-item"  onclick="chartFiltered('Weekly')">Weekly</a></li>
+                    <li><a class="dropdown-item"  onclick="chartFiltered('Monthly')">Monthly</a></li>
+                    <li><a class="dropdown-item"  onclick="chartFiltered('Yearly')">Yearly</a></li>
                   </ul>
                 </div>
 
                 <div class="card-body">
-                  <h5 class="card-title">Reports <span><a href="" onclick="chart()">/Products</a></span></h5>
+                  <h5 class="card-title">Reports <span><a onclick="chart()">/Products-Revenue</a></span></h5>
 
                   <!-- Line Chart -->
-                  <div id="reportsChart" style="min-height: 400px;min-width: none;" class="echart">
+                  <div id="reportsChart" class="echart">
                     <canvas id="myChart"></canvas>
                   </div>
 
@@ -225,7 +225,6 @@
                       });
 
                     }
-
 
                     function chartFiltered(filter) {
                       console.log('filter: ', filter);
@@ -355,7 +354,7 @@
                     <tbody>
 
                       <%
-                      data.forEach((item)=>{
+                      products.forEach((item)=>{
                         %>
                         <tr>
                           
@@ -472,7 +471,7 @@
             </div>
 
             <div class="card-body pb-0">
-              <h5 class="card-title">Category Report <span>| This Month</span></h5>
+              <h5 class="card-title">Category-Revenue Report <span>| This Month</span></h5>
 
               <div id="budgetChart" style="min-height: 400px;" class="echart">
               <canvas id="catChart"></canvas>
@@ -538,7 +537,7 @@
             </div>
 
             <div class="card-body pb-0">
-              <h5 class="card-title">Payment Methods <span>| Today</span></h5>
+              <h5 class="card-title">Payment Methods -Revenue <span>| Today</span></h5>
 
               <div id="trafficChart" style="min-height: 400px;" class="echart">
               <canvas id="payChart"></canvas>

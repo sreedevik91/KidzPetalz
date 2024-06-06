@@ -25,6 +25,9 @@ const orderSchema = mongoose.Schema({
                 type: String,
                 required: true
             },
+            unitPrice:{
+                type: Number
+            }, 
             image: {
                 type: String,
                 required: true

@@ -304,6 +304,7 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/ejs/ejs.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
 
  //----------------------Add to wishlist----------------------------------
@@ -322,30 +323,38 @@
                     console.log(response);
                     // or we can check if (response.update), because {update:true} is the json response sent from the backend after cart is updated
                     if (response.outOfStock) {
-                        alert('Product out of stock')
+                        // alert('Product out of stock')
+                        swal('Product out of stock')
+
                     } else if (response.productExists) {
                         // wishlistSpan.innerHTML=''
                         // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;" onclick="updateWishlist(${productId})"><i class="far fa-heart m-2"></i></button>`
                         console.log('wishlistButton: ',wishlistButton);
                         wishlistButton.innerHTML = `<i class="far fa-heart m-2"></i>`
-                        alert('Product removed from wishlist')
+                        // alert('Product removed from wishlist')
+                        swal('Product removed from wishlist')
 
                     } else if (response.productExists === false) {
                         // wishlistSpan.innerHTML=''
                         // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;color: red" onclick="updateWishlist(${productId})"><i class="fas fa-heart m-2"></i></button>`
                         console.log('wishlistButton: ',wishlistButton);
                         wishlistButton.innerHTML = `<i style="color:red" class="fas fa-heart m-2"></i>`
-                        alert('Product added to wishlist')
+                        // alert('Product added to wishlist')
+                        swal('Product added to wishlist')
 
                     } else if (response.wishlistCreated) {
                         // wishlistSpan.innerHTML=''
                         // wishlistSpan.innerHTML=`<button id="btnWishlist" style="border: none;background-color: white;color: red;" onclick="updateWishlist(${productId})"><i class="fas fa-heart m-2"></i></button>`
                         console.log('wishlistButton: ',wishlistButton);
                         wishlistButton.innerHTML = `<i style="color:red" class="fas fa-heart m-2"></i>`
-                        alert('Product added to wishlist')
+                        // alert('Product added to wishlist')
+                        swal('Product added to wishlist')
+
 
                     } else {
-                        alert('Could not add to wishlist')
+                        // alert('Could not add to wishlist')
+                        swal('Could not add to wishlist')
+
                     }
                 },
                 error: (jqXHR, textStatus, errorThrown) => {
@@ -579,6 +588,7 @@
                 // data:JSON.stringify({productId:productId}),
                 success: (response) => {
                     // or we can check if (response.update), because {update:true} is the json response sent from the backend after cart is updated
+                    console.log(response);
                     if (response.update) {
                         // let cartNumber = $('#cartCount').html()
                         let cartNumber = document.getElementById('cartCount').innerHTML
@@ -586,9 +596,11 @@
                         console.log(cartValue);
                         document.getElementById('cartCount').innerHTML = cartValue
                         console.log('success', response);
-                        alert('Product added to cart')
+                        // alert('Product added to cart')
+                        swal('Product added to cart')
                     } else {
-                        alert(response)
+                        // alert(response)
+                        swal(response)
                     }
                 },
                 error: (jqXHR, textStatus, errorThrown) => {

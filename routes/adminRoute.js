@@ -4,6 +4,7 @@ const router=express.Router()
 const path=require('path')
 const bodyparser=require('body-parser')
 const adminController=require('../controllers/adminController')
+const userController = require('../controllers/userController')
 const session=require('express-session')
 const nocache=require('nocache');
 const dotenv=require('dotenv')
@@ -77,7 +78,7 @@ router.route('/resetPassword')
 .get(adminController.loadAdminResetPassword)
 .post(adminController.resetAdminPassword)
 
-router.get('/banner',adminController.loadAdminBannerManagement)
+// router.get('/banner',adminController.loadAdminBannerManagement)
 
 // user routes
 
@@ -196,10 +197,11 @@ router.get('/payChartData',adminController.generatePaymentChartData)
 router.get('/chartDataFiltered',adminController.generateChartDataFiltered)
 
 
+// router.use((req,res)=>{
+//     res.render('admin404',{message:'Page Not Found'})
+// })
 
-
-
-router.get('*',adminController.loadAdminDefault) // keep this default route at the end of all the routes
+// router.get('/admin/*',adminController.loadAdminDefault) // keep this default route at the end of all the routes
 
 
 module.exports=adminRoute

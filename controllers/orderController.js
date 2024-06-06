@@ -21,6 +21,15 @@ const loadOrderSuccess = async (req, res) => {
     }
 }
 
+const loadOrderFailure = async (req, res) => {
+    try {
+
+        res.render('orderFailure', { page: 'Order Pending', data: '', id: req.session.userId, message: '', cartCount: req.session.cartCount })
+
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 const loadOrders = async (req, res) => {
     try {
@@ -63,8 +72,8 @@ const loadOrders = async (req, res) => {
         let orders = await orderModel.aggregate([
             { $match: { userId: { $eq: userId } } },
             { $unwind: '$products' }
-        ])
-        console.log('orders: ', orders);
+        ]).sort({orderDate:-1})
+        // console.log('orders: ', orders);
         res.render('orderSummery', { page: 'Orders', data: orders, id: req.session.userId, message: '', cartCount: req.session.cartCount})
 
 
@@ -76,7 +85,7 @@ const loadOrders = async (req, res) => {
 const cancelOrder = async (req, res) => {
     try {
        
-        const{orderId,productId,amount}=req.query
+        const{orderId,productId,amount,quantity}=req.query
         console.log('orderId', orderId);
         console.log('productId', productId);
         console.log('amount', amount);
@@ -97,8 +106,10 @@ const cancelOrder = async (req, res) => {
         //-----------------------------------------------------------------------------------------------
 
         let orderToBeCancelled=await orderModel.findOne({ _id: orderId, 'products.productId': productId })
-        orderToBeCancelled.orderAmount-=parseInt(amount)
-        orderToBeCancelled.checkoutAmount-=parseInt(amount)
+        orderToBeCancelled.orderAmount-=(parseInt(amount)*quantity)
+        // (orderToBeCancelled.orderAmount <=0) ? 0 : orderToBeCancelled.orderAmount
+        orderToBeCancelled.checkoutAmount-=(parseInt(amount)*quantity)
+        // (orderToBeCancelled.checkoutAmount <=0) ? 0 : orderToBeCancelled.checkoutAmount
         orderToBeCancelled.save()   
 
         let cancelOrder = await orderModel.updateOne({ _id: orderId, 'products.productId': productId }, {
@@ -119,30 +130,38 @@ const cancelOrder = async (req, res) => {
                 }
             }
 
-            let wallet=await walletModel.findOne({userId:req.session.userId})
-            if(wallet){
-                wallet.amount+=parseInt(amount)
-                wallet.transactions.unshift({
-                    type:'credit',
-                    amount:parseInt(amount),
-                    date:Date.now()
-                })
-                wallet.save()
-               console.log('wallet amount updated' );
-            }else{
-                let wallet= new walletModel({
-                    userId,
-                    amount:parseInt(amount),
-                    transactions:[{
+            let cancelledProduct=orders.products.filter((p)=>{
+               return p.productId===productId
+            })
+            
+            // console.log('cancelledProduct: ',cancelledProduct);
+            if(cancelledProduct.status==='placed'){
+                let wallet=await walletModel.findOne({userId:req.session.userId})
+                if(wallet){
+                    wallet.amount+=(parseInt(amount)*quantity)
+                    wallet.transactions.unshift({
                         type:'credit',
-                        amount:parseInt(amount),
+                        amount:(parseInt(amount)*quantity),
                         date:Date.now()
-                    }]
-                })
-                wallet.save()
-                console.log('wallet created and updated');
-                res.redirect('/wallet')
+                    })
+                    wallet.save()
+                   console.log('wallet amount updated' );
+                }else{
+                    let wallet= new walletModel({
+                        userId,
+                        amount:(parseInt(amount)*quantity),
+                        transactions:[{
+                            type:'credit',
+                            amount:(parseInt(amount)*quantity),
+                            date:Date.now()
+                        }]
+                    })
+                    wallet.save()
+                    console.log('wallet created and updated');
+                    res.redirect('/wallet')
+                }
             }
+           
             console.log('Order cancelled');
             res.redirect('/orders')
         } else {
@@ -276,8 +295,8 @@ const loadOrderDetails= async(req,res)=>{
         //     return product.productId===productId
         // })
 
-        const product=await productModel.findOne({_id:productId})
-        const unitPrice=product.price
+        // const product=await productModel.findOne({_id:productId})
+        // const unitPrice=product.price
 
         let orderedProduct=await orderModel.aggregate([
             {$match:{_id:new mongoose.Types.ObjectId(orderId)}},
@@ -287,7 +306,7 @@ const loadOrderDetails= async(req,res)=>{
 
         let ordProduct= orderedProduct[0]
 
-        ordProduct.unitPrice=unitPrice
+        // ordProduct.unitPrice=unitPrice
         // ordProduct.save()
 
         console.log('orderedProduct: ', ordProduct);
@@ -306,5 +325,6 @@ module.exports = {
     loadOrderSuccess,
     cancelOrder,
     generateInvoice,
-    loadOrderDetails
+    loadOrderDetails,
+    loadOrderFailure
 }

@@ -240,6 +240,8 @@
                 </div>
     </section>
 
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
 <script>
 
 function deleteAddress(shippingAddressId){
@@ -249,7 +251,7 @@ function deleteAddress(shippingAddressId){
         type:'get',
         success:(response)=>{
             location.reload()
-            alert(response)
+            swal(response)
         }
     })
 }
