@@ -38,22 +38,6 @@ const loadFilteredProducts = async (req, res) => {
         console.log('filters: ', req.body.filterArray)
         console.log('query: ', req.body.query)
 
-        // let sortQ = {}
-        // if (sort!=undefined) {
-        //     if (sort === 'low') {
-        //         sortQ.discounted_price = 1
-        //     }
-        //     if (sort === 'high') {
-        //         sortQ.discounted_price = -1
-        //     }
-        //     if (sort === 'asce') {
-        //         sortQ.title = 1
-        //     }
-        //     if (sort === 'desce') {
-        //         sortQ.title = -1
-        //     }
-        // }
-
         let searchQ = {}
         let sortQ = {}
 
@@ -160,16 +144,6 @@ const searchProduct = async (req, res) => {
     try {
         let query = req.body.search
         console.log(query);
-
-        // let products=await productModel.find({is_listed:true,$or: [
-        //     { title: { $regex: `.*${search}.*`, $options: 'i' } },
-        //     { tags: { $regex: `.*${search}.*`, $options: 'i' } },
-        //     { 'description.size': { $regex: `.*${search}.*`, $options: 'i' } },
-        //     { 'description.color': { $regex: `.*${search}.*`, $options: 'i' } },
-        //     { 'description.material': { $regex: `.*${search}.*`, $options: 'i' } },
-        //     { 'description.type': { $regex: `.*${search}.*`, $options: 'i' } },
-        //     { 'description.description': { $regex: `.*${search}.*`, $options: 'i' } }
-        // ]})
 
         // `.*${query}.*`, $options: 'i' 
         let products = await productModel.find({ title: { $regex: new RegExp(`.*${query}.*`, 'i') } }).limit(10)

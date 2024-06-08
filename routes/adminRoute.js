@@ -197,11 +197,4 @@ router.get('/payChartData',adminController.generatePaymentChartData)
 router.get('/chartDataFiltered',adminController.generateChartDataFiltered)
 
 
-// router.use((req,res)=>{
-//     res.render('admin404',{message:'Page Not Found'})
-// })
-
-// router.get('/admin/*',adminController.loadAdminDefault) // keep this default route at the end of all the routes
-
-
 module.exports=adminRoute

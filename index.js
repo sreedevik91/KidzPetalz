@@ -5,9 +5,6 @@ const mongoose=  require('mongoose')
 const userRoute=require('./routes/userRoute')
 const adminRoute=require('./routes/adminRoute')
 
-// const adminController=require('./controllers/adminController')
-// const userController = require('./controllers/userController')
-
 dotenv.config()
 
 const connect=mongoose.connect(process.env.MONGO_URL)

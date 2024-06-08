@@ -155,9 +155,6 @@ const removeWishlist = async (req, res) => {
     }
 }
 
-
-
-
 module.exports = {
     loadWishlist,
     updateWishlist,

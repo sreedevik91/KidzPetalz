@@ -15,17 +15,11 @@ const categoryOfferModel = require('../models/categoryOfferModel')
 const productOfferModel = require('../models/productOfferModel')
 
 const excelJs = require('exceljs')
-// const puppeteer=require('puppeteer');
-// const open=import('open');
 
 const pdf = require('pdf-creator-node');
 var fs = require("fs");
 var ejs = require("ejs");
 const { pipeline } = require('stream')
-
-
-// const ObjectId=  require('mongodb').ObjectId
-
 
 dotenv.config()
 
@@ -96,20 +90,6 @@ const adminLogout = async (req, res) => {
     }
 }
 
-const loadAdminDefault = async (req, res) => {
-    try {
-        if (req.session.adminLogin) {
-            // res.redirect('/admin/home')
-            res.render('admin404', { form: " ", message: 'Page Not Found',adminLogin:true })
-
-        } else {
-            res.render('adminLogin', { form: "Admin Login", message: '' })
-        }
-    } catch (error) {
-        console.log(error.message);
-
-    }
-}
 
 const loadAdminForgotPassword = async (req, res) => {
     try {
@@ -228,8 +208,8 @@ const resetAdminPassword = async (req, res) => {
         const updateAdmin = await userModel.updateOne({ _id: user_id }, { $set: { password: hashedPassword } })
         console.log('updateAdmin: ', updateAdmin);
         if (updateAdmin.modifiedCount > 0) {
-            // res.render('adminLogin', { form: "Admin LogIn", message: 'Password Updated. Please login', text: '' })
-            // res.redirect('/admin')
+            res.render('adminLogin', { form: "Admin LogIn", message: 'Password Updated. Please login', text: '' })
+            res.redirect('/admin')
         } else {
             res.render('adminResetpassword', { message: 'Password Update failed. Try again', token: token })
         }
@@ -779,32 +759,6 @@ const addProduct = async (req, res) => {
             arrImages[i] = resizedImage
         }
 
-        // for (let i = 0; i < req.files.length; i++) {
-        //     arrImages[i] = req.files[i].filename
-        // }
-
-        // let pTags = []
-        // let tag1 = req.body.tag1
-        // let tag2 = req.body.tag2
-        // let tag3 = req.body.tag3
-        // let tag4 = req.body.tag4
-        // let tag5 = req.body.tag5
-        // let tag6 = req.body.tag6
-        // pTags.push(tag1, tag2, tag3, tag4, tag5, tag6)
-
-        // let desc=new Object()
-        // desc.size=req.body.size
-        // desc.color=req.body.color
-        // desc.material=req.body.material
-        // desc.type=req.body.type
-        // desc.description=req.body.description
-
-
-        // let pSize = []
-        // pSize.push(req.body.size1, req.body.size2, req.body.size3, req.body.size4, req.body.size5, req.body.size6)
-        // let size = pSize.filter((e) => e != '')
-
-
         let desc = new Object()
         desc = {
             size: req.body.size,
@@ -886,31 +840,6 @@ const editProduct = async (req, res) => {
             // console.log('resizedImage', resizedImage);
             arrImages[i] = resizedImage
         }
-
-        // for (let i = 0; i < req.files.length; i++){
-        //     arrImages[i] = req.files[i].filename
-        // }
-
-        // console.log('arrayImages', arrImages);
-
-        // let pTags = []
-        // let tag1 = req.body.tag1
-        // let tag2 = req.body.tag2
-        // let tag3 = req.body.tag3
-        // let tag4 = req.body.tag4
-        // let tag5 = req.body.tag5
-        // let tag6 = req.body.tag6
-        // pTags.push(tag1, tag2, tag3, tag4, tag5, tag6)
-
-        // let pSize = []
-        // pSize.push(req.body.size, req.body.size1, req.body.size2, req.body.size3, req.body.size4, req.body.size5, req.body.size6)
-
-
-        // if (pSize != []) {
-        //     size = pSize.filter((e) => e != '')
-        // } else {
-        //     size
-        // }
 
         let desc = new Object()
         desc = {
@@ -1711,57 +1640,6 @@ const getSalesdata = async () => {
 
         return orderedProducts
 
-        //====================================================================================================
-
-        // if(search && !endDate && !startDate){
-        //     if(search==='all'){
-        //         orderedProducts=orders
-        //     }else if(search==='1_day'){
-        //        let start = new Date(now.setDate(now.getDate() - 1));
-        //        let end = new Date();
-        //         orderedProducts = orders.filter(item => {
-        //             const saleDate = new Date(item.orderDate);
-        //             return saleDate >= start && saleDate <= end;
-        //           });
-        //     }else if(search==='1_week'){
-        //         let start = new Date(now.setDate(now.getDate() - 7));
-        //         let end = new Date();
-        //         orderedProducts = orders.filter(item => {
-        //             const saleDate = new Date(item.orderDate);
-        //             return saleDate >= start && saleDate <= end;
-        //           });
-        //     }else if(search==='1_month'){
-        //         let start = new Date(now.setMonth(now.getMonth() - 1));
-        //         let end = new Date();
-        //         orderedProducts = orders.filter(item => {
-        //             const saleDate = new Date(item.orderDate);
-        //             return saleDate >= start && saleDate <= end;
-        //           });
-        //     }
-
-        // if (search === 'all' && !endDate && !startDate) {
-        //     orderedProducts = orders
-        // } else if (search && endDate && startDate) {
-        //     startDate = new Date(startDate);
-        //     endDate = new Date(endDate);
-        //     if (search === '1_day') {
-        //         startDate = new Date(now.setDate(now.getDate() - 1));
-        //         endDate = new Date();
-        //     } else if (search === '1_week') {
-        //         startDate = new Date(now.setDate(now.getDate() - 7));
-        //         endDate = new Date();
-        //     } else if (search === '1_month') {
-        //         startDate = new Date(now.setMonth(now.getMonth() - 1));
-        //         endDate = new Date();
-        //     } else {
-        //         startDate = new Date(startDate);
-        //         endDate = new Date(endDate);
-        //     }
-        // }
-
-        //====================================================================================================
-
-
     } catch (error) {
         console.log(error.message);
 
@@ -1809,24 +1687,7 @@ const filteredSalesData = async (search, startDate, endDate) => {
                     price: { $multiply: ['$quantity', '$price'] }
                 }
             },
-            // // { $group: { _id: '$orderDate', productName: { $first: '$productName' }, productId: { $first: '$productId' }, price: { $sum: '$price' }, quantity: {$sum: '$quantity'}, totalDiscountAmount: { $sum: '$discountAmount' } } }  // $first will add value as key value pair
-
-            // {
-            //     $group: {
-            //         _id: '$orderDate', 
-            //          product: {
-            //             $push: {
-            //                 productName: '$productName',
-            //                 productId:'$productId',
-            //                 price:'$price',
-            //                 quantity:'$quantity'
-            //             }
-            //         }, 
-            //         totalDiscountAmount: { $sum: '$totalDiscountAmount' },
-            //         price: { $sum: '$price' }
-
-            //     }
-            // }
+           
 
         ])
 
@@ -1918,9 +1779,6 @@ const generateSalesReport = async (req, res) => {
             orderedProducts = await filteredSalesData(search, startDate, endDate)
         }
 
-        // let orderedProducts = await filteredSalesData(search, startDate, endDate)
-        // console.log('orderedProduct: ', orderedProducts);
-
         const workbook = new excelJs.Workbook()
         const worksheet = workbook.addWorksheet('Sales_Report')
 
@@ -1975,9 +1833,7 @@ const generateSalesReportPdf = async (req, res) => {
             orderedProducts = await filteredSalesData(search, startDate, endDate)
         }
 
-        // let orderedProducts = await filteredSalesData(search, startDate, endDate)
-        // console.log('orderedProducts: ', orderedProducts);
-
+        
         const template = fs.readFileSync('./views/templates/salesReport.ejs', 'utf-8')
         // console.log(template);
         console.log('template read');
@@ -1985,17 +1841,8 @@ const generateSalesReportPdf = async (req, res) => {
             format: 'A4',
             orientation: 'portrait',
             border: '2 mm',
-            // header: {
-            //     height: '10mm',
-            // },
-            // footer: {
-            //     height: '10mm',
-            // },
             type: 'pdf'
         }
-
-        // let orderedProducts=await getSalesdata()
-
 
         let date = Date.now()
 
@@ -2079,22 +1926,6 @@ const generateChartData = async (req, res) => {
                     totalPrice: { $multiply: ['$quantity', '$price'] }
                 }
             },
-            // {$group:{
-            //     _id:{
-            //         week:{ $week:'$orderDate'},
-            //         month:{ $month:'$orderDate'},
-            //         year:{$year:'$orderDate'},
-            //         productId:'$productId'
-            //     },
-            //     productName: { $first: '$productName' },
-            //     price: { $sum: '$totalPrice' }, 
-            //     quantity: { $sum: '$quantity' }
-
-            // }},
-            // {$group:{
-            //     _id:'$_id.week',
-            //     price:{$sum:'$price'}
-            // }}
             // -----------sales based on product-------
             { $group: { _id: '$productId', productName: { $first: '$productName' }, productId: { $first: '$productId' }, price: { $sum: '$totalPrice' }, quantity: { $sum: '$quantity' } } }, // $first will add value as key value pair
 
@@ -2140,18 +1971,7 @@ const generateChartDataFiltered = async (req, res) => {
                         totalPrice: { $multiply: ['$quantity', '$price'] }
                     }
                 },
-                // {$group:{
-                //     _id:{
-                //         week:{ $week:'$orderDate'},
-                //         month:{ $month:'$orderDate'},
-                //         year:{$year:'$orderDate'},
-                //         productId:'$productId'
-                //     },
-                //     productName: { $first: '$productName' },
-                //     price: { $sum: '$totalPrice' }, 
-                //     quantity: { $sum: '$quantity' }
-
-                // }},
+               
                 {
                     $group: {
                         _id: { value: { $week: '$orderDate' } },
@@ -2379,7 +2199,6 @@ module.exports = {
     loadAdminHome,
     loadAdminLogin,
     adminLogout,
-    loadAdminDefault,
     verifyAdmin,
     loadAdminForgotPassword,
     loadAdminResetPassword,

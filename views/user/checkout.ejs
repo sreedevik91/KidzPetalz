@@ -5,7 +5,7 @@
     <!-- inner banner -->
     <div class="ibanner_w3 pt-sm-5 pt-3">
         <h4 class="head_agileinfo text-center text-capitalize text-center pt-5">
-            <span>K</span>iddos
+            <span>K</span>idz<span>P</span>etalz
         </h4>
     </div>
     <!-- //inner banner -->
@@ -60,49 +60,7 @@
                                         </p>
                                     </label>
 
-                                    <!-- <div class="information-wrapper">
-                                        <div class="first-row form-group">
-                                            <div class="controls">
-                                                <label class="control-label">Full name: </label>
-                                                <input class="billing-address-name form-control" type="text" name="name"
-                                                    placeholder="Full name">
-                                            </div>
-                                            <div class="card_number_grids">
-                                                <div class="card_number_grid_left">
-                                                    <div class="controls">
-                                                        <label class="control-label">Mobile number:</label>
-                                                        <input class="form-control" name="mobile" type="text"
-                                                            placeholder="Mobile number">
-                                                    </div>
-                                                </div>
-                                                <div class="card_number_grid_right">
-                                                    <div class="controls">
-                                                        <label class="control-label">Landmark: </label>
-                                                        <input class="form-control" name="landmark" type="text"
-                                                            placeholder="Landmark">
-                                                    </div>
-                                                </div>
-                                                <div class="clear"> </div>
-                                            </div>
-                                            <div class="controls">
-                                                <label class="control-label">Town/City: </label>
-                                                <input class="form-control" type="text" name="city" placeholder="Town/City">
-                                            </div>
-                                            <div class="controls">
-                                                <label class="control-label">Address type: </label>
-                                                <select class="form-control option-fieldf" name="type">
-                                                    <option>Office</option>
-                                                    <option>Home</option>
-                                                    <option>Commercial</option>
-    
-                                                </select>
-                                            </div>
-                                            <input type="hidden" name="userId" value="<%=id%>">
-                                        </div>
-                                        <a class="btn btn-info float-right"
-                                            style="border-radius: 10px;" onclick="addShippingAddress('<%=id%>')">Add
-                                            Address</a>
-                                    </div> -->
+                                   
                                 </div>
 
                                 <% }) %>
@@ -262,14 +220,7 @@
                                 <h4 style="color: #0076BE;">
                                     Order Summary</h4>
                                 <ul>
-                                    <!-- <li>Solid Men's Black Shirt
-                                <i>-</i>                                            
-                                <span>$20.00 </span>
-                            </li>
-                            <li>Women's Light Blue Tunic
-                                <i>-</i>
-                                <span>$35.00 </span>k'
-                            </li> -->
+                                    
                                     <li>Items
                                         <i>-</i>
                                         <span>
@@ -335,7 +286,7 @@
                 "key": "rzp_test_85xo26IPuPICSY", // Enter the Key ID generated from the Dashboard
                 "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
                 "currency": "INR",
-                "name": "Kiddos",
+                "name": "KidzPetalz",
                 "description": "Test Transaction",
                 "image": "https://example.com/your_logo",
                 "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
@@ -395,11 +346,6 @@
         document.getElementById('selectCoupon').addEventListener('change',()=>{
             document.getElementById('couponCode').value=document.getElementById('selectCoupon').value
         })
-
-        // function chooseCoupon(code){
-        //     console.log(code)
-        //     document.getElementById('couponCode').value=code
-        // }
 
         function applyCoupon(cartId,cartCount,cartTotalAmount){
             console.log('cartId: ',cartId);

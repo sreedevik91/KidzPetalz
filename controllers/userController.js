@@ -289,12 +289,7 @@ const loadBlock = async (req, res) => {
 const loadHome = async (req, res) => {
     try {
         res.render('home', { login: false, id: '' })
-        // if (req.session.login) {
-        //     res.redirect('home')
-        // } else {
-        //     res.render('home', { login: false,userId:'' })
-        // }
-
+        
     } catch (error) {
         console.log(error.message);
     }
@@ -304,11 +299,7 @@ const loadUserHome = async (req, res) => {
 
     try {
         res.render('home', { login: true, id: req.session.userId, cartCount: req.session.cartCount })
-        // if (req.session.login) {
-        //     res.render('home', { login: true,userId:req.session.userId })
-        // } else {
-        //     res.redirect('/')
-        // }
+        
     } catch (error) {
         console.log(error.message);
     }
@@ -474,17 +465,6 @@ const changePassword = async (req, res) => {
 
 const loadProfile = async (req, res) => {
     try {
-
-        // let user={}
-        // let userId = req.session.userId
-
-        // if(req.session.user){
-        //     console.log('user: ', req.session.user);
-        //     user=req.session.user
-        // }else{
-            // user = await userModel.findOne({ _id: userId })
-            // console.log(user);
-        // }
 
         let userId = req.session.userId
         let user = await userModel.findOne({ _id: userId })

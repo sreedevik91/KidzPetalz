@@ -6,11 +6,6 @@ const categoryOfferModel = require('../models/categoryOfferModel');
 const productOfferModel = require('../models/productOfferModel');
 const referralOfferModel = require('../models/referralOfferModel');
 
-// const { ObjectId } = require('mongodb');
-// or
-// const ObjectId = require('mongodb').ObjectId;
-
-
 const loadCart = async (req, res) => {
     try {
         let user = req.session.userId
@@ -57,29 +52,6 @@ const loadCart = async (req, res) => {
                 {
                     $addFields: { totalAmount: { $multiply: ['$quantity', '$offerAmount'] } }
                 }
-
-                // {
-                //     $lookup: {
-
-                //         from: 'products',
-                //         let: {
-                //             prodArray: '$products'
-                //         },
-                //         pipeline: [
-                //             {
-                //                 $match: {
-                //                     $expr: {
-                //                         $in: [
-                //                             '$_id', '$$prodArray.productId'
-                //                         ]
-                //                     }
-
-                //                 }
-                //             }
-                //         ],
-                //         as: 'cartProducts'
-                //     }
-                // }
 
             ])
 
@@ -269,18 +241,6 @@ const addToCart = async (req, res) => {
 
                     console.log('finalAmount: ', finalAmount);
 
-                    // let concatedOfferArrays = [...cart.products.offersApplied, ...appliedOffers]
-                    // let concatedOfferArrays=[]
-                    // cart.products.forEach((product)=>{
-
-                    //     concatedOfferArrays=[...product.offersApplied, ...appliedOffers]
-                    //     // cart.offersApplied=concatedOfferArrays
-                    //     // cart.save()
-                    // })
-                    // console.log('concatedOfferArrays: ', concatedOfferArrays);
-
-
-
                     cartUpdated = await cartModel.updateOne({ user },
                         {
                             $push: { products: { productId: product, offerAmount: finalAmount,offersApplied: appliedOffers, unitPrice:products.price } },
@@ -452,10 +412,6 @@ const changeProductQuantity = async (req, res) => {
         } else {
             console.log('entered 3rd');
 
-            // cartUpdatedTotal = await cartModel.updateOne({ _id: cartId },
-            //     {
-            //         $inc: { quantity: count }
-            //     })
 
           let cartUpdated = await cartModel.updateOne({ _id: cartId, 'products.productId': productId },
                 {

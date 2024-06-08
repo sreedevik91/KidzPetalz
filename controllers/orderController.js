@@ -168,11 +168,6 @@ const cancelOrder = async (req, res) => {
             console.log('could not cancel');
         }
 
-        //----------------------old code------------------------------------
-        // let cancelOrders=await orderModel.updateOne({_id:orderId},{$set:{status:'cancelled'}})
-        // let updateProductQuantity=await productModel.updateOne({_id:productId},{$inc:{quantity:1}})
-        // res.redirect('/orders')
-        //-------------------------------------------------------------------
 
     } catch (error) {
         console.log(error);
@@ -218,12 +213,6 @@ const generateInvoice=async(req,res)=>{
 
         const template=fs.readFileSync('./views/templates/invoice.ejs','utf-8')
         // console.log(template);
-
-        // const renderedHtml = ejs.render(template, { data:{
-        //     product:product,
-        //     billingAddress:billingAddress
-        // }});
-
         console.log('template read');
         const options={
             format:'A4',
@@ -254,20 +243,7 @@ const generateInvoice=async(req,res)=>{
 
        const invoice= await pdf.create(document,options)
 
-    
-    //  const document={
-    //         html:renderedHtml,
-    //         data:data,
-    //         path:'public/invoice/sampleInvoice.pdf'
-    //     }
-    //    const invoice= await pdf.create(document,options)
-
-    //    invoice.toFile('public/invoice/sampleInvoice.pdf')
-
        console.log('pdf created');
-
-    //    console.log('response:',invoice);
-
 
         res.setHeader('Content-Type', 'application/pdf');
         // res.setHeader('Content-Disposition', 'attachment; filename="sampleInvoice.pdf"');
@@ -287,17 +263,6 @@ const generateInvoice=async(req,res)=>{
 const loadOrderDetails= async(req,res)=>{
     try {
         const {orderId,productId}=req.query
-        // console.log(orderId,productId);
-
-        // const orderedProduct=await orderModel.findOne({_id:orderId})
-
-        // const product = orderedProduct.products.filter((product)=>{
-        //     return product.productId===productId
-        // })
-
-        // const product=await productModel.findOne({_id:productId})
-        // const unitPrice=product.price
-
         let orderedProduct=await orderModel.aggregate([
             {$match:{_id:new mongoose.Types.ObjectId(orderId)}},
             {$unwind:'$products'},
@@ -305,9 +270,6 @@ const loadOrderDetails= async(req,res)=>{
         ])
 
         let ordProduct= orderedProduct[0]
-
-        // ordProduct.unitPrice=unitPrice
-        // ordProduct.save()
 
         console.log('orderedProduct: ', ordProduct);
 

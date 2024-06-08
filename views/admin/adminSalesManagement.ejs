@@ -7,11 +7,7 @@
                 <a class="btn btn-success" onclick="salesReport()">Generate Sales Report</a>
             </div>
             <div class="float-end text-end" style="width: 50%;">
-                <!-- <form action="">
-                    <input type="text" placeholder="Search category by name,description" name="search" style="width:250px;height:35px;border-radius:10px;padding-left: 20px;">
-                    <input type="submit" class="btn btn-primary" value="Search">
-                  </form> -->
-
+              
                 <a class="btn btn-success float-end" onclick="salesReportPDF()">Download Sales Report in PDF</a>
 
             </div>
@@ -184,30 +180,12 @@ $.ajax({
         }
 })
 
-// let startInput=document.getElementById('startDate')
-// let endInput=document.getElementById('endDate')
-// let filter=document.getElementById('dropdown')
-
-// let values={}
-// startInput.addEventListener('change',()=>{
-//     values.startDate=startInput.value
-// })
-// endInput.addEventListener('change',()=>{
-//     values.endDate=endInput.value
-// })
-// filter.addEventListener('change',()=>{
-//     values.search=filter.value
-// })
-
-// console.log('values:', values);
 }
 
 
 
 function salesReport(){
     let search=document.getElementById('dropdown').value
-    // dropdown.addEventListener('change',()=>{
-    //     let search=dropdown.value
     let startDate=document.getElementById('startDate').value
     let endDate=document.getElementById('endDate').value
 
@@ -231,8 +209,6 @@ function salesReport(){
           document.body.removeChild(link);
         }
     })
-
-    // })
     
 }
 
@@ -261,11 +237,6 @@ function salesReportPDF(){
             link.click();
              // Cleanup
             document.body.removeChild(link);
-
-
-        //     console.log('hi');
-        //    let href=window.URL.createObjectURL(response.filename)
-        //     window.open(href)
 
         }
     })

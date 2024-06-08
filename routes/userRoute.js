@@ -165,14 +165,6 @@ router.get('/logout', auth.isLogin, userController.logout)
 
 router.get('/blocked', userController.loadBlock)
 
-// router.get('/goBackLogin',auth.isLogout,userController.goBackLogin404)
-
-// router.get('*',userController.loadError)
-
-// router.use((req,res)=>{
-//   res.render('404',{message:'Page Not Found'})
-// })
-
 userRoute.use(router)
 
 module.exports = userRoute
