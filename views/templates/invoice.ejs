@@ -33,8 +33,8 @@
       <div class="row justify-content-center">
         <div class="col-12 col-lg-9 col-xl-8 col-xxl-7">
           <div class="row gy-3 mb-3">
-            <div class="col-6">
-              <h2 class="text-uppercase text-endx m-0">Invoice</h2>
+            <div class="col-6 mb-6">
+              <h2 class="text-uppercase text-endx m-0"><strong>Invoice</strong></h2>
             </div>
             <!-- <div class="col-6">
               <a class="d-block text-end" href="#!">
@@ -42,9 +42,9 @@
               </a>
             </div> -->
             <div class="col-12">
-              <h4>From</h4>
+              <h4><strong>From</strong></h4>
               <address>
-                <strong>Kiddos Ecom</strong><br>
+                Kiddos Ecom<br>
                 875 N Coast Hwybr<br>
                 Haripad, Alappuzha,Kerala,690548<br>
                 India<br>
@@ -55,10 +55,10 @@
           </div>
           <div class="row mb-3">
             <div class="col-12 col-sm-6 col-md-8">
-              <h4>Bill To</h4>
+              <h4><strong>Bill To</strong></h4>
            
               <address>
-                <strong><%= billingAddress.name %></strong><br>
+                <%= billingAddress.name %><br>
                 <%= billingAddress.building %><br>
                 <%= billingAddress.city %>, <%= billingAddress.state %>, <%= billingAddress.pbNumber %><br>
                 <%= billingAddress.country %><br>
@@ -67,9 +67,9 @@
             
             </div>
             <div class="col-12 col-sm-6 col-md-8">
-              <h4>Shipp To</h4>
+              <h4><strong>Shipp To</strong></h4>
               <address>
-                <strong><%=product.shippingAddress.name%></strong><br>
+                <%=product.shippingAddress.name%><br>
                 <%=product.shippingAddress.building%><br>
                 <%=product.shippingAddress.city%>, <%=product.shippingAddress.state%>, <%=product.shippingAddress.pbNumber%><br>
                 <%=product.shippingAddress.country%><br>
@@ -77,13 +77,13 @@
               </address>
             </div>
             <div class="col-12 col-sm-6 col-md-4">
-              <h4 class="row">
+              <!-- <h4 class="row">
                 <span class="col-6">Invoice #</span>
                 <span class="col-6 text-sm-end">INT-001</span>
-              </h4>
+              </h4> -->
               <div class="row">
-                <span class="col-6">Account</span>
-                <span class="col-6 text-sm-end">786-54984</span><br>
+                <!-- <span class="col-6">Account</span>
+                <span class="col-6 text-sm-end">786-54984</span><br> -->
                 <span class="col-6">Order ID</span>
                 <span class="col-6 text-sm-end"><%= product._id%></span><br>
                 <span class="col-6">Invoice Date</span>
