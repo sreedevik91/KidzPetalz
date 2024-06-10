@@ -235,6 +235,7 @@ const verifyLogin = async (req, res) => {
     try {
         const { email, password } = req.body
         const user = await userModel.findOne({ email })
+        console.log("user: ", user);
         if (user) {
             if (user.is_verified === true) {
                 let passwordMatch = await bcrypt.compare(password, user.password)
@@ -255,12 +256,15 @@ const verifyLogin = async (req, res) => {
                     }
                     res.redirect('/home')
                 } else {
+                    console.log('Invalid password');
                     res.render('userlogin', { form: "LogIn", message: 'Invalid email or password', text: '' })
                 }
             } else {
+                console.log('Email not verified');
                 res.render('userlogin', { form: "LogIn", text: `<p>Email not verified.<a href="/verifyEmail">Click</a> to verify.<p>`, name: user.name, email: user.email, id: user._id, message: '' })
             }
         } else {
+            console.log('User not found');
             res.render('userlogin', { form: "LogIn", message: 'User not found.Invalid email or password', text: '' })
         }
     } catch (error) {

@@ -177,10 +177,10 @@ const sendForgotPasswordMail = async (req, res) => {
             const id = admin._id
             const name = admin.name
             resetPasswordMail(email, name, id)
-            res.render('adminForgotPassword', { form: "Reset Password", message: 'A link has been sent to your email to reset password', text: '' })
+            res.render('adminForgotPassword', { form: "Admin Reset Password", message: 'A link has been sent to your email to reset password', text: '' })
 
         } else {
-            res.render('adminForgotPassword', { form: "Forgot Password", message: 'Incorrect email', text: '' })
+            res.render('adminForgotPassword', { form: "Admin Forgot Password", message: 'Incorrect email', text: '' })
 
         }
     } catch (error) {

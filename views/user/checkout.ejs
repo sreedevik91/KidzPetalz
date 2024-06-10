@@ -257,23 +257,27 @@
                 method: 'post',
                 data: $('#placeOrderForm').serialize(),
                 success: (response) => {
-                    if (response.cod == true) {
+                    console.log('place order response: ',response.order);
+                    if (response.cod) {
+                        console.log('1');
                         location.href = '/orderSuccess'
                         // }else if(response.quantity==='lessQuantity'){
                         //     alert('The required quantity of product is currently not available. Please change the product quantity and try')
                         // }
                     }else if(response.failed){
-                        // alert(response.message);
-                        location.href = '/orderFailure'
+                        swal(response.message).then(()=>{
+                            location.href = '/orderFailure'
+                        })
+                        
                     } else if(response.wallet){
                         location.href = '/orderSuccess'
-                    }else if(!response.wallet){
-                        location.href = '/orderFailure'
-                        // alert(response.message)
-                    }else {
-
-                        razorpayPayment(response)
-
+                    }else if(response.wallet===false){
+                        swal(response.message).then(()=>{
+                            location.href = '/orderFailure'
+                        })
+                        
+                    }else if(response.order) {
+                       razorpayPayment(response.order)
                     }
                 }
             })
@@ -282,6 +286,8 @@
         function razorpayPayment(order) {
             // let amount=parseInt(order.amount)*100
             // console.log(amount);
+            console.log('entered razorpayPayment');
+
             var options = {
                 "key": "rzp_test_85xo26IPuPICSY", // Enter the Key ID generated from the Dashboard
                 "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
@@ -295,7 +301,9 @@
                     // alert(response.razorpay_order_id);
                     // alert(response.razorpay_signature)
 
+                    console.log('going to call varifyPayment');
                     varifyPayment(response,order)
+                    console.log('called varifyPayment');
                 },
                 "prefill": {
                     "name": "Gaurav Kumar",
@@ -314,6 +322,7 @@
         }
 
         function varifyPayment(payment,order){
+            console.log('entered varifyPayment');
             $.ajax({
                 url:'/verifyPayment',
                 method:'post',
@@ -324,7 +333,7 @@
                 success:(response)=>{
                     if(response.paymentSuccess===true){
                         location.href = '/orderSuccess'
-                    }else{
+                    }else if(response.paymentSuccess===false){
                         location.href = '/orderFailure'
                     }
                 }

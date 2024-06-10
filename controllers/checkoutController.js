@@ -313,7 +313,8 @@ const placeOrder = async (req, res) => {
                         res.json({failed:true,message:err.error.description})
                     } else {
                         console.log('Razorpay Order: ', order);
-                        res.json(order)
+                        res.json({order})
+                        console.log('Razorpay Order Sent');
                     }
                 });
 
@@ -390,6 +391,7 @@ const verifyPayment = async (req, res) => {
         console.log('hash: ', hash);
         console.log('signature: ', req.body.payment.razorpay_signature);
         let orderId = req.body.order.receipt
+
         if (hash === req.body.payment.razorpay_signature) {
 
             let orders = await orderModel.findOne({ _id: orderId })

@@ -72,7 +72,7 @@ const loadOrders = async (req, res) => {
         let orders = await orderModel.aggregate([
             { $match: { userId: { $eq: userId } } },
             { $unwind: '$products' }
-        ]).sort({orderDate:-1})
+        ]).sort({createdAt:-1})
         // console.log('orders: ', orders);
         res.render('orderSummery', { page: 'Orders', data: orders, id: req.session.userId, message: '', cartCount: req.session.cartCount})
 
