@@ -68,31 +68,12 @@
                                     <input type="hidden" name="userId" value="<%=id%>">
 
 
-                                    <a href="" style="color: #777;"> <span style="font-size:x-large;">+ </span> Add
-                                        Address</a>
+                                    <!-- <a class="btn" style="color: #777;" onclick="addShippingAddress('<%=id%>')"> <span style="font-size:x-large;">+ </span> Add
+                                        Address</a> -->
 
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static"
-                                        data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
-                                        aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                        aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    ...
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary"
-                                                        data-bs-dismiss="modal">Close</button>
-                                                    <button type="button" class="btn btn-primary">Understood</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        <a href="addShippingAddress?id=<%=id%>" class="btn" style="color: #777;"> <span style="font-size:x-large;">+ </span> Add
+                                            Address</a>
+
                                     <div>
                                         <h4 style="color: #0076BE;margin-top: 50px;">Payment Method</h4>
                                         <%
@@ -233,7 +214,7 @@
                                                 <%= cartTotalAmount.toFixed(2)%>
                                             </span></span>
                                     </li>
-                                    <li><button href="/placeOrder" type="submit" class="btn btn-info float-right mt-4"
+                                    <li><button type="submit" class="btn btn-info float-right mt-4"
                                             style="border-radius: 10px;">Place Order</button></li>
                                 </ul>
                             </div>
@@ -342,10 +323,10 @@
 
 
         function addShippingAddress(userId) {
+            
             $.ajax({
                 url: '/addShippingAddress',
-                method: 'post',
-                data: { userId },
+                method: 'get',
                 success: (response) => {
 
                 }

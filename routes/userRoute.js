@@ -136,6 +136,10 @@ router.route('/addAddress')
   .get(auth.isLogin, userController.loadAddAddress)
   .post(userController.addAddress)
 
+  router.route('/addShippingAddress')
+  .get(auth.isLogin, userController.loadAddShippingAddress)
+  .post(userController.addShippingAddress)
+
 router.route('/updateAddress')
   .get(auth.isLogin, userController.loadUpdateAddress)
   .post(userController.updateAddress)

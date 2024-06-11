@@ -713,6 +713,87 @@ const deleteAddress = async (req, res) => {
     }
 }
 
+const loadAddShippingAddress=async(req,res)=>{
+    try {
+        res.render('addShippingAddress', { form: "Add Address", id: req.session.userId, message: '', text: '' })
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const addShippingAddress=async(req,res)=>{
+    console.log('entered address');
+    try {
+
+        let userId = req.session.userId
+        console.log(userId);
+        console.log(req.body);
+        const {name,building,city,state,country,pbNumber,mobile,type}=req.body
+        let addressData = await addressModel.findOne({ userId })
+        console.log(addressData);
+
+        if (addressData._id) {
+            
+                let shippingAddress = {
+                    name,
+                    building,
+                    city,
+                    state,
+                    country,
+                    pbNumber,
+                    contactNumber: mobile
+                }
+
+                let updateAddress = await addressModel.updateOne({ userId }, { $push: { shippingAddress: shippingAddress } })
+
+                if (updateAddress) {
+                    console.log('shipping address updated');
+                    res.redirect('/checkout')
+                }
+
+            }
+         else {
+
+            const newAddress = new addressModel({
+                userId,
+                billingAddress: {
+                    name,
+                    building,
+                    city,
+                    state,
+                    country,
+                    pbNumber,
+                    contactNumber: mobile
+                },
+                shippingAddress: [
+                    {
+                    name,
+                    building,
+                    city,
+                    state,
+                    country,
+                    pbNumber,
+                    contactNumber: mobile
+                    }
+                ]
+            })
+
+            const address = await newAddress.save()
+
+            if (address) {
+                console.log('address added');
+                res.redirect('/checkout')
+            }
+        }
+
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+}
+
 
 module.exports = {
     insertUser,
@@ -742,7 +823,9 @@ module.exports = {
     loadUpdateProfile,
     updateProfile,
     deleteAddress,
-    loadError
+    loadError,
+    loadAddShippingAddress,
+    addShippingAddress
    
 }
 
